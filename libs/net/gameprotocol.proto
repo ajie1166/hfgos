@@ -1,0 +1,585 @@
+syntax = "proto3"; //指定proto编译器版本为3  默认是2
+import "google/protobuf/any.proto"; //使用Any必须要导入Any.proto
+
+enum OperationType {
+
+    //登录认证
+    OP_LOGIN_REQ = 0;
+    OP_LOGIN_REP = 1;
+
+    //保持连接
+    OP_PING = 2; //发心跳
+
+    //首页上需要及时更新的列表5～27
+    OP_S_Follow_num = 5; //关注数
+
+    //游戏过程  28～60
+    //创建对局
+    OP_NEW_REQ = 28;
+    OP_NEW_REP = 29;
+
+    //1.快速加入
+    OP_QUICK_JOIN_REQ = 30;
+    OP_QUICK_JOIN_REP = 31;
+
+    //2.观战  3.下棋者再次进入
+    OP_SPECTATORS_REQ = 32;
+    OP_SPECTATORS_REP = 33;
+
+    //下发规则(匹配上之后，并且只发给快速匹配的玩家)
+    OP_RULE_REP = 34;
+
+    //确认规则
+    OP_CONFIRM_RULE_REQ = 35;
+    OP_CONFIRM_RULE_REP = 36;
+
+    //开始游戏
+    OP_GAME_START_REP = 37;
+
+    //移动棋子
+    OP_MOVE_REQ = 38;
+    OP_MOVE_REP = 39;
+
+    //停一手
+    OP_PASS_REQ = 40;
+    OP_PASS_REP = 41;
+
+    //点目
+    OP_COUNTING_REQ = 42;
+    OP_COUNTING_REP = 43;
+    OP_CONF_COUNTING_REQ = 44;
+
+    //认输
+    OP_RESIGN = 45;
+
+    //求和
+    OP_DRAW_REQ = 46;
+    OP_DRAW_REP = 47;
+    OP_CONF_DRAW_REQ = 48;
+
+    //结束
+    OP_LEAVE = 49;
+    OP_S_END = 50;
+
+    //重连
+    OP_RECONNECT_REQ = 51;
+    OP_RECONNECT_REP = 52;
+
+    //邀请游戏    100开始
+    OP_INVITE_REQ = 100; //邀请
+    OP_INVITE_REP = 101;
+    OP_CONF_INVITE_REQ = 102;
+    OP_CONF_INVITE_REP = 103;
+
+    //IM   150开始
+    OP_MSG_REQ = 150; //聊天发消息
+    OP_MSG_REP = 151;
+
+    //加好友
+    OP_JOIN_FRIEND_REQ = 152;
+    OP_JOIN_FRIEND_REP = 153;
+
+    //200开始
+    //异常断线
+    SS_OFFLINE_REQ = 200;
+    SS_OFFLINE_REP = 201;
+
+    //新加的协议 300开始
+    OP_CONF_COUNTING_REP = 300;
+    OP_CONF_DRAW_REP = 301;
+}
+
+//加好友
+message JOIN_FRIEND_REQ {
+    string target_id = 1;
+    string nickname = 2;
+    bool accept = 3;
+}
+
+message JOIN_FRIEND_REP {
+    string target_id = 1;
+    string nickname = 2;
+    bool accept = 3;
+}
+
+//返回他所有桌子的ids
+message OFFLINE_REP {
+    repeated string game_ids = 1;
+}
+
+//执棋颜色
+enum PlayColorType {
+    PlayColor_black = 0;
+    PlayColor_white = 1;
+    PlayColor_random = 2;
+}
+
+//级别
+enum RankType {
+    RankType_low = 0;
+    RankType_middle = 1;
+    RankType_high = 2;
+}
+
+//规则
+enum RuleType {
+    RuleType_chinese = 0;
+    RuleType_korea = 1;
+    RuleType_ing = 2;
+}
+
+
+enum GameStatus {
+    GameStatus_wait = 0;
+    GameStatus_vs = 1;
+    GameStatus_fin = 2;
+}
+
+enum SexType {
+    man = 0;
+    woman = 1;
+}
+
+//对局信息
+message GameInfo {
+
+    string id = 1;
+    string title = 2;
+    int32 boardSize = 3;
+    PlayColorType color_type = 4;
+    int32 handicap = 5; //让子
+    int64 gameTime = 6;
+    int32 byoYomi = 7;
+    float komi = 8;
+    RuleType rule = 9;
+    string password = 10; //密码，输入密码可找到该局
+    Player white = 11; //白子选手
+    Player black = 12; //黑子选手
+    string chessBook = 13;
+    float result = 14; //黑赢为正，白赢为负，中盘正负1000   象棋：-1为红赢 0平局  +1黑赢
+    GameStatus status = 15;
+
+}
+
+//棋局设置
+message GameSetting {
+    int32 boardSize = 1;
+    PlayColorType colorType = 2;
+    int32 handicap = 3;
+    int64 gameTime = 4;
+    bool resultAffectRank = 5;
+    bool publicGame = 6;
+}
+
+//玩家信息
+message Player {
+    string id = 1; //id
+    string name = 2; //姓名
+    string nickname = 3; //昵称
+    string rank = 4; //级别
+    string avatar = 5; //头像
+    string coins = 6; //金币
+    //repeated history=7;     //对局历史战绩   待****定
+    int32 score = 8;
+    SexType sex = 9; //性别
+    string country = 10; //国籍
+    int32 timeType = 11; // 时间类型,0不计时，1限时，2读秒
+    int32 time = 12; //剩余时间，单位秒
+    //人品?
+
+}
+
+//服务端返回信息状态
+enum ResponseCode {
+    Success = 0;
+    Fail = 1;
+}
+
+//请求体
+message GameRequest {
+    OperationType op = 1;
+    string request_id = 2;
+    string play_id = 3;
+    google.protobuf.Any object = 4;
+
+}
+
+//应答体
+message GameResponse {
+    OperationType op = 1;
+    int32 code = 2;
+    string msg = 3;
+    string request_id = 4;
+    string play_id = 5;
+    google.protobuf.Any object = 6;
+}
+
+//1.LOGIN （认证)
+
+message LOGIN_REQ {
+    string session_id = 1;
+    string version = 2;
+    int64 date = 3;
+    string content = 4; //md5(session+token+date)
+}
+
+message LOGIN_REP {
+    int64 date = 1; //服务器的时间戳，用于客户端的对时
+}
+
+/*
+client	      service
+  |              |
+  |   request    | 
+  |—————————————>|
+  |<—————————————|
+  |    response  |
+
+*/
+
+
+message S_Follow_num {
+    string game_id = 1;
+    int32 num = 2;
+}
+
+/*
+client	      service
+  |              |
+  |   response   | 
+  |<—————————————|
+  |<—————————————|
+  |   response   | 
+*/
+
+
+message NEW_REQ {
+    GameSetting gameSetting = 1;
+}
+
+message NEW_REP {
+    GameInfo gameInfo = 1;
+}
+
+/*
+client	      service
+  |              |
+  |   request    | 
+  |—————————————>|
+  |<—————————————|
+  |    response  |
+
+*/
+
+//4.JOIN  (快速加入比赛或者观赛)
+
+message QUICK_JOIN_REQ {
+    int32 boardSize = 1;
+}
+
+message QUICK_JOIN_REP {
+    string game_id = 1;
+}
+
+message SPECTATORS_REQ {
+    string game_id = 1;
+}
+
+message SPECTATORS_REP {
+    GameInfo gameInfo = 1;
+}
+
+message RECONNECT_REQ {
+    string game_id = 1;
+}
+
+message RECONNECT_REP {
+    GameInfo gameInfo = 1;
+}
+
+// 下发规则
+message RULE_REP {
+    GameInfo gameInfo = 1;
+}
+
+// 确认规则
+message CONFIRM_RULE_REQ {
+    string game_id = 1;
+}
+
+message CONFIRM_RULE_REP {
+    string game_id = 1;
+    string play_id = 2;
+}
+
+/*
+client	      service
+  |              |
+  |   request    | 
+  |—————————————>|
+  |<—————————————|
+  |    response  |
+*/
+
+//5.StartGame    双方确认规则并接受后入座，服务端通知游戏开始
+message GAME_START_REP {
+    string game_id = 1;
+    bool start = 2; //对方确认了规则
+}
+
+/*
+client	      service        other client
+  |              |		        |
+  |   response   |    response  |
+  |<—————————————|—————————————>|
+  |              |              |
+  |              |		        |
+
+*/
+
+//6.MOVE   走子
+message MOVE {
+    int32 step = 1;
+    string game_id = 2;
+    string content = 3;
+    int32 timeType = 4; // 时间类型,0不计时，1限时，2读秒
+    int32 time = 5; //剩余时间
+}
+
+/*
+client	      service        other client
+  |              |		        | 
+  |   request    | 		        |
+  |—————————————>|   response   |
+  |<————————————-|—————————————>|
+  |              |		        |
+*/
+
+//7.PASS 停一手             如果双方连续停一手服务端发起点目
+message PASS {
+    int32 step = 1;
+    string game_id = 2;
+    string content = 3;
+}
+/*
+client	      service        other client
+  |              |		        | 
+  |   request    | 		        |
+  |—————————————>|   response   |
+  |<————————————-|—————————————>|
+  |              |		        |
+
+
+
+		or
+
+如果双方连续各pass一手
+client	      service        other client
+  |              |		        |
+  |   request    | 		        |
+  |—————————————>|   response   |
+  |<—————————————|—————————————>|
+  |              |   request	|
+  |   response   |<—————————————|
+  |<—————————————|—————————————>|
+  |     点目      |     点目     |
+  |<—————————————|—————————————>|
+
+*/
+
+//8.REQCOUNTING 点目
+message COUNTING_REQ {
+    string game_id = 1;
+}
+
+//通知对方客户端
+message COUNTING_REP {
+    string game_id = 1;
+}
+
+//对方是否同意
+message CONF_COUNTING_REQ {
+    bool accept = 1;
+    string game_id = 2;
+}
+
+//不同意返回
+message CONF_COUNTING_REP {
+    bool accept = 1;
+    string game_id = 2;
+}
+
+//通知所有客户端结果
+message S_END {
+    string game_id = 1;
+    GameStatus game_status = 2;
+    string message = 3;
+    //repeated  situation=4;    //局势数据=[[1,2,-1,22],[1,1,01,01]]
+}
+
+/*
+client	      service        other client
+  |              |		        |
+  |   request    | 	        	|
+  |—————————————>|   response   |
+  |		         |—————————————>|
+  |              |<—————————————|
+  |              |     yes/no   |
+  |              |              |	  
+  |<—————————————|—————————————>|
+       S_END           S_END
+
+*/
+
+//9.RESIGN 认输
+message RESIGN {
+    string game_id = 1;
+}
+
+//一方认输，服务端直接返回结果
+/*
+client	      service        other client
+  |              |		        |
+  |   request    | 		        |
+  |—————————————>|   response   |
+  |<—————————————|—————————————>|
+  |              |		        |
+
+*/
+
+//10.REQ_DRAW   求和
+message DRAW_REQ {
+    string game_id = 1;
+}
+
+//通知对手
+message DRAW_REP {
+    string game_id = 1;
+}
+
+//确认求和
+message CONF_DRAW_REQ {
+    bool accept = 1;
+    string game_id = 2;
+}
+
+message CONF_DRAW_REP {
+    bool accept = 1;
+    string game_id = 2;
+}
+
+/*
+
+client	      service        other client
+  |    DRAW      |	        	|
+  |   request    | 	        	|
+  |—————————————>|   response   |
+  |		         |—————————————>|
+  |              |<—————————————|
+  |              |     yes/no   |
+  |              |              |	  
+  |<—————————————|—————————————>|
+  |     S_END    |      S_END   |
+
+*/
+
+//11.LEAVE 离开
+message LEAVE {
+    string game_id = 1;
+}
+
+/*
+client	      service
+  |              |
+  |   request    | 
+  |—————————————>|
+  |              |
+  |              |
+*/
+
+//12.INVITE  邀请
+message INVITE_REQ {
+    string invited_player_id = 1;
+    string game_id = 2;
+}
+
+message INVITE_REP {
+    Player player_from = 1;
+    GameInfo gameInfo = 2;
+}
+
+message CONF_INVITE_REQ {
+    bool accept = 1;
+    string game_id = 2;
+    string target_id = 3; //发起方的id
+}
+
+message CONF_INVITE_REP {
+    bool accept = 1;
+    string game_id = 2;
+    string target_id = 3; //发起方的id
+}
+//对方接受服务端通知双方开始下棋，对方不接受通知请求者对方没接受
+
+/*
+
+client	      service        other client
+  |              |	        	|
+  |   request    | 	        	|
+  |—————————————>|   response   |
+  |		         |—————————————>|
+  |              |<—————————————|
+  |	   response  |      yes/no  |
+  |<—————————————|—————————————>|
+*/
+
+//13.MSG
+message MSG_REQ {
+    int32 msgType = 1; //0私聊 1 群聊 2加好友
+    string target_id = 2;
+    string content = 3; // 文字，试下的url 需要定义
+    string game_id = 4;
+    string request_id = 5;
+    bool accept = 6;
+}
+
+message MSG_REP {
+    int32 msgType = 1; //0私聊 1 群聊 2加好友
+    string nickname = 2;
+    string content = 3; // 文字，试下的url 需要定义
+    string portrait_url = 4; //头像url
+    string target_id = 5;
+    string game_id = 6;
+    string request_id = 7;
+    string name = 8; //姓名
+    int32 rank = 9; //段位
+}
+
+/*
+client	      service        other client
+  |              |	        	|
+  |   request    | 	        	|
+  |—————————————>|   response   |
+  |              |—————————————>|
+  |              |	        	|
+
+*/
+
+//14.PING       客户端需处理断线重连机制
+message PING {
+
+}
+
+/*
+client	      service
+  |              |
+  |   request    | 
+  |—————————————>|
+  |<—————————————|
+  |    response  |
+
+*/
+
+//问题：
+//1.  所有请求接口，是否需要带时间戳
+ 
