@@ -16,6 +16,9 @@ var GosCommon = (function () {
         result.texture = texture;
         return result;
     };
+    /**
+     * 根据name和position加载资源 生成bitmap
+     */
     GosCommon.createBitmapByNameAndPosition = function (name, position) {
         var x = position["x"] || 0;
         var y = position["y"] || 0;

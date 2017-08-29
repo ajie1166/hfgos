@@ -24,29 +24,29 @@
 
 <!--这个标签为通过egret提供的第三方库的方式生成的 javascript 文件。删除 modules_files 标签后，库文件加载列表将不会变化，请谨慎操作！-->
 <!--modules_files_start-->
-<script egret="lib" src="libs/modules/egret/egret.js" src-release="libs/modules/egret/egret.min.js"></script>
-<script egret="lib" src="libs/modules/egret/egret.web.js" src-release="libs/modules/egret/egret.web.min.js"></script>
-<script egret="lib" src="libs/modules/game/game.js" src-release="libs/modules/game/game.min.js"></script>
-<script egret="lib" src="libs/modules/res/res.js" src-release="libs/modules/res/res.min.js"></script>
-<script egret="lib" src="libs/modules/experimental/experimental.js" src-release="libs/modules/experimental/experimental.min.js"></script>
-<script egret="lib" src="libs/modules/tween/tween.js" src-release="libs/modules/tween/tween.min.js"></script>
-<script egret="lib" src="libs/modules/socket/socket.js" src-release="libs/modules/socket/socket.min.js"></script>
-<script egret="lib" src="libs/modules/dragonBones/dragonBones.js" src-release="libs/modules/dragonBones/dragonBones.min.js"></script>
-<script egret="lib" src="libs/modules/egret3d/egret3d.js" src-release="libs/modules/egret3d/egret3d.min.js"></script>
-<!--modules_files_end-->
+	<script egret="lib" src="libs/modules/egret/egret.js" src-release="libs/modules/egret/egret.min.js"></script>
+	<script egret="lib" src="libs/modules/egret/egret.web.js" src-release="libs/modules/egret/egret.web.min.js"></script>
+	<script egret="lib" src="libs/modules/game/game.js" src-release="libs/modules/game/game.min.js"></script>
+	<script egret="lib" src="libs/modules/res/res.js" src-release="libs/modules/res/res.min.js"></script>
+	<script egret="lib" src="libs/modules/experimental/experimental.js" src-release="libs/modules/experimental/experimental.min.js"></script>
+	<script egret="lib" src="libs/modules/tween/tween.js" src-release="libs/modules/tween/tween.min.js"></script>
+	<script egret="lib" src="libs/modules/socket/socket.js" src-release="libs/modules/socket/socket.min.js"></script>
+	<script egret="lib" src="libs/modules/dragonBones/dragonBones.js" src-release="libs/modules/dragonBones/dragonBones.min.js"></script>
+	<script egret="lib" src="libs/modules/egret3d/egret3d.js" src-release="libs/modules/egret3d/egret3d.min.js"></script>
+	<!--modules_files_end-->
 
 <!--这个标签为不通过egret提供的第三方库的方式使用的 javascript 文件，请将这些文件放在libs下，但不要放在modules下面。-->
 <!--other_libs_files_start-->
 <script egret="lib" src="libs/resources/jquery-3.2.1.min.js"></script>
-
-<script egret="lib" src="libs/net/bytebuffer.min.js"></script>
-<script egret="lib" src="libs/net/protobuf.js"></script>
-<script egret="lib" src="libs/protobuf/proto.js"></script>
+<script egret="lib" src="libs/common/md5.min.js"></script>
+<!--<script egret="lib" src="libs/net/bytebuffer.min.js"></script>-->
+<!--<script egret="lib" src="libs/net/protobuf.js"></script>
+<script egret="lib" src="libs/protobuf/proto.js"></script>-->
 <script egret="lib" src="libs/net/TSDTFun.js"></script>
-<script egret="lib" src="libs/google/base.js"></script>
-<script egret="lib" src="libs/google/deps.js"></script>
+<!--<script egret="lib" src="libs/google/base.js"></script>
+<script egret="lib" src="libs/google/deps.js"></script>-->
 
-<script egret="lib" src="libs/net/gameprotocol.js"></script>
+<!--<script egret="lib" src="libs/net/gameprotocol.js"></script>-->
 <!--<script egret="lib" src="libs/net/player.js"></script>-->
 <script egret="lib" src="libs/EventManager/EventManager.js"></script>
 <script egret="lib" src="polyfill/promise.js" src-release="polyfill/promise.min.js"></script>
@@ -56,11 +56,13 @@
 
 <!--这个标签会被替换为项目中所有的 javascript 文件。删除 game_files 标签后，项目文件加载列表将不会变化，请谨慎操作！-->
 <!--game_files_start-->
-<script egret="game" src="bin-debug/AppStart/StartScene.js"></script>
-<script egret="game" src="bin-debug/common/GosCommon.js"></script>
-<script egret="game" src="bin-debug/LoadingUI.js"></script>
-<script egret="game" src="bin-debug/Main.js"></script>
-<!--game_files_end-->
+	<script egret="game" src="bin-debug/AppStart/GameScene.js"></script>
+	<script egret="game" src="bin-debug/common/GosCommon.js"></script>
+	<script egret="game" src="bin-debug/component/PlayerInfo.js"></script>
+	<script egret="game" src="bin-debug/LoadingUI.js"></script>
+	<script egret="game" src="bin-debug/Main.js"></script>
+	<script egret="game" src="bin-debug/Views/MatchingScene.js"></script>
+	<!--game_files_end-->
 </head>
 
 <body>

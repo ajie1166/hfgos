@@ -11,6 +11,9 @@ class GosCommon {
         result.texture = texture;
         return result;
     }
+    /**
+     * 根据name和position加载资源 生成bitmap
+     */
     public static createBitmapByNameAndPosition(name: string, position: any) {
         let x: number = position["x"] || 0;
         let y: number = position["y"] || 0;

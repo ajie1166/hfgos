@@ -123,9 +123,13 @@ class Main extends egret.DisplayObjectContainer {
      * Create a game scene
      */
     private createGameScene() {
-        let gameScene: StartScene = new StartScene();
-        gameScene.initGameScene(this, this.stage.stageWidth, this.stage.stageHeight, this.playerBgGap);
+        let gameScene: GameScene = new GameScene();
+        //this.stage.scaleMode=egret.StageScaleMode.EXACT_FIT;
+        this.addChild(gameScene);
 
+
+        let matchingScene: MatchingScene = new MatchingScene();
+        this.addChild(matchingScene);
 
         //根据name关键字，异步获取一个json配置文件，name属性请参考resources/resource.json配置文件的内容。
         // Get asynchronously a json configuration file according to name keyword. As for the property of name please refer to the configuration file of resources/resource.json.

@@ -12,17 +12,18 @@ var game_file_list = [
 	"libs/modules/dragonBones/dragonBones.js",
 	"libs/modules/egret3d/egret3d.js",
 	"libs/resources/jquery-3.2.1.min.js",
-	"libs/net/bytebuffer.min.js",
-	"libs/net/protobuf.js",
-	"libs/protobuf/proto.js",
+	"libs/common/md5.min.js",
+	"libs/net/TSDTFun.js",
 	"libs/EventManager/EventManager.js",
 	"polyfill/promise.js",
 	"libs/common/login.js",
 	"libs/load/loader.js",
-	"bin-debug/AppStart/StartScene.js",
+	"bin-debug/AppStart/GameScene.js",
 	"bin-debug/common/GosCommon.js",
+	"bin-debug/component/PlayerInfo.js",
 	"bin-debug/LoadingUI.js",
 	"bin-debug/Main.js",
+	"bin-debug/Views/MatchingScene.js",
 	//----auto game_file_list end----
 ];
 

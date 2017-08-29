@@ -4,7 +4,7 @@
  */
 
 (function ($) {
-   
+
     var Login = {
         Token: "",
         GetToken: function () {
@@ -29,25 +29,25 @@
                 }
                 //EventManager.publish("StartPreLoadRes");
             }).fail(function () {
-                // var p = ProtoBuffer.GetProtoTypeOrEnum("Player", { name: "lijie", id: "1", nickname: "ai" });
-
                 var ws = new WebSocket("ws://127.0.0.1:8181");
+                //var ws = new WebSocket("ws://172.17.7.35:9000");
+                var GameRequest;
                 var Player;
                 ws.onopen = function () {
-                    protobuf.load("/libs/net/gameprotocol.proto", function (err, root) {
-                        Player = root.lookupTypeOrEnum("Player");
-                        var player = Player.create({ name: "lijie", id: "1", nickname: "ai" });
-                        var bufferSend = Player.encode(player).finish();
-                        console.log(bufferSend);
-                        ws.send(bufferSend);
-                    });
+                    var sendObj = { op: "0", player_id: "123", request_id: "12", player: { name: "lijie", nickname: "ai" } };
+                    var sendMsg;
+                    var sendMsgTemp = JSON.stringify(sendObj);
+                    var len = sendMsgTemp.length;
+                    sendObj.length = len;
+                    sendMsg = JSON.stringify(sendObj);
+                    ws.send(sendMsg);
+          
 
                 };
                 ws.onmessage = function (evt) {
-                    var data = evt.data;
-
-                    var j = TSDTFun.getResponseData(data, "Player");
-
+                    var data = JSON.parse(evt.data);
+                    console.log(data);
+                   // alert(data.op+"---"+data.player.Name);
                 }
                 EventManager.publish("StartPreLoadRes");
             });
