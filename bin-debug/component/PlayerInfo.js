@@ -15,6 +15,7 @@ var PlayerInfo = (function (_super) {
     function PlayerInfo() {
         var _this = _super.call(this) || this;
         _this.playerBgGap = 50;
+        var self = _this;
         var stage = egret.MainContext.instance.stage;
         var stageW = stage.stageWidth;
         var stageH = stage.stageHeight;
@@ -59,9 +60,29 @@ var PlayerInfo = (function (_super) {
         oppContainer.addChild(oppRemaindTime);
         _this.oppContainer = oppContainer;
         _this.addChild(_this.oppContainer);
-        return _this;
         /* 结束 绘制对手的玩家信息 */
+        _this.selfContainer.visible = false;
+        _this.oppContainer.visible = false;
+        EventManager.subscribe("GameScene/ShowPlayerMsg", function () {
+            self.showPlayer();
+        });
+        EventManager.subscribe("GameScene/SetPlayerName", function (pType, name) {
+            self.setPlayerName(pType, name);
+        });
+        return _this;
     }
+    PlayerInfo.prototype.setPlayerName = function (pType, name) {
+        var currentPlayer = pType == "self" ? this.selfName : this.oppName;
+        currentPlayer.text = name;
+    };
+    PlayerInfo.prototype.showPlayer = function () {
+        this.selfContainer.visible = true;
+        this.oppContainer.visible = true;
+        this.selfContainer.alpha = 0;
+        this.oppContainer.alpha = 0;
+        egret.Tween.get(this.selfContainer).to({ alpha: 1 }, 1000, egret.Ease.backIn);
+        egret.Tween.get(this.oppContainer).to({ alpha: 1 }, 1000, egret.Ease.backIn);
+    };
     /**
      * 用户信息
      * position 位置对象

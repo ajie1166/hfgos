@@ -18,13 +18,14 @@ class GameScene extends egret.DisplayObjectContainer {
 		sky.width = stageW;
 		sky.height = stageH;
 
-		//加载棋盘
-		let qipan = GosCommon.createBitmapByNameAndPosition("qipan_png", { x: (stageW - 594) / 2, y: (stageH - 594) / 2 });
-		this.addChild(qipan);
+		let chessBoard = new ChessBoard();
+		this.addChild(chessBoard);
 
-		let playerInfo=new PlayerInfo();
+		let playerInfo = new PlayerInfo();
 		this.addChild(playerInfo);
-	
+
+		let gameMenu = new GameMenu();
+		this.addChild(gameMenu);
 
 		//名称 请求服务端获取我的信息 0 黑  1 白
 		/*let playChessRandom: number[] = [0, 1];
@@ -43,6 +44,6 @@ class GameScene extends egret.DisplayObjectContainer {
 		this.addChild(playerChessOne);*/
 
 
-	
+
 	}
 }

@@ -24,11 +24,12 @@ var GameScene = (function (_super) {
         //this.stage.scaleMode = egret.StageScaleMode.EXACT_FIT;//去边框并保持图片缩放完整
         sky.width = stageW;
         sky.height = stageH;
-        //加载棋盘
-        var qipan = GosCommon.createBitmapByNameAndPosition("qipan_png", { x: (stageW - 594) / 2, y: (stageH - 594) / 2 });
-        this.addChild(qipan);
+        var chessBoard = new ChessBoard();
+        this.addChild(chessBoard);
         var playerInfo = new PlayerInfo();
         this.addChild(playerInfo);
+        var gameMenu = new GameMenu();
+        this.addChild(gameMenu);
         //名称 请求服务端获取我的信息 0 黑  1 白
         /*let playChessRandom: number[] = [0, 1];
         let randomChess: number = Math.floor(Math.random() * 2);

@@ -47,6 +47,13 @@ var MatchingScene = (function (_super) {
         this.btnPiPei.visible = false;
         this.btnMatching.visible = true;
         this.btnCancelMatching.visible = true;
+        EventManager.publish("GameScene/ShowPlayerMsg");
+        EventManager.publish("GameScene/showGameMenu", "lijie");
+    };
+    MatchingScene.prototype.matchSuccess = function () {
+        this.btnPiPei.visible = false;
+        this.btnMatching.visible = false;
+        this.btnCancelMatching.visible = false;
     };
     MatchingScene.prototype.cancelMatching = function () {
         this.btnPiPei.visible = true;

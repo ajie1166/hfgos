@@ -34,6 +34,7 @@ class PlayerInfo extends egret.DisplayObjectContainer {
     private playerHeader: egret.Bitmap;
     constructor() {
         super();
+        let self = this;
         let stage: egret.Stage = egret.MainContext.instance.stage;
         let stageW = stage.stageWidth;
         let stageH = stage.stageHeight;
@@ -85,7 +86,6 @@ class PlayerInfo extends egret.DisplayObjectContainer {
         oppContainer.addChild(oppHandsChess);
 
 
-
         let oppUserName: egret.TextField = this.createTextField("jsnylee", { x: oppPlayerHead.x + oppPlayerHead.width + 70, y: oppBg.y + 45 })
         this.oppName = oppUserName;
         oppContainer.addChild(oppUserName);
@@ -97,8 +97,30 @@ class PlayerInfo extends egret.DisplayObjectContainer {
         this.addChild(this.oppContainer);
         /* 结束 绘制对手的玩家信息 */
 
+        this.selfContainer.visible = false;
+        this.oppContainer.visible = false;
+        EventManager.subscribe("GameScene/ShowPlayerMsg", function () {
+            self.showPlayer();
+        });
 
-        
+        EventManager.subscribe("GameScene/SetPlayerName", function (pType, name) {
+            self.setPlayerName(pType, name);
+        })
+
+
+    }
+
+    private setPlayerName(pType, name) {
+        let currentPlayer = pType == "self" ? this.selfName : this.oppName;
+        currentPlayer.text = name;
+    }
+    private showPlayer() {
+        this.selfContainer.visible = true;
+        this.oppContainer.visible = true;
+        this.selfContainer.alpha = 0;
+        this.oppContainer.alpha = 0;
+        egret.Tween.get(this.selfContainer).to({ alpha: 1 }, 1000, egret.Ease.backIn);
+        egret.Tween.get(this.oppContainer).to({ alpha: 1 }, 1000, egret.Ease.backIn);
 
     }
 
