@@ -1,0 +1,9 @@
+{
+    "useClip": false,
+    "maxImageWidth": 2048,
+    "maxImageHeight": 2048,
+    "defaultResPath": "f:\\workspaces(10.241.95.108)\\hf_threeChess\\gos\\hfgos\\resource\\default.res.json",
+    "packGroups": {
+        "preload": true
+    }
+}

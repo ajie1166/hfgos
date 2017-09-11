@@ -22,7 +22,7 @@ class GameMenu extends egret.DisplayObjectContainer {
         jieShu.touchEnabled = true;
         menuY = jieShu.y;
         jieShu.addEventListener(egret.TouchEvent.TOUCH_TAP, function () {
-            alert("按钮:结束游戏");
+           // alert("按钮:结束游戏");
             alert("x:"+jieShu.x);
             alert(jieShu.anchorOffsetY);
             jieShu.anchorOffsetY=50;
@@ -34,7 +34,7 @@ class GameMenu extends egret.DisplayObjectContainer {
         this.btnTingYiShou = tingYiShou;
         tingYiShou.touchEnabled = true;
         tingYiShou.addEventListener(egret.TouchEvent.TOUCH_TAP, function () {
-            alert("按钮:停一手");
+            //alert("按钮:停一手");
         }, self);
         this.addChild(tingYiShou);
 
@@ -43,7 +43,7 @@ class GameMenu extends egret.DisplayObjectContainer {
         this.btnDianMu = dianMu;
         dianMu.touchEnabled = true;
         dianMu.addEventListener(egret.TouchEvent.TOUCH_TAP, function () {
-            alert("按钮:点目");
+            //alert("按钮:点目");
         }, self);
         this.addChild(dianMu);
 
@@ -52,7 +52,7 @@ class GameMenu extends egret.DisplayObjectContainer {
         this.btnBiaoji = biaoJi;
         biaoJi.touchEnabled = true;
         biaoJi.addEventListener(egret.TouchEvent.TOUCH_TAP, function () {
-            alert("按钮:标记");
+            //alert("按钮:标记");
         }, self);
         this.addChild(biaoJi);
 
@@ -61,7 +61,7 @@ class GameMenu extends egret.DisplayObjectContainer {
         this.btnXingShi = xingShi;
         xingShi.touchEnabled = true;
         xingShi.addEventListener(egret.TouchEvent.TOUCH_TAP, function () {
-            alert("按钮:形式");
+            //alert("按钮:形式");
         }, self);
         this.addChild(xingShi);
 

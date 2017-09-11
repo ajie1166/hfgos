@@ -22,6 +22,7 @@ var game_file_list = [
 	"bin-debug/common/GosCommon.js",
 	"bin-debug/component/ChessBoard.js",
 	"bin-debug/component/GameMenu.js",
+	"bin-debug/component/GameSetting.js",
 	"bin-debug/component/PlayerInfo.js",
 	"bin-debug/LoadingUI.js",
 	"bin-debug/Main.js",

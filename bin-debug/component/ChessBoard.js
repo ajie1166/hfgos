@@ -20,24 +20,23 @@ var ChessBoard = (function (_super) {
         //加载棋盘
         var qipan = GosCommon.createBitmapByNameAndPosition("qipan_png", { x: (stageW - 594) / 2, y: (stageH - 594) / 2 });
         _this.addChild(qipan);
+        _this.lightX = new egret.Bitmap(RES.getRes('lightX_png'));
+        _this.lightX.visible = false;
+        _this.addChild(_this.lightX);
+        _this.lightY = new egret.Bitmap(RES.getRes('lightY_png'));
+        _this.lightY.visible = false;
+        _this.addChild(_this.lightY);
+        _this.moveBlackChess = new egret.Bitmap(RES.getRes('chess_black_small_png'));
+        _this.moveBlackChess.anchorOffsetX = _this.moveBlackChess.width / 2;
+        _this.moveBlackChess.anchorOffsetY = _this.moveBlackChess.height / 2;
+        _this.moveBlackChess.visible = false;
+        _this.addChild(_this.moveBlackChess);
+        _this.moveWhiteChess = new egret.Bitmap(RES.getRes('chess_white_small_png'));
+        _this.moveWhiteChess.anchorOffsetX = _this.moveWhiteChess.width / 2;
+        _this.moveWhiteChess.anchorOffsetY = _this.moveWhiteChess.height / 2;
+        _this.moveWhiteChess.visible = false;
+        _this.addChild(_this.moveWhiteChess);
         return _this;
-        /*this.lightX = new egret.Bitmap(RES.getRes('lightX_png'));
-        this.lightX.visible = false;
-        this.addChild(this.lightX);
-        this.lightY = new egret.Bitmap(RES.getRes('lightY_png'));
-        this.lightY.visible = false;
-        this.addChild(this.lightY);
-
-        this.moveBlackChess = new egret.Bitmap(RES.getRes('chess_black_small_png'));
-        this.moveBlackChess.anchorOffsetX = this.moveBlackChess.width / 2;
-        this.moveBlackChess.anchorOffsetY = this.moveBlackChess.height / 2;
-        this.moveBlackChess.visible = false;
-        this.addChild(this.moveBlackChess);
-        this.moveWhiteChess = new egret.Bitmap(RES.getRes('chess_white_small_png'));
-        this.moveWhiteChess.anchorOffsetX = this.moveWhiteChess.width / 2;
-        this.moveWhiteChess.anchorOffsetY = this.moveWhiteChess.height / 2;
-        this.moveWhiteChess.visible = false;
-        this.addChild(this.moveWhiteChess);*/
     }
     return ChessBoard;
 }(egret.DisplayObjectContainer));
