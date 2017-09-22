@@ -27,6 +27,8 @@ class GameScene extends egret.DisplayObjectContainer {
 		let gameMenu = new GameMenu();
 		this.addChild(gameMenu);
 
+		
+
 		//名称 请求服务端获取我的信息 0 黑  1 白
 		/*let playChessRandom: number[] = [0, 1];
 		let randomChess: number = Math.floor(Math.random() * 2);

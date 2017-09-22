@@ -119,6 +119,13 @@ var Main = (function (_super) {
         this.addChild(gameScene);
         var matchingScene = new MatchingScene();
         this.addChild(matchingScene);
+        /* 截图
+        var renderTexture: egret.RenderTexture = new egret.RenderTexture();
+        renderTexture.drawToTexture(this);
+        let imageBase64: string = renderTexture.toDataURL("image/png", new egret.Rectangle((this.stage.stageWidth - 594) / 2, (this.stage.stageHeight - 594) / 2, 594, 594));
+        console.log(imageBase64);
+        renderTexture.saveToFile("image/png", "qipan.png", new egret.Rectangle((this.stage.stageWidth - 594) / 2, (this.stage.stageHeight - 594) / 2, 594, 594));
+        */
         //根据name关键字，异步获取一个json配置文件，name属性请参考resources/resource.json配置文件的内容。
         // Get asynchronously a json configuration file according to name keyword. As for the property of name please refer to the configuration file of resources/resource.json.
         // RES.getResAsync("description_json", this.startAnimation, this)

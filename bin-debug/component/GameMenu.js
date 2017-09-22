@@ -44,6 +44,7 @@ var GameMenu = (function (_super) {
         _this.btnDianMu = dianMu;
         dianMu.touchEnabled = true;
         dianMu.addEventListener(egret.TouchEvent.TOUCH_TAP, function () {
+            EventManager.publish("testLocalStoage");
             //alert("按钮:点目");
         }, self);
         _this.addChild(dianMu);

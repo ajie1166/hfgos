@@ -43,6 +43,7 @@ class GameMenu extends egret.DisplayObjectContainer {
         this.btnDianMu = dianMu;
         dianMu.touchEnabled = true;
         dianMu.addEventListener(egret.TouchEvent.TOUCH_TAP, function () {
+            EventManager.publish("testLocalStoage");
             //alert("按钮:点目");
         }, self);
         this.addChild(dianMu);

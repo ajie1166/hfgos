@@ -47,8 +47,12 @@ class MatchingScene extends egret.DisplayObjectContainer {
         this.btnPiPei.visible = false;
         this.btnMatching.visible = true;
         this.btnCancelMatching.visible = true;
+
+        egret.Tween.get(this.btnMatching).to({ visible: false }, 1000, egret.Ease.backIn);
+        egret.Tween.get(this.btnCancelMatching).to({ visible: false }, 1000, egret.Ease.backIn);
+        EventManager.publish("MatchingScene/btnStartMatching");
         EventManager.publish("GameScene/ShowPlayerMsg");
-        EventManager.publish("GameScene/showGameMenu","lijie");
+        EventManager.publish("GameScene/showGameMenu", "lijie");
     }
 
     private matchSuccess() {

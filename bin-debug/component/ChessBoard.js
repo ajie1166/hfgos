@@ -14,18 +14,30 @@ var ChessBoard = (function (_super) {
     __extends(ChessBoard, _super);
     function ChessBoard() {
         var _this = _super.call(this) || this;
+        _this.touchGap = 10;
+        _this.realBoardStartX = 690;
+        _this.realBoardStartY = 270;
+        _this.nSelfColor = 0;
+        var self = _this;
         var stage = egret.MainContext.instance.stage;
         var stageW = stage.stageWidth;
         var stageH = stage.stageHeight;
         //加载棋盘
         var qipan = GosCommon.createBitmapByNameAndPosition("qipan_png", { x: (stageW - 594) / 2, y: (stageH - 594) / 2 });
         _this.addChild(qipan);
+        _this.BoardStartX = 48;
+        _this.BoardStartY = 28;
+        _this.chessGap = 30;
+        _this.chessW = 30;
+        _this.chessH = 31;
         _this.lightX = new egret.Bitmap(RES.getRes('lightX_png'));
         _this.lightX.visible = false;
         _this.addChild(_this.lightX);
         _this.lightY = new egret.Bitmap(RES.getRes('lightY_png'));
         _this.lightY.visible = false;
         _this.addChild(_this.lightY);
+        _this.chessList = new egret.DisplayObjectContainer();
+        _this.addChild(_this.chessList);
         _this.moveBlackChess = new egret.Bitmap(RES.getRes('chess_black_small_png'));
         _this.moveBlackChess.anchorOffsetX = _this.moveBlackChess.width / 2;
         _this.moveBlackChess.anchorOffsetY = _this.moveBlackChess.height / 2;
@@ -36,8 +48,105 @@ var ChessBoard = (function (_super) {
         _this.moveWhiteChess.anchorOffsetY = _this.moveWhiteChess.height / 2;
         _this.moveWhiteChess.visible = false;
         _this.addChild(_this.moveWhiteChess);
+        EventManager.subscribe("ChessBoard/hideLight", function () {
+            self.hideLight();
+        });
+        EventManager.subscribe('ChessBoard/fSetGos', function (color, x, y) {
+            // alert("fSetGos");
+            // 下子操作
+            // COLOR_BLACK = 1,COLOR_WHITE = 2,
+            /*  var x = x || 0;
+              var y = y || 0;
+              var color = color || 0;
+              if (color == 0) {
+                  return;
+              }*/
+            // oGameData['nStep']++;
+            /* self.fAddNumber(oGameData['nStep'], x, y);
+             self.fAddChess(color, x, y, true);
+             self.bShowNumber && self.fShowNumber(true);
+             var o = { x: x, y: y, color: color };
+             self.aRecord.push(o);*/
+        });
+        _this.touchEnabled = true;
+        _this.addEventListener(egret.TouchEvent.TOUCH_BEGIN, _this.onTouchBoard, _this);
         return _this;
+        //this.addEventListener(egret.TouchEvent.TOUCH_MOVE, this.onTouchBoard, this);
     }
+    ChessBoard.prototype.onTouchBoard = function (evt) {
+        //alert(evt.stageY + "---" + this.x);
+        var chessType = this.nSelfColor;
+        var _x = evt.stageX;
+        var _y = evt.stageY;
+        var startX = this.BoardStartX;
+        var startY = this.BoardStartY;
+        var endX = startX + 18 * this.chessGap;
+        var endY = startY = 18 * this.chessGap;
+        var chessGap = this.chessGap;
+        if (_x < 680 || _x > 1240 || _y < 260 || _y > 820) {
+            return;
+        }
+        //chessController查询此处是不是可以下棋
+        /**
+         * todo
+         */
+        var chessAvailable = true;
+        var numX = Math.round((_x - this.realBoardStartX) / chessGap); //x轴隔几个chessGap开始
+        var numY = Math.round((_y - this.realBoardStartY) / chessGap); //y轴隔几个chessGap开始
+        if (chessAvailable) {
+            this.setLight(chessType, numX, numY, _x, _y);
+        }
+    };
+    //设置两个标识轴
+    ChessBoard.prototype.setLight = function (chessType, numX, numY, _x, _y) {
+        var halfWidth = this.lightX.height / 2;
+        this.lightX.visible = true;
+        this.lightY.visible = true;
+        // alert(realBoardStartX);
+        this.lightX.x = this.realBoardStartX;
+        this.lightX.y = numY * this.chessGap + this.realBoardStartY - halfWidth;
+        this.lightY.x = numX * this.chessGap + this.realBoardStartX - halfWidth;
+        ;
+        this.lightY.y = this.realBoardStartY;
+        var chessX = numX * this.chessGap + this.realBoardStartX;
+        var chessY = numY * this.chessGap + this.realBoardStartY;
+        if (chessType == 0) {
+            //黑子
+            this.moveBlackChess.x = chessX;
+            this.moveBlackChess.y = chessY;
+            this.moveBlackChess.visible = true;
+            this.moveWhiteChess.visible = false;
+        }
+        else if (chessType == 1) {
+            //白子
+            this.moveWhiteChess.x = chessX;
+            this.moveWhiteChess.y = chessY;
+            this.moveBlackChess.visible = false;
+            this.moveWhiteChess.visible = true;
+        }
+        this.addChess(chessType, numX, numY);
+    };
+    ChessBoard.prototype.hideLight = function () {
+        this.moveBlackChess.visible = false;
+        this.moveWhiteChess.visible = false;
+        this.lightX.visible = false;
+        this.lightY.visible = false;
+    };
+    //落子
+    ChessBoard.prototype.addChess = function (chessType, numX, numY) {
+        //alert(chessType);
+        var chessResName = chessType == 0 ? "chess_black_small_png" : "chess_white_small_png";
+        var chess = GosCommon.createBitmapByName(chessResName);
+        chess.anchorOffsetX = chess.width / 2;
+        chess.anchorOffsetY = chess.height / 2;
+        chess.x = numX * this.chessGap + this.realBoardStartX;
+        chess.y = numY * this.chessGap + this.realBoardStartY;
+        chess.scaleX = 2;
+        chess.scaleY = 2;
+        chess.alpha = 0;
+        egret.Tween.get(chess).to({ alpha: 1, scaleX: 1, scaleY: 1 }, 1000);
+        this.chessList.addChild(chess);
+    };
     return ChessBoard;
 }(egret.DisplayObjectContainer));
 __reflect(ChessBoard.prototype, "ChessBoard");
