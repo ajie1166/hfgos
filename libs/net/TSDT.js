@@ -94,7 +94,7 @@ var SS_OFFLINE_REQ = 5000;
 var SS_OFFLINE_REP = 5001;
 
 var TSDT = {};
-TSDT[OP_LOGIN_REQ] = {
+/*TSDT[OP_LOGIN_REQ] = {
     op: "",
     player_id: "",
     request_id: "",
@@ -103,6 +103,28 @@ TSDT[OP_LOGIN_REQ] = {
         version: "1.0.0",
         date: ""
     }
+};*/
+
+
+TSDT[OP_LOGIN_REQ] = {
+    player_id: "",
+    version: "1.0.0",
+    date: Utility.getTimestamp()
+};
+
+TSDT[OP_PING] = {
+    op: "",
+    request_id: "",
+    player_id: "",
+    object: "",
+    game_id: ""
+};
+TSDT[OP_CONFIRM_RULE_REQ] = {
+    op: "",
+    request_id: "",
+    player_id: "",
+    object: "",
+    game_id: ""
 };
 
 TSDT[OP_NEW_REQ] = {
@@ -119,4 +141,40 @@ TSDT[OP_NEW_REQ] = {
             publicGame: "true",
         }
     }
-}
+};
+TSDT[OP_QUICK_JOIN_REQ] = {
+    op: "",
+    request_id: "",
+    player_id: "",
+    object: {
+        boardSize: "",
+        room_code: "0"
+    },
+    game_id: ""
+};
+TSDT[OP_RULE_REP] = {
+    gameData: {
+
+    },
+    unpack: function () {
+
+    }
+};
+
+var GameRequest = {
+    op: "",
+    request_id: Utility.getRequestId(),
+    player_id: "",
+    object: "",
+    game_id: ""
+};
+
+var GameResponse = {
+    op: "",
+    code: "",
+    msg: "",
+    request_id: "",
+    player_id: "",
+    object: "",
+    game_id: ""
+};

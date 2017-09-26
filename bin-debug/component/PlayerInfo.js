@@ -15,6 +15,8 @@ var PlayerInfo = (function (_super) {
     function PlayerInfo() {
         var _this = _super.call(this) || this;
         _this.playerBgGap = 50;
+        _this.selfNums = 0;
+        _this.oppNums = 0;
         var self = _this;
         var stage = egret.MainContext.instance.stage;
         var stageW = stage.stageWidth;
@@ -28,15 +30,24 @@ var PlayerInfo = (function (_super) {
         //玩家头像
         var playerHead = GosCommon.createBitmapByNameAndPosition("touxiang_png", { x: selfBg.x + 30, y: (selfBg.height - 100) / 2 + selfBg.y });
         selfContainer.addChild(playerHead);
-        var selfNameChess = _this.createUserChess("chess_black_big_png", { x: playerHead.x + playerHead.width + 10, y: selfBg.y + 40 });
-        selfContainer.addChild(selfNameChess);
-        var selfHandsChess = _this.createUserChess("chess_black_big_png", { x: playerHead.x + playerHead.width + 270, y: selfBg.y + 40 });
-        selfContainer.addChild(selfHandsChess);
-        var userName = _this.createTextField("jovenlee", { x: playerHead.x + playerHead.width + 70, y: selfBg.y + 45 });
+        var selfNameChess = _this.createUserChess("unknown_png", { x: playerHead.x + playerHead.width + 10, y: selfBg.y + 40 });
+        _this.selfUserNameChess = selfNameChess;
+        selfContainer.addChild(_this.selfUserNameChess);
+        var selfHandsChess = _this.createUserChess("unknown_png", { x: playerHead.x + playerHead.width + 270, y: selfBg.y + 40 });
+        _this.selfHandsChess = selfHandsChess;
+        selfContainer.addChild(_this.selfHandsChess);
+        //自己的名字
+        var selfTempName = localStorage.getItem("nick_name");
+        selfTempName = GosCommon.subString(selfTempName, 10);
+        var userName = _this.createTextField(selfTempName, { x: playerHead.x + playerHead.width + 70, y: selfBg.y + 45 });
         _this.selfName = userName;
         selfContainer.addChild(userName);
-        var remaindTime = _this.createTextField("00:00:00", { x: playerHead.x + playerHead.width + 70, y: selfBg.y + 45 + 40 });
-        selfContainer.addChild(remaindTime);
+        var remaindTime = _this.createTextField("03:00:00", { x: playerHead.x + playerHead.width + 70, y: selfBg.y + 45 + 40 });
+        _this.selfRemainTime = remaindTime;
+        selfContainer.addChild(_this.selfRemainTime);
+        var selfHands = _this.createTextField("\u7B2C" + _this.selfNums + "\u624B", { x: playerHead.x + playerHead.width + 250, y: selfBg.y + 45 + 40 });
+        _this.selfHands = selfHands;
+        selfContainer.addChild(_this.selfHands);
         _this.selfContainer = selfContainer;
         _this.addChild(_this.selfContainer);
         /* 结束 绘制自己的玩家信息 */
@@ -49,39 +60,74 @@ var PlayerInfo = (function (_super) {
         //玩家头像
         var oppPlayerHead = GosCommon.createBitmapByNameAndPosition("touxiang_png", { x: oppBg.x + 30, y: (oppBg.height - 100) / 2 + oppBg.y });
         oppContainer.addChild(oppPlayerHead);
-        var oppNameChess = _this.createUserChess("chess_black_big_png", { x: oppPlayerHead.x + oppPlayerHead.width + 10, y: oppBg.y + 40 });
-        oppContainer.addChild(oppNameChess);
-        var oppHandsChess = _this.createUserChess("chess_black_big_png", { x: oppPlayerHead.x + oppPlayerHead.width + 270, y: selfBg.y + 40 });
-        oppContainer.addChild(oppHandsChess);
+        var oppNameChess = _this.createUserChess("unknown_png", { x: oppPlayerHead.x + oppPlayerHead.width + 10, y: oppBg.y + 40 });
+        _this.oppUserNameChess = oppNameChess;
+        oppContainer.addChild(_this.oppUserNameChess);
+        var oppHandsChess = _this.createUserChess("unknown_png", { x: oppPlayerHead.x + oppPlayerHead.width + 270, y: selfBg.y + 40 });
+        _this.oppHandsChess = oppHandsChess;
+        oppContainer.addChild(_this.oppHandsChess);
         var oppUserName = _this.createTextField("jsnylee", { x: oppPlayerHead.x + oppPlayerHead.width + 70, y: oppBg.y + 45 });
         _this.oppName = oppUserName;
         oppContainer.addChild(oppUserName);
-        var oppRemaindTime = _this.createTextField("00:00:00", { x: oppPlayerHead.x + oppPlayerHead.width + 70, y: oppBg.y + 45 + 40 });
-        oppContainer.addChild(oppRemaindTime);
+        var oppRemaindTime = _this.createTextField("03:00:00", { x: oppPlayerHead.x + oppPlayerHead.width + 70, y: oppBg.y + 45 + 40 });
+        _this.oppRemainTime = oppRemaindTime;
+        oppContainer.addChild(_this.oppRemainTime);
+        var oppHands = _this.createTextField("\u7B2C" + _this.selfNums + "\u624B", { x: playerHead.x + playerHead.width + 250, y: selfBg.y + 45 + 40 });
+        _this.oppHands = oppHands;
+        oppContainer.addChild(_this.oppHands);
         _this.oppContainer = oppContainer;
         _this.addChild(_this.oppContainer);
         /* 结束 绘制对手的玩家信息 */
-        _this.selfContainer.visible = false;
+        //this.selfContainer.visible = false;
         _this.oppContainer.visible = false;
-        EventManager.subscribe("GameScene/ShowPlayerMsg", function () {
-            self.showPlayer();
+        EventManager.subscribe("GameScene/ShowPlayerMsg", function (data) {
+            self.showOppPlayer(data);
         });
-        EventManager.subscribe("GameScene/SetPlayerName", function (pType, name) {
-            self.setPlayerName(pType, name);
+        /*EventManager.subscribe("GameScene/showSelfName", function (nickName) {
+            self.setSelfName(nickName);
+        });*/
+        /*  EventManager.subscribe("GameScene/SetPlayerName", function (pType, name) {
+              self.setPlayerName(pType, name);
+          });*/
+        EventManager.subscribe("GameScene/setPlayerName", function (chessType) {
+            self.updatePlayerChess(chessType);
         });
         return _this;
     }
+    PlayerInfo.prototype.setSelfName = function (nickName) {
+        //this.selfName = nickName;
+        // alert(nickName);
+    };
     PlayerInfo.prototype.setPlayerName = function (pType, name) {
         var currentPlayer = pType == "self" ? this.selfName : this.oppName;
         currentPlayer.text = name;
     };
-    PlayerInfo.prototype.showPlayer = function () {
-        this.selfContainer.visible = true;
+    /**
+     * 更新对手显示  同时更新自己的棋子
+     */
+    PlayerInfo.prototype.showOppPlayer = function (playerInfo) {
         this.oppContainer.visible = true;
-        this.selfContainer.alpha = 0;
         this.oppContainer.alpha = 0;
-        egret.Tween.get(this.selfContainer).to({ alpha: 1 }, 1000, egret.Ease.backIn);
+        this.setPlayerName("opp", GosCommon.subString(playerInfo.nickname, 10));
         egret.Tween.get(this.oppContainer).to({ alpha: 1 }, 1000, egret.Ease.backIn);
+        EventManager.publish("GameScene/setPlayerName", playerInfo.colorType);
+    };
+    /**
+     * 更新棋子 服务端返回 棋子类型后更新自己和对手棋子颜色
+     */
+    PlayerInfo.prototype.updatePlayerChess = function (chessType) {
+        if (chessType != 2) {
+            var selfChessType = chessType == 0 ? 1 : 0;
+            var resOppName = chessType == 0 ? "chess_black_big_png" : "chess_white_big_png";
+            var resSelfName = chessType == 0 ? "chess_white_big_png" : "chess_black_big_png";
+            var resOppNameChess = GosCommon.createBitmapByName(resOppName).texture;
+            var resSelfNameChess = GosCommon.createBitmapByName(resSelfName).texture;
+            this.selfUserNameChess.texture = resSelfNameChess;
+            this.selfHandsChess.texture = resSelfNameChess;
+            this.oppUserNameChess.texture = resOppNameChess;
+            this.oppHandsChess.texture = resOppNameChess;
+            EventManager.publish("ChessBoard/setSelfChessType", selfChessType);
+        }
     };
     /**
      * 用户信息
@@ -101,7 +147,7 @@ var PlayerInfo = (function (_super) {
      * name 资源; position 位置对象
      */
     PlayerInfo.prototype.createUserChess = function (name, position) {
-        var userChess = GosCommon.createBitmapByName("chess_black_big_png");
+        var userChess = GosCommon.createBitmapByName(name);
         userChess.x = position["x"];
         userChess.y = position["y"];
         return userChess;

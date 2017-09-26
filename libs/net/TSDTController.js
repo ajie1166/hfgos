@@ -1,4 +1,4 @@
-var TSDTFun = {};
+/*var TSDTFun = {};
 TSDTFun.getResponseData = function (data, obj,callback) {
     var resultObj;
     var reader = new FileReader();
@@ -16,4 +16,23 @@ TSDTFun.getResponseData = function (data, obj,callback) {
         callback(resultObj);
     });
     //console.log(resultObj);
-}
+}*/
+
+var TSDTController = {
+    packGameData: function () {
+
+    },
+    unpackGameData: function (data) {
+        var self = this;
+        var opId = data.op;
+        switch (opId) {
+            case "2007":
+                self.unpackGameInfoData(data);
+            default:
+                break;
+        }
+    },
+    unpackGameInfoData: function (data) {
+
+    }
+};

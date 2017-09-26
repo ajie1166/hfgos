@@ -1,6 +1,6 @@
 //辅助类
 var Utility = {
-    getTimestamp= function () {
+    getTimestamp: function () {
         var timestamp = Date.parse(new Date());
         timestamp = timestamp / 1000;
         return timestamp;

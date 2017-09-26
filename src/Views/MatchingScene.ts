@@ -41,24 +41,33 @@ class MatchingScene extends egret.DisplayObjectContainer {
         EventManager.subscribe("MatchingScene/btnCancelMatching", function () {
             self.cancelMatching();
         });
+
+        EventManager.subscribe("MatchingScene/MatchSuccess", function (data) {
+            self.matchSuccess(data);
+        })
     }
 
     private startMatching(): void {
+
         this.btnPiPei.visible = false;
         this.btnMatching.visible = true;
         this.btnCancelMatching.visible = true;
 
-        egret.Tween.get(this.btnMatching).to({ visible: false }, 1000, egret.Ease.backIn);
-        egret.Tween.get(this.btnCancelMatching).to({ visible: false }, 1000, egret.Ease.backIn);
-        EventManager.publish("MatchingScene/btnStartMatching");
-        EventManager.publish("GameScene/ShowPlayerMsg");
-        EventManager.publish("GameScene/showGameMenu", "lijie");
+        //一分钟倒计时 一分钟匹配不到重新匹配   匹配有可能突然成功需要后期处理
+
+        //EventManager.publish("MatchingScene/btnStartMatching");
+        EventManager.publish("MatchingScene/onBtnReadyStart");
+
     }
 
-    private matchSuccess() {
+    private matchSuccess(oppPlayer) {
         this.btnPiPei.visible = false;
         this.btnMatching.visible = false;
         this.btnCancelMatching.visible = false;
+        egret.Tween.get(this.btnMatching).to({ visible: false }, 1000, egret.Ease.backIn);
+        egret.Tween.get(this.btnCancelMatching).to({ visible: false }, 1000, egret.Ease.backIn);
+        EventManager.publish("GameScene/ShowPlayerMsg",oppPlayer);
+        EventManager.publish("GameScene/showGameMenu", "lijie");
     }
     private cancelMatching(): void {
         this.btnPiPei.visible = true;

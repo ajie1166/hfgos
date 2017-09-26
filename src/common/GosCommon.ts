@@ -24,4 +24,10 @@ class GosCommon {
         result.y = y;
         return result;
     }
+    /**
+     * 字符串截取
+     */
+    public static subString(str: string, len: number) {
+        return str.length > 10 ? str.substring(0, len) + "..." : str;
+    }
 }

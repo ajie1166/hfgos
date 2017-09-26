@@ -23,6 +23,9 @@ class PlayerInfo extends egret.DisplayObjectContainer {
     private selfHands: egret.TextField;
     private oppHands: egret.TextField;
 
+    private selfNums: number = 0;
+    private oppNums: number = 0;
+
     //多少手旁边的棋子
     private selfHandsChess: egret.Bitmap;
     private oppHandsChess: egret.Bitmap;
@@ -49,19 +52,29 @@ class PlayerInfo extends egret.DisplayObjectContainer {
         let playerHead = GosCommon.createBitmapByNameAndPosition("touxiang_png", { x: selfBg.x + 30, y: (selfBg.height - 100) / 2 + selfBg.y });
         selfContainer.addChild(playerHead);
 
-        let selfNameChess = this.createUserChess("chess_black_big_png", { x: playerHead.x + playerHead.width + 10, y: selfBg.y + 40 })
-        selfContainer.addChild(selfNameChess);
+        let selfNameChess = this.createUserChess("unknown_png", { x: playerHead.x + playerHead.width + 10, y: selfBg.y + 40 })
+        this.selfUserNameChess = selfNameChess;
+        selfContainer.addChild(this.selfUserNameChess);
 
-        let selfHandsChess = this.createUserChess("chess_black_big_png", { x: playerHead.x + playerHead.width + 270, y: selfBg.y + 40 })
-        selfContainer.addChild(selfHandsChess);
+        let selfHandsChess = this.createUserChess("unknown_png", { x: playerHead.x + playerHead.width + 270, y: selfBg.y + 40 })
+        this.selfHandsChess = selfHandsChess;
+        selfContainer.addChild(this.selfHandsChess);
 
-
-        let userName: egret.TextField = this.createTextField("jovenlee", { x: playerHead.x + playerHead.width + 70, y: selfBg.y + 45 })
+        //自己的名字
+        let selfTempName = localStorage.getItem("nick_name");
+        selfTempName = GosCommon.subString(selfTempName, 10);
+        let userName: egret.TextField = this.createTextField(selfTempName, { x: playerHead.x + playerHead.width + 70, y: selfBg.y + 45 })
         this.selfName = userName;
         selfContainer.addChild(userName);
 
-        let remaindTime: egret.TextField = this.createTextField("00:00:00", { x: playerHead.x + playerHead.width + 70, y: selfBg.y + 45 + 40 });
-        selfContainer.addChild(remaindTime);
+        let remaindTime: egret.TextField = this.createTextField("03:00:00", { x: playerHead.x + playerHead.width + 70, y: selfBg.y + 45 + 40 });
+        this.selfRemainTime = remaindTime;
+        selfContainer.addChild(this.selfRemainTime);
+
+        let selfHands: egret.TextField = this.createTextField(`第${this.selfNums}手`, { x: playerHead.x + playerHead.width + 250, y: selfBg.y + 45 + 40 });
+        this.selfHands = selfHands;
+        selfContainer.addChild(this.selfHands);
+
 
         this.selfContainer = selfContainer;
 
@@ -79,49 +92,87 @@ class PlayerInfo extends egret.DisplayObjectContainer {
         let oppPlayerHead = GosCommon.createBitmapByNameAndPosition("touxiang_png", { x: oppBg.x + 30, y: (oppBg.height - 100) / 2 + oppBg.y });
         oppContainer.addChild(oppPlayerHead);
 
-        let oppNameChess = this.createUserChess("chess_black_big_png", { x: oppPlayerHead.x + oppPlayerHead.width + 10, y: oppBg.y + 40 })
-        oppContainer.addChild(oppNameChess);
+        let oppNameChess = this.createUserChess("unknown_png", { x: oppPlayerHead.x + oppPlayerHead.width + 10, y: oppBg.y + 40 })
+        this.oppUserNameChess = oppNameChess;
+        oppContainer.addChild(this.oppUserNameChess);
 
-        let oppHandsChess = this.createUserChess("chess_black_big_png", { x: oppPlayerHead.x + oppPlayerHead.width + 270, y: selfBg.y + 40 })
-        oppContainer.addChild(oppHandsChess);
+        let oppHandsChess = this.createUserChess("unknown_png", { x: oppPlayerHead.x + oppPlayerHead.width + 270, y: selfBg.y + 40 })
+        this.oppHandsChess = oppHandsChess;
+        oppContainer.addChild(this.oppHandsChess);
 
 
         let oppUserName: egret.TextField = this.createTextField("jsnylee", { x: oppPlayerHead.x + oppPlayerHead.width + 70, y: oppBg.y + 45 })
         this.oppName = oppUserName;
         oppContainer.addChild(oppUserName);
 
-        let oppRemaindTime: egret.TextField = this.createTextField("00:00:00", { x: oppPlayerHead.x + oppPlayerHead.width + 70, y: oppBg.y + 45 + 40 });
-        oppContainer.addChild(oppRemaindTime);
+        let oppRemaindTime: egret.TextField = this.createTextField("03:00:00", { x: oppPlayerHead.x + oppPlayerHead.width + 70, y: oppBg.y + 45 + 40 });
+        this.oppRemainTime = oppRemaindTime;
+        oppContainer.addChild(this.oppRemainTime);
+
+        let oppHands: egret.TextField = this.createTextField(`第${this.selfNums}手`, { x: playerHead.x + playerHead.width + 250, y: selfBg.y + 45 + 40 });
+        this.oppHands = oppHands;
+        oppContainer.addChild(this.oppHands);
+
 
         this.oppContainer = oppContainer;
         this.addChild(this.oppContainer);
         /* 结束 绘制对手的玩家信息 */
 
-        this.selfContainer.visible = false;
+        //this.selfContainer.visible = false;
         this.oppContainer.visible = false;
-        EventManager.subscribe("GameScene/ShowPlayerMsg", function () {
-            self.showPlayer();
+        EventManager.subscribe("GameScene/ShowPlayerMsg", function (data) {
+            self.showOppPlayer(data);
         });
 
-        EventManager.subscribe("GameScene/SetPlayerName", function (pType, name) {
-            self.setPlayerName(pType, name);
-        })
+        /*EventManager.subscribe("GameScene/showSelfName", function (nickName) {
+            self.setSelfName(nickName);
+        });*/
 
+        /*  EventManager.subscribe("GameScene/SetPlayerName", function (pType, name) {
+              self.setPlayerName(pType, name);
+          });*/
 
+        EventManager.subscribe("GameScene/setPlayerName", function (chessType) {
+            self.updatePlayerChess(chessType);
+        });
+    }
+    private setSelfName(nickName) {
+        //this.selfName = nickName;
+        // alert(nickName);
     }
 
     private setPlayerName(pType, name) {
         let currentPlayer = pType == "self" ? this.selfName : this.oppName;
         currentPlayer.text = name;
-    }
-    private showPlayer() {
-        this.selfContainer.visible = true;
-        this.oppContainer.visible = true;
-        this.selfContainer.alpha = 0;
-        this.oppContainer.alpha = 0;
-        egret.Tween.get(this.selfContainer).to({ alpha: 1 }, 1000, egret.Ease.backIn);
-        egret.Tween.get(this.oppContainer).to({ alpha: 1 }, 1000, egret.Ease.backIn);
 
+    }
+    /**
+     * 更新对手显示  同时更新自己的棋子
+     */
+    private showOppPlayer(playerInfo) {
+        this.oppContainer.visible = true;
+        this.oppContainer.alpha = 0;
+        this.setPlayerName("opp", GosCommon.subString(playerInfo.nickname, 10));
+        egret.Tween.get(this.oppContainer).to({ alpha: 1 }, 1000, egret.Ease.backIn);
+        EventManager.publish("GameScene/setPlayerName", playerInfo.colorType);
+    }
+
+    /**
+     * 更新棋子 服务端返回 棋子类型后更新自己和对手棋子颜色
+     */
+    private updatePlayerChess(chessType: number) {
+        if (chessType != 2) {
+            let selfChessType = chessType == 0 ? 1 : 0;
+            let resOppName = chessType == 0 ? "chess_black_big_png" : "chess_white_big_png";
+            let resSelfName = chessType == 0 ? "chess_white_big_png" : "chess_black_big_png";
+            let resOppNameChess: egret.Texture = GosCommon.createBitmapByName(resOppName).texture;
+            let resSelfNameChess: egret.Texture = GosCommon.createBitmapByName(resSelfName).texture;
+            this.selfUserNameChess.texture = resSelfNameChess;
+            this.selfHandsChess.texture = resSelfNameChess
+            this.oppUserNameChess.texture = resOppNameChess;
+            this.oppHandsChess.texture = resOppNameChess;
+            EventManager.publish("ChessBoard/setSelfChessType", selfChessType);
+        }
     }
 
     /**
@@ -143,7 +194,7 @@ class PlayerInfo extends egret.DisplayObjectContainer {
      * name 资源; position 位置对象
      */
     private createUserChess(name: string, position: any): egret.Bitmap {
-        let userChess: egret.Bitmap = GosCommon.createBitmapByName("chess_black_big_png");
+        let userChess: egret.Bitmap = GosCommon.createBitmapByName(name);
         userChess.x = position["x"];
         userChess.y = position["y"];
         return userChess;

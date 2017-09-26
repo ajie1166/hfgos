@@ -9,6 +9,7 @@
         Token: "",
         SessionId: "",
         PlayerId: "",
+        NickName: "",
         GetToken: function () {
             var self = this;
             var params = this.GetParams();
@@ -38,7 +39,6 @@
                 EventManager.subscribe("testLocalStoage", function () {
                     alert(localStorage.player_id);
                 });
-                
                 wsConnection.initWS(localStorage.player_id);
             }).fail(function () {
                 EventManager.publish("showMsg", "对不起,游戏加载出错,请重新启动客户端");
@@ -49,12 +49,14 @@
             //alert(1);
             var s_id = data["gos_session_id"];
             var p_id = data["gos_player_id"];
-            if (typeof s_id == "undefined" || s_id == "" || typeof p_id == "undefined" || p_id == "") {
+            var nickName = data["gos_nick_name"];
+            if (typeof s_id == "undefined" || s_id == "" || typeof p_id == "undefined" || p_id == "" || typeof nickName == "undefined" || nickName == "") {
                 EventManager.publish("showMsg", "对不起,获取用户信息出错");
                 return;
             }
             this.SessionId = s_id;
             this.PlayerId = p_id;
+            this.NickName = nickName;
             if (localStorage.session_id != "") {
                 if (localStorage.session_id != this.SessionId) {
                     localStorage.session_id = this.SessionId;
@@ -69,6 +71,18 @@
             } else {
                 localStorage.player_id = this.PlayerId;
             }
+            if (localStorage.nick_name != "") {
+                if (localStorage.nick_name != this.NickName) {
+                    localStorage.nick_name = this.NickName;
+                }
+            } else {
+                localStorage.nick_name = this.NickName;
+            }
+            EventManager.publish("GameScene/opPing");
+            //var hex = "e6a38be58f8b";
+            //var cv = hex.fromCharCode(hex);
+          //  alert(cv)
+            //alert(this.NickName);
         },
         loginCB: function (data) {
             console.log(data);

@@ -51,6 +51,9 @@ var ChessBoard = (function (_super) {
         EventManager.subscribe("ChessBoard/hideLight", function () {
             self.hideLight();
         });
+        EventManager.subscribe("ChessBoard/setSelfChessType", function (chessType) {
+            self.setSelfChessType(chessType);
+        });
         EventManager.subscribe('ChessBoard/fSetGos', function (color, x, y) {
             // alert("fSetGos");
             // 下子操作
@@ -73,6 +76,9 @@ var ChessBoard = (function (_super) {
         return _this;
         //this.addEventListener(egret.TouchEvent.TOUCH_MOVE, this.onTouchBoard, this);
     }
+    ChessBoard.prototype.setSelfChessType = function (chessType) {
+        this.nSelfColor = chessType;
+    };
     ChessBoard.prototype.onTouchBoard = function (evt) {
         //alert(evt.stageY + "---" + this.x);
         var chessType = this.nSelfColor;

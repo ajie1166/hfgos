@@ -1,7 +1,7 @@
 {
 	"groups": [
 		{
-			"keys": "egret_icon_png,description_json,yzbg,playerbg_png,取消匹配_hover_png,touxiang_png,qipan_png,btn_stop_black_png,btn_stop_red_png,btn_xingshi_black_png,btn_xingshi_red_png,loading_jpg,btn_start_black_png,chess_black_big_png,chess_black_small_png,success_black_png,btn_biaoji_black_png,btn_biaoji_red_png,btn_cancel_pipei_png,btn_dianbu_black_png,btn_dianmu_red_png,btn_end_black_png,btn_end_red_png,btn_pipei_black_png,btn_pipei_red_png,btn_start_pipei_black_png,btn_start_pipei_red_png,chess_white_big_png,chess_white_small_png,success_white_png,lightX_png,lightY_png,alertBg_png,cancelalert_png,cancelalert_hover_png,ok_png,ok_hover_png",
+			"keys": "egret_icon_png,description_json,yzbg,playerbg_png,取消匹配_hover_png,touxiang_png,qipan_png,btn_stop_black_png,btn_stop_red_png,btn_xingshi_black_png,btn_xingshi_red_png,loading_jpg,btn_start_black_png,chess_black_big_png,chess_black_small_png,success_black_png,btn_biaoji_black_png,btn_biaoji_red_png,btn_cancel_pipei_png,btn_dianbu_black_png,btn_dianmu_red_png,btn_end_black_png,btn_end_red_png,btn_pipei_black_png,btn_pipei_red_png,btn_start_pipei_black_png,btn_start_pipei_red_png,chess_white_big_png,chess_white_small_png,success_white_png,lightX_png,lightY_png,alertBg_png,cancelalert_png,cancelalert_hover_png,ok_png,ok_hover_png,unknown_png",
 			"name": "preload"
 		}
 	],
@@ -190,6 +190,11 @@
 			"name": "ok_hover_png",
 			"type": "image",
 			"url": "assets/game/ok_hover.png"
+		},
+		{
+			"name": "unknown_png",
+			"type": "image",
+			"url": "assets/game/unknown.png"
 		}
 	]
 }

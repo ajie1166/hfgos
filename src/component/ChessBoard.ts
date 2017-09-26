@@ -75,6 +75,9 @@ class ChessBoard extends egret.DisplayObjectContainer {
             self.hideLight();
         })
 
+        EventManager.subscribe("ChessBoard/setSelfChessType", function (chessType) {
+            self.setSelfChessType(chessType);
+        })
         EventManager.subscribe('ChessBoard/fSetGos', function (color, x, y) {
             // alert("fSetGos");
             // 下子操作
@@ -96,6 +99,10 @@ class ChessBoard extends egret.DisplayObjectContainer {
         this.touchEnabled = true;
         this.addEventListener(egret.TouchEvent.TOUCH_BEGIN, this.onTouchBoard, this);
         //this.addEventListener(egret.TouchEvent.TOUCH_MOVE, this.onTouchBoard, this);
+    }
+
+    private setSelfChessType(chessType) {
+        this.nSelfColor = chessType;
     }
 
     private onTouchBoard(evt: egret.TouchEvent) {

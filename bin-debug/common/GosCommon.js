@@ -29,6 +29,12 @@ var GosCommon = (function () {
         result.y = y;
         return result;
     };
+    /**
+     * 字符串截取
+     */
+    GosCommon.subString = function (str, len) {
+        return str.length > 10 ? str.substring(0, len) + "..." : str;
+    };
     return GosCommon;
 }());
 __reflect(GosCommon.prototype, "GosCommon");
