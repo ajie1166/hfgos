@@ -15,6 +15,12 @@ var MatchingScene = (function (_super) {
     function MatchingScene() {
         var _this = _super.call(this) || this;
         _this.MATCHING_TIME = 20;
+        _this.isNewTimer = true;
+        _this.isMatchSuccess = false;
+        /**
+         * 秒数
+         */
+        _this.second = 60;
         var self = _this;
         var stage = egret.MainContext.instance.stage;
         var stageW = stage.stageWidth;
@@ -35,6 +41,9 @@ var MatchingScene = (function (_super) {
             EventManager.publish("MatchingScene/btnCancelMatching");
         }, _this);
         _this.addChild(_this.btnCancelMatching);
+        _this.timerText = GosCommon.createTextField("" + _this.second, 0xffffff, 40, { x: (stageW - 594) / 2 + (594 - 336) / 2 + 260, y: (stageH - 594) / 2 + (594 - 110) / 2 + 35 });
+        _this.addChild(_this.timerText);
+        _this.timerText.visible = false;
         EventManager.subscribe("MatchingScene/btnMatchingStart", function () {
             self.startMatching();
         });
@@ -44,8 +53,45 @@ var MatchingScene = (function (_super) {
         EventManager.subscribe("MatchingScene/MatchSuccess", function (data) {
             self.matchSuccess(data);
         });
+        EventManager.subscribe("MatchingScene/endMatching", function () {
+            self.endMatching();
+        });
+        EventManager.subscribe("MatchingScene/matchingTimer", function () {
+            // alert(2);
+            self.initPiPeiTimer();
+            self.startTimer();
+        });
+        _this.initPiPeiTimer();
         return _this;
     }
+    MatchingScene.prototype.startTimer = function () {
+        this.timerText.visible = true;
+        this.matchingTimer.start();
+    };
+    MatchingScene.prototype.initPiPeiTimer = function () {
+        // alert(1);
+        this.matchingTimer = new egret.Timer(1000, 60);
+        this.matchingTimer.addEventListener(egret.TimerEvent.TIMER, this.setSecond, this);
+        this.matchingTimer.addEventListener(egret.TimerEvent.TIMER_COMPLETE, this.endMatching, this);
+    };
+    MatchingScene.prototype.endMatching = function () {
+        // this.matchingTimer.stop();
+        this.cancelMatching();
+    };
+    /**
+     * 倒计时
+     */
+    MatchingScene.prototype.setSecond = function (evt) {
+        if (!this.isNewTimer) {
+        }
+        // alert(this.timerText.text);
+        this.second = Number(this.timerText.text);
+        if (this.second > 0) {
+            this.second--;
+        }
+        //this.timerText = new egret.TextField();
+        this.timerText.text = this.second < 10 ? "0" + this.second : "" + this.second;
+    };
     MatchingScene.prototype.startMatching = function () {
         this.btnPiPei.visible = false;
         this.btnMatching.visible = true;
@@ -53,8 +99,11 @@ var MatchingScene = (function (_super) {
         //一分钟倒计时 一分钟匹配不到重新匹配   匹配有可能突然成功需要后期处理
         //EventManager.publish("MatchingScene/btnStartMatching");
         EventManager.publish("MatchingScene/onBtnReadyStart");
+        //启动一分钟倒计时
+        EventManager.publish("MatchingScene/matchingTimer");
     };
     MatchingScene.prototype.matchSuccess = function (oppPlayer) {
+        this.isMatchSuccess = true;
         this.btnPiPei.visible = false;
         this.btnMatching.visible = false;
         this.btnCancelMatching.visible = false;
@@ -62,11 +111,18 @@ var MatchingScene = (function (_super) {
         egret.Tween.get(this.btnCancelMatching).to({ visible: false }, 1000, egret.Ease.backIn);
         EventManager.publish("GameScene/ShowPlayerMsg", oppPlayer);
         EventManager.publish("GameScene/showGameMenu", "lijie");
+        EventManager.publish("MatchingScene/endMatching");
     };
     MatchingScene.prototype.cancelMatching = function () {
-        this.btnPiPei.visible = true;
+        if (!this.isMatchSuccess) {
+            this.btnPiPei.visible = true;
+        }
         this.btnMatching.visible = false;
         this.btnCancelMatching.visible = false;
+        this.matchingTimer.stop();
+        this.timerText.text = "60";
+        this.timerText.visible = false;
+        //alert(this.matchingTimer);
     };
     return MatchingScene;
 }(egret.DisplayObjectContainer));

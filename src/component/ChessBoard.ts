@@ -28,7 +28,13 @@ class ChessBoard extends egret.DisplayObjectContainer {
     private moveWhiteChess: egret.Bitmap;
     private moveBlackChess: egret.Bitmap;
 
+    private qipanContainer: egret.Sprite;
+
     private chessList: egret.DisplayObjectContainer;
+
+
+    private rectMask: egret.Sprite;
+    private rectMaskContent: egret.TextField;
 
     private nSelfColor = 0;
     constructor() {
@@ -39,8 +45,10 @@ class ChessBoard extends egret.DisplayObjectContainer {
         let stageW = stage.stageWidth;
         let stageH = stage.stageHeight;
         //加载棋盘
+        this.qipanContainer = new egret.Sprite();
         let qipan = GosCommon.createBitmapByNameAndPosition("qipan_png", { x: (stageW - 594) / 2, y: (stageH - 594) / 2 });
-        this.addChild(qipan);
+        this.qipanContainer.addChild(qipan);
+        this.addChild(this.qipanContainer);
 
         this.BoardStartX = 48;
         this.BoardStartY = 28;
@@ -73,11 +81,13 @@ class ChessBoard extends egret.DisplayObjectContainer {
 
         EventManager.subscribe("ChessBoard/hideLight", function () {
             self.hideLight();
-        })
+        });
+
+
 
         EventManager.subscribe("ChessBoard/setSelfChessType", function (chessType) {
             self.setSelfChessType(chessType);
-        })
+        });
         EventManager.subscribe('ChessBoard/fSetGos', function (color, x, y) {
             // alert("fSetGos");
             // 下子操作
@@ -96,10 +106,41 @@ class ChessBoard extends egret.DisplayObjectContainer {
              self.aRecord.push(o);*/
         });
 
+        //弹出遮罩层
+        EventManager.subscribe("ChessBoard/showMask", function (content) {
+            self.showRectMask(qipan.x + (qipan.width - 340) / 2, qipan.y + (qipan.height - 150) / 2, content);
+            //self.showRectMask(500, 20);
+        });
+        //EventManager.publish("ChessBoard/showMask");
+
         this.touchEnabled = true;
         this.addEventListener(egret.TouchEvent.TOUCH_BEGIN, this.onTouchBoard, this);
         //this.addEventListener(egret.TouchEvent.TOUCH_MOVE, this.onTouchBoard, this);
     }
+
+
+
+    /**
+     * 
+     * * 遮罩层
+        */
+    private showRectMask(x: number, y: number, content: string) {
+        this.rectMask = new egret.Sprite();
+        this.rectMask.graphics.beginFill(0x000000);
+        this.rectMask.graphics.drawRect(x, y, 340, 150);
+        this.rectMask.graphics.endFill();
+        this.rectMask.alpha = 0.5;
+        this.rectMaskContent = new egret.TextField();
+        this.rectMaskContent.text = content;
+        this.rectMaskContent.x = x + 100;
+        this.rectMaskContent.y = y + 55;
+        this.rectMaskContent.textColor = 0xffffff;
+
+        this.qipanContainer.addChild(this.rectMask);
+        this.qipanContainer.addChild(this.rectMaskContent);
+        // this.btnPiPei.mask = rectMask;
+    }
+
 
     private setSelfChessType(chessType) {
         this.nSelfColor = chessType;

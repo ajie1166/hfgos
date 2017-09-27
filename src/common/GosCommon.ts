@@ -30,4 +30,18 @@ class GosCommon {
     public static subString(str: string, len: number) {
         return str.length > 10 ? str.substring(0, len) + "..." : str;
     }
+
+    /**
+     * 创建字符串
+     */
+    public static createTextField(txt: string, textColor: number,size:number, position: any): egret.TextField {
+        let txtField: egret.TextField = new egret.TextField();
+        txtField.textColor = textColor;
+        txtField.text = txt;
+        txtField.x = position["x"];
+        txtField.y = position["y"];
+        txtField.size = size;
+        //txtField.bold = true;
+        return txtField;
+    }
 }

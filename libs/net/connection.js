@@ -30,10 +30,9 @@ var wsConnection = {
                 }
             };*/
 
-
             var sendMsg = JSON.stringify(GameRequest);
             ws.send(sendMsg);
-            // console.info(sendMsg);
+            console.info(sendMsg);
         };
         ws.onmessage = function (evt) {
             //console.info(evt.data);
@@ -45,6 +44,7 @@ var wsConnection = {
         };
     },
     sendMsg: function (data) {
+        var data = JSON.stringify(data);
         ws.readyState === 1 && ws.send(data);
         //alert(ws.readyState);
         console.info(data);
@@ -87,7 +87,9 @@ var wsConnection = {
                 } else {
                     //规则不符合  自动取消  然后一分钟内匹配三次  或者直接调用op_leave
                 }
-
+            } else if (op == 2015) {
+                //开始游戏
+                
             }
         } else {
             //返回失败

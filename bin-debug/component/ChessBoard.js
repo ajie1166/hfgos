@@ -23,8 +23,10 @@ var ChessBoard = (function (_super) {
         var stageW = stage.stageWidth;
         var stageH = stage.stageHeight;
         //加载棋盘
+        _this.qipanContainer = new egret.Sprite();
         var qipan = GosCommon.createBitmapByNameAndPosition("qipan_png", { x: (stageW - 594) / 2, y: (stageH - 594) / 2 });
-        _this.addChild(qipan);
+        _this.qipanContainer.addChild(qipan);
+        _this.addChild(_this.qipanContainer);
         _this.BoardStartX = 48;
         _this.BoardStartY = 28;
         _this.chessGap = 30;
@@ -71,11 +73,36 @@ var ChessBoard = (function (_super) {
              var o = { x: x, y: y, color: color };
              self.aRecord.push(o);*/
         });
+        //弹出遮罩层
+        EventManager.subscribe("ChessBoard/showMask", function (content) {
+            self.showRectMask(qipan.x + (qipan.width - 340) / 2, qipan.y + (qipan.height - 150) / 2, content);
+            //self.showRectMask(500, 20);
+        });
+        //EventManager.publish("ChessBoard/showMask");
         _this.touchEnabled = true;
         _this.addEventListener(egret.TouchEvent.TOUCH_BEGIN, _this.onTouchBoard, _this);
         return _this;
         //this.addEventListener(egret.TouchEvent.TOUCH_MOVE, this.onTouchBoard, this);
     }
+    /**
+     *
+     * * 遮罩层
+        */
+    ChessBoard.prototype.showRectMask = function (x, y, content) {
+        this.rectMask = new egret.Sprite();
+        this.rectMask.graphics.beginFill(0x000000);
+        this.rectMask.graphics.drawRect(x, y, 340, 150);
+        this.rectMask.graphics.endFill();
+        this.rectMask.alpha = 0.5;
+        this.rectMaskContent = new egret.TextField();
+        this.rectMaskContent.text = content;
+        this.rectMaskContent.x = x + 100;
+        this.rectMaskContent.y = y + 55;
+        this.rectMaskContent.textColor = 0xffffff;
+        this.qipanContainer.addChild(this.rectMask);
+        this.qipanContainer.addChild(this.rectMaskContent);
+        // this.btnPiPei.mask = rectMask;
+    };
     ChessBoard.prototype.setSelfChessType = function (chessType) {
         this.nSelfColor = chessType;
     };
