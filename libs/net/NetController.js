@@ -7,6 +7,26 @@ var NetController = {
     hfListen: function () {
         var self = this;
 
+        /**
+         * game_id:游戏id
+         * step:步数
+         * content:"play black e1"
+         * time:剩余时间
+         */
+        EventManager.subscribe("GameScene/confirmLuoZi", function (game_id, step, content, time) {
+            TSDT[2100].op = "OP_MOVE_REQ";
+            TSDT[2100].request_id = Utility.getRequestId();
+            TSDT[2100].player_id = localStorage.player_id;
+            TSDT[2100].object = {
+                step: step,
+                content: content,
+                timeType: 1,
+                time: 10780
+            };
+            TSDT[2100].game_id = game_id;
+            wsConnection.sendMsg(TSDT[2100]);
+        });
+
         //开始匹配对手
         EventManager.subscribe("MatchingScene/onBtnReadyStart", function () {
             TSDT[2006].op = "OP_QUICK_JOIN_REQ";

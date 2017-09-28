@@ -25,6 +25,7 @@ var game_file_list = [
 	"libs/load/loader.js",
 	"bin-debug/AppStart/GameScene.js",
 	"bin-debug/common/GosCommon.js",
+	"bin-debug/component/Button.js",
 	"bin-debug/component/ChessBoard.js",
 	"bin-debug/component/GameMenu.js",
 	"bin-debug/component/GameSetting.js",

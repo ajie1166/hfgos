@@ -17,7 +17,9 @@ var ChessBoard = (function (_super) {
         _this.touchGap = 10;
         _this.realBoardStartX = 690;
         _this.realBoardStartY = 270;
+        //自己棋子颜色类型 0 黑子  1 白子
         _this.nSelfColor = 0;
+        _this.chessAvailable = false;
         var self = _this;
         var stage = egret.MainContext.instance.stage;
         var stageW = stage.stageWidth;
@@ -73,6 +75,23 @@ var ChessBoard = (function (_super) {
              var o = { x: x, y: y, color: color };
              self.aRecord.push(o);*/
         });
+        //走子  并落下
+        EventManager.subscribe('ChessBoard/setGos', function (chessType, numX, numY) {
+            //alert(chessType);
+            if (chessType == undefined) {
+                chessType = self.nSelfColor;
+            }
+            if (numX == undefined) {
+                numX = self.numX;
+            }
+            if (numY == undefined) {
+                numY = self.numY;
+            }
+            self.addChess(chessType, numX, numY);
+        });
+        EventManager.subscribe("ChessBoard/setAvail", function (isAvail) {
+            self.setAvailSetGos(isAvail);
+        });
         //弹出遮罩层
         EventManager.subscribe("ChessBoard/showMask", function (content) {
             self.showRectMask(qipan.x + (qipan.width - 340) / 2, qipan.y + (qipan.height - 150) / 2, content);
@@ -103,9 +122,17 @@ var ChessBoard = (function (_super) {
         this.qipanContainer.addChild(this.rectMaskContent);
         // this.btnPiPei.mask = rectMask;
     };
+    //设置自己棋子类型
     ChessBoard.prototype.setSelfChessType = function (chessType) {
         this.nSelfColor = chessType;
     };
+    /**
+     * 设置下棋权限
+     */
+    ChessBoard.prototype.setAvailSetGos = function (isAvail) {
+        this.chessAvailable = isAvail;
+    };
+    //落子
     ChessBoard.prototype.onTouchBoard = function (evt) {
         //alert(evt.stageY + "---" + this.x);
         var chessType = this.nSelfColor;
@@ -123,11 +150,14 @@ var ChessBoard = (function (_super) {
         /**
          * todo
          */
-        var chessAvailable = true;
+        // alert(this.chessAvailable);
+        var chessAvailable = this.chessAvailable;
         var numX = Math.round((_x - this.realBoardStartX) / chessGap); //x轴隔几个chessGap开始
         var numY = Math.round((_y - this.realBoardStartY) / chessGap); //y轴隔几个chessGap开始
         if (chessAvailable) {
             this.setLight(chessType, numX, numY, _x, _y);
+            this.numX = numX;
+            this.numY = numY;
         }
     };
     //设置两个标识轴
@@ -157,8 +187,12 @@ var ChessBoard = (function (_super) {
             this.moveBlackChess.visible = false;
             this.moveWhiteChess.visible = true;
         }
-        this.addChess(chessType, numX, numY);
+        EventManager.publish("GameScene/showLuoZi");
+        //this.addChess(chessType, numX, numY);
     };
+    /**
+     * 落子成功后 隐藏
+     */
     ChessBoard.prototype.hideLight = function () {
         this.moveBlackChess.visible = false;
         this.moveWhiteChess.visible = false;
@@ -179,6 +213,11 @@ var ChessBoard = (function (_super) {
         chess.alpha = 0;
         egret.Tween.get(chess).to({ alpha: 1, scaleX: 1, scaleY: 1 }, 1000);
         this.chessList.addChild(chess);
+        this.setAvailSetGos(false);
+        EventManager.publish("GameScene/hideConfirmLuoZi");
+        EventManager.publish("ChessBoard/hideLight");
+        var content = "play " + (chessType == 0 ? "black" : "white") + " h5";
+        EventManager.publish("GameScene/confirmLuoZi", localStorage.getItem("game_id"), 1, content, 10700);
     };
     return ChessBoard;
 }(egret.DisplayObjectContainer));

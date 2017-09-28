@@ -8,6 +8,8 @@ class GameMenu extends egret.DisplayObjectContainer {
     private btnDianMu: egret.Bitmap;
     private btnBiaoji: egret.Bitmap;
     private btnXingShi: egret.Bitmap;
+
+    private luozi: Button;
     constructor() {
         super();
         let self = this;
@@ -22,10 +24,10 @@ class GameMenu extends egret.DisplayObjectContainer {
         jieShu.touchEnabled = true;
         menuY = jieShu.y;
         jieShu.addEventListener(egret.TouchEvent.TOUCH_TAP, function () {
-           // alert("按钮:结束游戏");
-            alert("x:"+jieShu.x);
+            // alert("按钮:结束游戏");
+            alert("x:" + jieShu.x);
             alert(jieShu.anchorOffsetY);
-            jieShu.anchorOffsetY=50;
+            jieShu.anchorOffsetY = 50;
         }, self);
         this.addChild(jieShu);
 
@@ -66,7 +68,18 @@ class GameMenu extends egret.DisplayObjectContainer {
         }, self);
         this.addChild(xingShi);
 
-        self.visible = false;
+        let luozi = new Button(GosCommon.createBitmapByName("luozi_png").texture);
+        luozi.x = 280;
+        luozi.y = 630;
+        this.luozi = luozi;
+        luozi.addEventListener(egret.TouchEvent.TOUCH_TAP, function () {
+            EventManager.publish('ChessBoard/setGos');
+        }, this);
+        this.addChild(this.luozi);
+
+        //self.visible = false;
+        this.luozi.visible = false;
+
         //结束游戏
         EventManager.subscribe("GameScene/endGame", function () {
 
@@ -79,9 +92,29 @@ class GameMenu extends egret.DisplayObjectContainer {
         EventManager.subscribe("GameScene/showGameMenu", function (data) {
             self.showGameMenu(data);
         });
+
+        /**
+         * 显示 确认落子 按钮
+         */
+        EventManager.subscribe("GameScene/showLuoZi", function () {
+            self.showLuoZi();
+        })
+
+        /**
+         * 隐藏 确认落子 按钮
+         */
+        EventManager.subscribe("GameScene/hideConfirmLuoZi", function () {
+            self.hideLuoZi();
+        })
     }
 
 
+    private hideLuoZi() {
+        this.luozi.visible = false;
+    }
+    private showLuoZi() {
+        this.luozi.visible = true;
+    }
     private hideGameMenu() {
         this.visible = false;
         /* this.btnJieShu.visible = false;
@@ -93,6 +126,7 @@ class GameMenu extends egret.DisplayObjectContainer {
     private showGameMenu(data) {
         //self.visible=true;
         this.visible = true;
+        // this.luozi.visible = false;
         this.alpha = 0;
         egret.Tween.get(this).to({ alpha: 1 }, 1000, egret.Ease.backIn);
         /* this.btnJieShu.visible = true;

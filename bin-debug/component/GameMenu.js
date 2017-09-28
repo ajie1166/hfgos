@@ -64,7 +64,16 @@ var GameMenu = (function (_super) {
             //alert("按钮:形式");
         }, self);
         _this.addChild(xingShi);
-        self.visible = false;
+        var luozi = new Button(GosCommon.createBitmapByName("luozi_png").texture);
+        luozi.x = 280;
+        luozi.y = 630;
+        _this.luozi = luozi;
+        luozi.addEventListener(egret.TouchEvent.TOUCH_TAP, function () {
+            EventManager.publish('ChessBoard/setGos');
+        }, _this);
+        _this.addChild(_this.luozi);
+        //self.visible = false;
+        _this.luozi.visible = false;
         //结束游戏
         EventManager.subscribe("GameScene/endGame", function () {
         });
@@ -74,8 +83,26 @@ var GameMenu = (function (_super) {
         EventManager.subscribe("GameScene/showGameMenu", function (data) {
             self.showGameMenu(data);
         });
+        /**
+         * 显示 确认落子 按钮
+         */
+        EventManager.subscribe("GameScene/showLuoZi", function () {
+            self.showLuoZi();
+        });
+        /**
+         * 隐藏 确认落子 按钮
+         */
+        EventManager.subscribe("GameScene/hideConfirmLuoZi", function () {
+            self.hideLuoZi();
+        });
         return _this;
     }
+    GameMenu.prototype.hideLuoZi = function () {
+        this.luozi.visible = false;
+    };
+    GameMenu.prototype.showLuoZi = function () {
+        this.luozi.visible = true;
+    };
     GameMenu.prototype.hideGameMenu = function () {
         this.visible = false;
         /* this.btnJieShu.visible = false;
@@ -87,6 +114,7 @@ var GameMenu = (function (_super) {
     GameMenu.prototype.showGameMenu = function (data) {
         //self.visible=true;
         this.visible = true;
+        // this.luozi.visible = false;
         this.alpha = 0;
         egret.Tween.get(this).to({ alpha: 1 }, 1000, egret.Ease.backIn);
         /* this.btnJieShu.visible = true;

@@ -28,15 +28,24 @@ class ChessBoard extends egret.DisplayObjectContainer {
     private moveWhiteChess: egret.Bitmap;
     private moveBlackChess: egret.Bitmap;
 
+    //棋盘容器
     private qipanContainer: egret.Sprite;
 
+    //棋子容器
     private chessList: egret.DisplayObjectContainer;
 
-
+    //矩形遮罩层
     private rectMask: egret.Sprite;
+    //遮罩层显示内容
     private rectMaskContent: egret.TextField;
 
+    //自己棋子颜色类型 0 黑子  1 白子
     private nSelfColor = 0;
+    //落子处x,y隔多少个格子
+    private numX: number;
+    private numY: number;
+
+    private chessAvailable: boolean = false;
     constructor() {
         super();
         let self = this;
@@ -106,6 +115,24 @@ class ChessBoard extends egret.DisplayObjectContainer {
              self.aRecord.push(o);*/
         });
 
+        //走子  并落下
+        EventManager.subscribe('ChessBoard/setGos', function (chessType, numX, numY) {
+            //alert(chessType);
+            if (chessType == undefined) {
+                chessType = self.nSelfColor;
+            }
+            if (numX == undefined) {
+                numX = self.numX;
+            }
+            if (numY == undefined) {
+                numY = self.numY;
+            }
+            self.addChess(chessType, numX, numY);
+        });
+
+        EventManager.subscribe("ChessBoard/setAvail", function (isAvail) {
+            self.setAvailSetGos(isAvail);
+        })
         //弹出遮罩层
         EventManager.subscribe("ChessBoard/showMask", function (content) {
             self.showRectMask(qipan.x + (qipan.width - 340) / 2, qipan.y + (qipan.height - 150) / 2, content);
@@ -142,10 +169,18 @@ class ChessBoard extends egret.DisplayObjectContainer {
     }
 
 
+    //设置自己棋子类型
     private setSelfChessType(chessType) {
         this.nSelfColor = chessType;
     }
 
+    /**
+     * 设置下棋权限
+     */
+    private setAvailSetGos(isAvail): void {
+        this.chessAvailable = isAvail;
+    }
+    //落子
     private onTouchBoard(evt: egret.TouchEvent) {
         //alert(evt.stageY + "---" + this.x);
         let chessType = this.nSelfColor;
@@ -164,11 +199,14 @@ class ChessBoard extends egret.DisplayObjectContainer {
         /**
          * todo
          */
-        let chessAvailable = true;
+        // alert(this.chessAvailable);
+        let chessAvailable = this.chessAvailable;
         let numX = Math.round((_x - this.realBoardStartX) / chessGap);//x轴隔几个chessGap开始
         let numY = Math.round((_y - this.realBoardStartY) / chessGap);//y轴隔几个chessGap开始
         if (chessAvailable) {
             this.setLight(chessType, numX, numY, _x, _y);
+            this.numX = numX;
+            this.numY = numY;
         }
     }
 
@@ -199,10 +237,13 @@ class ChessBoard extends egret.DisplayObjectContainer {
             this.moveBlackChess.visible = false;
             this.moveWhiteChess.visible = true;
         }
-
-        this.addChess(chessType, numX, numY);
+        EventManager.publish("GameScene/showLuoZi");
+        //this.addChess(chessType, numX, numY);
     }
 
+    /**
+     * 落子成功后 隐藏
+     */
     private hideLight() {
         this.moveBlackChess.visible = false;
         this.moveWhiteChess.visible = false;
@@ -226,7 +267,11 @@ class ChessBoard extends egret.DisplayObjectContainer {
         egret.Tween.get(chess).to({ alpha: 1, scaleX: 1, scaleY: 1 }, 1000);
 
         this.chessList.addChild(chess);
-
+        this.setAvailSetGos(false);
+        EventManager.publish("GameScene/hideConfirmLuoZi");
+        EventManager.publish("ChessBoard/hideLight");
+        let content = "play " + (chessType == 0 ? "black" : "white") + " h5";
+        EventManager.publish("GameScene/confirmLuoZi", localStorage.getItem("game_id"), 1, content, 10700);
     }
 
 

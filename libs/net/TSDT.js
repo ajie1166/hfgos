@@ -126,6 +126,13 @@ TSDT[OP_CONFIRM_RULE_REQ] = {
     object: "",
     game_id: ""
 };
+TSDT[OP_MOVE_REQ] = {
+    op: "",
+    request_id: "",
+    player_id: "",
+    object: "",
+    game_id: ""
+};
 
 TSDT[OP_NEW_REQ] = {
     op: "",

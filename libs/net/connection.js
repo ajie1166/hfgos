@@ -7,29 +7,12 @@ var wsConnection = {
         var self = this;
         ws = new WebSocket(conArray[0]);
         ws.onopen = function () {
-            // console.info(player_id);
-            //var player_id = localStorage.player_id;
-            /*TSDT[1000].op = "OP_LOGIN_REQ";
-             TSDT[1000].player_id = player_id;
-             TSDT[1000].request_id = Utility.getRequestId()
-             TSDT[1000]["object"].player_id = player_id;
-             TSDT[1000]["object"].version = "1.0.0";
-             TSDT[1000]["object"].date = Utility.getTimestamp();*/
             GameRequest.op = "OP_LOGIN_REQ";
             GameRequest.player_id = player_id;
             TSDT[1000].player_id = player_id;
             GameRequest.object = TSDT[1000];
-            /*var obj = {
-                "op": "1000",
-                "player_id": player_id,
-                "request_id": Utility.getRequestId(),
-                "object": {
-                    "player_id": player_id,
-                    "version": "1.0.0",
-                    "date": Utility.getTimestamp()
-                }
-            };*/
 
+            //发送
             var sendMsg = JSON.stringify(GameRequest);
             ws.send(sendMsg);
             console.info(sendMsg);
@@ -72,6 +55,9 @@ var wsConnection = {
                 var gameCountdownTime = data["RULE_REP"]["gameInfo"].gameCountdownTime;//读秒 60
                 var handicap = data["RULE_REP"]["gameInfo"].handicap;//是否让子
                 var gameId = data["game_id"];
+                if (gameId != "") {
+                    localStorage.setItem("game_id", gameId);
+                }
                 if (playerArr instanceof Array && playerArr.length == 2) {
                     for (var i = 0; i < 2; i++) {
                         if (playerArr[i].id != selfPlayerId) {
@@ -89,7 +75,9 @@ var wsConnection = {
                 }
             } else if (op == 2015) {
                 //开始游戏
-                
+                EventManager.publish("ChessBoard/setAvail", true);
+                //var gameId = localStorage.getItem("game_id");
+               // EventManager.publish("GameScene/confirmLuoZi", gameId);
             }
         } else {
             //返回失败
