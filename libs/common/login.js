@@ -81,7 +81,7 @@
             EventManager.publish("GameScene/opPing");
             //var hex = "e6a38be58f8b";
             //var cv = hex.fromCharCode(hex);
-          //  alert(cv)
+            //  alert(cv)
             //alert(this.NickName);
         },
         loginCB: function (data) {

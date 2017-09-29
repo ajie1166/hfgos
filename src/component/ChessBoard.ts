@@ -116,7 +116,7 @@ class ChessBoard extends egret.DisplayObjectContainer {
         });
 
         //走子  并落下
-        EventManager.subscribe('ChessBoard/setGos', function (chessType, numX, numY) {
+        EventManager.subscribe('ChessBoard/setGos', function (chessType, numX, numY, playerType) {
             //alert(chessType);
             if (chessType == undefined) {
                 chessType = self.nSelfColor;
@@ -127,7 +127,7 @@ class ChessBoard extends egret.DisplayObjectContainer {
             if (numY == undefined) {
                 numY = self.numY;
             }
-            self.addChess(chessType, numX, numY);
+            self.addChess(chessType, numX, numY, playerType);
         });
 
         EventManager.subscribe("ChessBoard/setAvail", function (isAvail) {
@@ -252,7 +252,11 @@ class ChessBoard extends egret.DisplayObjectContainer {
     }
 
     //落子
-    private addChess(chessType: number, numX: number, numY: number) {
+    /**
+     * playerType 己方还是对方     0 己方  1 他方
+     */
+    private addChess(chessType: number, numX: number, numY: number, playerType: number) {
+        //alert(numX + "****" + numY);
         //alert(chessType);
         let chessResName = chessType == 0 ? "chess_black_small_png" : "chess_white_small_png";
         let chess: egret.Bitmap = GosCommon.createBitmapByName(chessResName);
@@ -267,11 +271,17 @@ class ChessBoard extends egret.DisplayObjectContainer {
         egret.Tween.get(chess).to({ alpha: 1, scaleX: 1, scaleY: 1 }, 1000);
 
         this.chessList.addChild(chess);
-        this.setAvailSetGos(false);
-        EventManager.publish("GameScene/hideConfirmLuoZi");
-        EventManager.publish("ChessBoard/hideLight");
-        let content = "play " + (chessType == 0 ? "black" : "white") + " h5";
-        EventManager.publish("GameScene/confirmLuoZi", localStorage.getItem("game_id"), 1, content, 10700);
+        if (playerType == 0) {
+            this.setAvailSetGos(false);
+            EventManager.publish("GameScene/hideConfirmLuoZi");
+            EventManager.publish("ChessBoard/hideLight");
+            let wX = Utility.getWordByNum(numX);
+            let content = "play " + (chessType == 0 ? "black" : "white") + ` ${wX}${19 - numY}`;
+            EventManager.publish("GameScene/confirmLuoZi", localStorage.getItem("game_id"), 1, content, 10700);
+        } else {
+            this.setAvailSetGos(true);
+        }
+
     }
 
 

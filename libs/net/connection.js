@@ -75,9 +75,36 @@ var wsConnection = {
                 }
             } else if (op == 2015) {
                 //开始游戏
+                var selfPlayer = new Object();
+                var playerArr = data["GAME_START_REP"]["gameInfo"].player;
+                if (playerArr instanceof Array && playerArr.length == 2) {
+                    for (var i = 0; i < 2; i++) {
+                        if (playerArr[i].id == selfPlayerId) {
+                            selfPlayer = playerArr[i];
+                            break;
+                        }
+                    }
+                }
                 EventManager.publish("ChessBoard/setAvail", true);
                 //var gameId = localStorage.getItem("game_id");
-               // EventManager.publish("GameScene/confirmLuoZi", gameId);
+                // EventManager.publish("GameScene/confirmLuoZi", gameId);
+            } else if (op == 2101) {
+                //对方
+                var request_id = data["request_id"];
+                var player_id = data["player_id"];
+                var local_player_id = localStorage.getItem("player_id");
+                // if(request_id!=localStorage.getItem["last_luozi_request_id"])
+                var content = data["MOVE_REP"]["content"];
+                var oppColor = content.split(" ")[1] == "black" ? 0 : 1;
+                var x = content.split(" ")[2].substring(0, 1);
+                var y = content.split(" ")[2].substring(1);
+                //alert(x);
+                var numX = Utility.getNumx(x);
+               // alert(numX);
+                var numY = Utility.getNumY(y);
+                if (local_player_id != player_id) {
+                    EventManager.publish('ChessBoard/setGos', oppColor, numX, numY, 1);
+                }
             }
         } else {
             //返回失败

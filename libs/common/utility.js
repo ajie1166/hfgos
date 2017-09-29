@@ -14,5 +14,30 @@ var Utility = {
     getRequestId: function () {
         var requestId = this.getTimestamp() + this.getRandomWord();
         return requestId;
+    },
+    /**
+     * 根据数字获取对应的棋盘X  a-s
+     */
+    getNumx: function (w) {
+        var x;
+        var cbX = ["a", "b", "c", "d", "e", "f", "g", "h", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "t"];
+        for (var i = 0; i < cbX.length; i++) {
+            if (cbX[i] == w) {
+                x = i;
+                break;
+            }
+        }
+        return x;
+    },
+    /**
+     * 根据字母获取对应的棋盘Y 1-19
+     */
+    getNumY: function (w) {
+        return 19 - w;
+        //alert(parseInt(w));
+    },
+    getWordByNum: function (num) {
+        var cbX = ["a", "b", "c", "d", "e", "f", "g", "h", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "t"];
+        return cbX[num];
     }
 };

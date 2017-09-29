@@ -8,6 +8,7 @@ var NetController = {
         var self = this;
 
         /**
+         * 请求服务端落子
          * game_id:游戏id
          * step:步数
          * content:"play black e1"
@@ -24,6 +25,9 @@ var NetController = {
                 time: 10780
             };
             TSDT[2100].game_id = game_id;
+            //localStorage.removeItem("")
+            //记录上手落子request_id
+            localStorage.setItem("last_luozi_request_id", TSDT[2100].request_id);
             wsConnection.sendMsg(TSDT[2100]);
         });
 

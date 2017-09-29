@@ -76,7 +76,7 @@ var ChessBoard = (function (_super) {
              self.aRecord.push(o);*/
         });
         //走子  并落下
-        EventManager.subscribe('ChessBoard/setGos', function (chessType, numX, numY) {
+        EventManager.subscribe('ChessBoard/setGos', function (chessType, numX, numY, playerType) {
             //alert(chessType);
             if (chessType == undefined) {
                 chessType = self.nSelfColor;
@@ -87,7 +87,7 @@ var ChessBoard = (function (_super) {
             if (numY == undefined) {
                 numY = self.numY;
             }
-            self.addChess(chessType, numX, numY);
+            self.addChess(chessType, numX, numY, playerType);
         });
         EventManager.subscribe("ChessBoard/setAvail", function (isAvail) {
             self.setAvailSetGos(isAvail);
@@ -200,7 +200,11 @@ var ChessBoard = (function (_super) {
         this.lightY.visible = false;
     };
     //落子
-    ChessBoard.prototype.addChess = function (chessType, numX, numY) {
+    /**
+     * playerType 己方还是对方     0 己方  1 他方
+     */
+    ChessBoard.prototype.addChess = function (chessType, numX, numY, playerType) {
+        //alert(numX + "****" + numY);
         //alert(chessType);
         var chessResName = chessType == 0 ? "chess_black_small_png" : "chess_white_small_png";
         var chess = GosCommon.createBitmapByName(chessResName);
@@ -213,11 +217,17 @@ var ChessBoard = (function (_super) {
         chess.alpha = 0;
         egret.Tween.get(chess).to({ alpha: 1, scaleX: 1, scaleY: 1 }, 1000);
         this.chessList.addChild(chess);
-        this.setAvailSetGos(false);
-        EventManager.publish("GameScene/hideConfirmLuoZi");
-        EventManager.publish("ChessBoard/hideLight");
-        var content = "play " + (chessType == 0 ? "black" : "white") + " h5";
-        EventManager.publish("GameScene/confirmLuoZi", localStorage.getItem("game_id"), 1, content, 10700);
+        if (playerType == 0) {
+            this.setAvailSetGos(false);
+            EventManager.publish("GameScene/hideConfirmLuoZi");
+            EventManager.publish("ChessBoard/hideLight");
+            var wX = Utility.getWordByNum(numX);
+            var content = "play " + (chessType == 0 ? "black" : "white") + (" " + wX + (19 - numY));
+            EventManager.publish("GameScene/confirmLuoZi", localStorage.getItem("game_id"), 1, content, 10700);
+        }
+        else {
+            this.setAvailSetGos(true);
+        }
     };
     return ChessBoard;
 }(egret.DisplayObjectContainer));

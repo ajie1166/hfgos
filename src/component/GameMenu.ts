@@ -19,7 +19,7 @@ class GameMenu extends egret.DisplayObjectContainer {
 
         let menuY: number;
         //结束
-        let jieShu = GosCommon.createBitmapByNameAndPosition("btn_end_black_png", { x: (stageW - 594) / 2 - 80, y: (stageH - 594) / 2 - 20 - 64 });
+        let jieShu = GosCommon.createBitmapByNameAndPosition("btn_end_black_png", { x: (stageW - 594) / 2 - 55, y: (stageH - 594) / 2 - 20 - 64 });
         this.btnJieShu = jieShu;
         jieShu.touchEnabled = true;
         menuY = jieShu.y;
@@ -32,7 +32,7 @@ class GameMenu extends egret.DisplayObjectContainer {
         this.addChild(jieShu);
 
         //停一手
-        let tingYiShou = GosCommon.createBitmapByNameAndPosition("btn_stop_black_png", { x: jieShu.x + 10 + jieShu.width, y: menuY });
+        let tingYiShou = GosCommon.createBitmapByNameAndPosition("btn_stop_black_png", { x: jieShu.x + 40 + jieShu.width, y: menuY });
         this.btnTingYiShou = tingYiShou;
         tingYiShou.touchEnabled = true;
         tingYiShou.addEventListener(egret.TouchEvent.TOUCH_TAP, function () {
@@ -41,7 +41,7 @@ class GameMenu extends egret.DisplayObjectContainer {
         this.addChild(tingYiShou);
 
         //点目
-        let dianMu = GosCommon.createBitmapByNameAndPosition("btn_dianbu_black_png", { x: tingYiShou.x + 10 + tingYiShou.width, y: menuY });
+        let dianMu = GosCommon.createBitmapByNameAndPosition("btn_dianbu_black_png", { x: tingYiShou.x + 40 + tingYiShou.width, y: menuY });
         this.btnDianMu = dianMu;
         dianMu.touchEnabled = true;
         dianMu.addEventListener(egret.TouchEvent.TOUCH_TAP, function () {
@@ -51,7 +51,7 @@ class GameMenu extends egret.DisplayObjectContainer {
         this.addChild(dianMu);
 
         //标记
-        let biaoJi = GosCommon.createBitmapByNameAndPosition("btn_biaoji_black_png", { x: dianMu.x + 10 + dianMu.width, y: menuY });
+        let biaoJi = GosCommon.createBitmapByNameAndPosition("btn_biaoji_black_png", { x: dianMu.x + 40 + dianMu.width, y: menuY });
         this.btnBiaoji = biaoJi;
         biaoJi.touchEnabled = true;
         biaoJi.addEventListener(egret.TouchEvent.TOUCH_TAP, function () {
@@ -60,20 +60,20 @@ class GameMenu extends egret.DisplayObjectContainer {
         this.addChild(biaoJi);
 
         //形式
-        let xingShi = GosCommon.createBitmapByNameAndPosition("btn_xingshi_black_png", { x: biaoJi.x + 10 + biaoJi.width, y: menuY });
-        this.btnXingShi = xingShi;
-        xingShi.touchEnabled = true;
-        xingShi.addEventListener(egret.TouchEvent.TOUCH_TAP, function () {
-            //alert("按钮:形式");
-        }, self);
-        this.addChild(xingShi);
+        /*  let xingShi = GosCommon.createBitmapByNameAndPosition("btn_xingshi_black_png", { x: biaoJi.x + 10 + biaoJi.width, y: menuY });
+          this.btnXingShi = xingShi;
+          xingShi.touchEnabled = true;
+          xingShi.addEventListener(egret.TouchEvent.TOUCH_TAP, function () {
+              //alert("按钮:形式");
+          }, self);
+          this.addChild(xingShi);*/
 
         let luozi = new Button(GosCommon.createBitmapByName("luozi_png").texture);
         luozi.x = 280;
         luozi.y = 630;
         this.luozi = luozi;
         luozi.addEventListener(egret.TouchEvent.TOUCH_TAP, function () {
-            EventManager.publish('ChessBoard/setGos');
+            EventManager.publish('ChessBoard/setGos', undefined, undefined, undefined, 0);
         }, this);
         this.addChild(this.luozi);
 
