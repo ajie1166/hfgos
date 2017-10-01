@@ -8,6 +8,8 @@ var oGameData = {
     'oMap': {},
     'oSteps': {},
     'nStep': 0,
-    'oRoomInfo': {}
+    'oRoomInfo': {},
+    'selfChessType': {},
+    'chessAvailable': {}
 };
 

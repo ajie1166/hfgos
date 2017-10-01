@@ -15,8 +15,10 @@ var PlayerInfo = (function (_super) {
     function PlayerInfo() {
         var _this = _super.call(this) || this;
         _this.playerBgGap = 50;
+        //手数
         _this.selfNums = 0;
         _this.oppNums = 0;
+        _this.stepNums = 0;
         var self = _this;
         var stage = egret.MainContext.instance.stage;
         var stageW = stage.stageWidth;
@@ -45,6 +47,7 @@ var PlayerInfo = (function (_super) {
         var remaindTime = _this.createTextField("03:00:00", { x: playerHead.x + playerHead.width + 70, y: selfBg.y + 45 + 40 });
         _this.selfRemainTime = remaindTime;
         selfContainer.addChild(_this.selfRemainTime);
+        //`第${this.selfNums}手`
         var selfHands = _this.createTextField("\u7B2C" + _this.selfNums + "\u624B", { x: playerHead.x + playerHead.width + 250, y: selfBg.y + 45 + 40 });
         _this.selfHands = selfHands;
         selfContainer.addChild(_this.selfHands);
@@ -72,7 +75,7 @@ var PlayerInfo = (function (_super) {
         var oppRemaindTime = _this.createTextField("03:00:00", { x: oppPlayerHead.x + oppPlayerHead.width + 70, y: oppBg.y + 45 + 40 });
         _this.oppRemainTime = oppRemaindTime;
         oppContainer.addChild(_this.oppRemainTime);
-        var oppHands = _this.createTextField("\u7B2C" + _this.selfNums + "\u624B", { x: playerHead.x + playerHead.width + 250, y: selfBg.y + 45 + 40 });
+        var oppHands = _this.createTextField("\u7B2C" + _this.oppNums + "\u624B", { x: oppPlayerHead.x + oppPlayerHead.width + 250, y: oppBg.y + 45 + 40 });
         _this.oppHands = oppHands;
         oppContainer.addChild(_this.oppHands);
         _this.oppContainer = oppContainer;
@@ -92,11 +95,31 @@ var PlayerInfo = (function (_super) {
         EventManager.subscribe("GameScene/setPlayerName", function (chessType) {
             self.updatePlayerChess(chessType);
         });
+        EventManager.subscribe("GameScene/stepSelfPlus", function () {
+            self.setSelfNums();
+        });
+        EventManager.subscribe("GameScene/stepOppPlus", function () {
+            self.setOppNums();
+        });
         return _this;
     }
     PlayerInfo.prototype.setSelfName = function (nickName) {
         //this.selfName = nickName;
         // alert(nickName);
+    };
+    /**
+     * 自己 每下一步棋 步数加1
+     */
+    PlayerInfo.prototype.setSelfNums = function () {
+        this.stepNums++;
+        this.selfHands.text = "\u7B2C" + this.stepNums + "\u624B";
+    };
+    /**
+        * 对手 每下一步棋 步数加1
+        */
+    PlayerInfo.prototype.setOppNums = function () {
+        this.stepNums++;
+        this.oppHands.text = "\u7B2C" + this.stepNums + "\u624B";
     };
     PlayerInfo.prototype.setPlayerName = function (pType, name) {
         var currentPlayer = pType == "self" ? this.selfName : this.oppName;

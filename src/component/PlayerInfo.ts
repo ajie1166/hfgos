@@ -19,12 +19,15 @@ class PlayerInfo extends egret.DisplayObjectContainer {
     private selfRemainTime: egret.TextField;
     private oppRemainTime: egret.TextField;
 
-    //多少手
+    //多少手 文本
     private selfHands: egret.TextField;
     private oppHands: egret.TextField;
 
+    //手数
     private selfNums: number = 0;
     private oppNums: number = 0;
+
+    private stepNums: number = 0;
 
     //多少手旁边的棋子
     private selfHandsChess: egret.Bitmap;
@@ -71,6 +74,7 @@ class PlayerInfo extends egret.DisplayObjectContainer {
         this.selfRemainTime = remaindTime;
         selfContainer.addChild(this.selfRemainTime);
 
+        //`第${this.selfNums}手`
         let selfHands: egret.TextField = this.createTextField(`第${this.selfNums}手`, { x: playerHead.x + playerHead.width + 250, y: selfBg.y + 45 + 40 });
         this.selfHands = selfHands;
         selfContainer.addChild(this.selfHands);
@@ -109,7 +113,7 @@ class PlayerInfo extends egret.DisplayObjectContainer {
         this.oppRemainTime = oppRemaindTime;
         oppContainer.addChild(this.oppRemainTime);
 
-        let oppHands: egret.TextField = this.createTextField(`第${this.selfNums}手`, { x: playerHead.x + playerHead.width + 250, y: selfBg.y + 45 + 40 });
+        let oppHands: egret.TextField = this.createTextField(`第${this.oppNums}手`, { x: oppPlayerHead.x + oppPlayerHead.width + 250, y: oppBg.y + 45 + 40 });
         this.oppHands = oppHands;
         oppContainer.addChild(this.oppHands);
 
@@ -135,11 +139,34 @@ class PlayerInfo extends egret.DisplayObjectContainer {
         EventManager.subscribe("GameScene/setPlayerName", function (chessType) {
             self.updatePlayerChess(chessType);
         });
+
+        EventManager.subscribe("GameScene/stepSelfPlus", function () {
+            self.setSelfNums();
+        });
+        EventManager.subscribe("GameScene/stepOppPlus", function () {
+            self.setOppNums();
+        });
     }
     private setSelfName(nickName) {
         //this.selfName = nickName;
         // alert(nickName);
     }
+
+    /**
+     * 自己 每下一步棋 步数加1
+     */
+    private setSelfNums() {
+        this.stepNums++;
+        this.selfHands.text = `第${this.stepNums}手`;
+    }
+    /**
+        * 对手 每下一步棋 步数加1
+        */
+    private setOppNums() {
+        this.stepNums++;
+        this.oppHands.text = `第${this.stepNums}手`;
+    }
+
 
     private setPlayerName(pType, name) {
         let currentPlayer = pType == "self" ? this.selfName : this.oppName;

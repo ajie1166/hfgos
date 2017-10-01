@@ -25,10 +25,6 @@ var GameMenu = (function (_super) {
         jieShu.touchEnabled = true;
         menuY = jieShu.y;
         jieShu.addEventListener(egret.TouchEvent.TOUCH_TAP, function () {
-            // alert("按钮:结束游戏");
-            alert("x:" + jieShu.x);
-            alert(jieShu.anchorOffsetY);
-            jieShu.anchorOffsetY = 50;
         }, self);
         _this.addChild(jieShu);
         //停一手
@@ -36,7 +32,12 @@ var GameMenu = (function (_super) {
         _this.btnTingYiShou = tingYiShou;
         tingYiShou.touchEnabled = true;
         tingYiShou.addEventListener(egret.TouchEvent.TOUCH_TAP, function () {
-            //alert("按钮:停一手");
+            //alert(oGameData["selfChessType"]);
+            if (oGameData["chessAvailable"] == 1) {
+                EventManager.publish("ChessBoard/setAvail", false);
+                var content = oGameData["selfChessType"] == 0 ? "play black pass" : "play white pass";
+                EventManager.publish("GameScene/stopOneHand", content);
+            }
         }, self);
         _this.addChild(tingYiShou);
         //点目
@@ -44,7 +45,7 @@ var GameMenu = (function (_super) {
         _this.btnDianMu = dianMu;
         dianMu.touchEnabled = true;
         dianMu.addEventListener(egret.TouchEvent.TOUCH_TAP, function () {
-            EventManager.publish("testLocalStoage");
+            //EventManager.publish("testLocalStoage");
             //alert("按钮:点目");
         }, self);
         _this.addChild(dianMu);
@@ -53,7 +54,7 @@ var GameMenu = (function (_super) {
         _this.btnBiaoji = biaoJi;
         biaoJi.touchEnabled = true;
         biaoJi.addEventListener(egret.TouchEvent.TOUCH_TAP, function () {
-            //alert("按钮:标记");
+            EventManager.publish("ChessBoard/setNums");
         }, self);
         _this.addChild(biaoJi);
         //形式

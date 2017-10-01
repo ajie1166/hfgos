@@ -134,6 +134,14 @@ TSDT[OP_MOVE_REQ] = {
     game_id: ""
 };
 
+TSDT[OP_PASS_REQ] = {
+    op: "",
+    request_id: "",
+    player_id: "",
+    object: "",
+    game_id: ""
+};
+
 TSDT[OP_NEW_REQ] = {
     op: "",
     request_id: "",

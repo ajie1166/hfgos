@@ -24,6 +24,9 @@ class ChessBoard extends egret.DisplayObjectContainer {
     // 横纵标识
     private lightX: egret.Bitmap;
     private lightY: egret.Bitmap;
+
+    private blackTriangle: egret.Bitmap;
+    private whiteTriangle: egret.Bitmap;
     //移动棋子
     private moveWhiteChess: egret.Bitmap;
     private moveBlackChess: egret.Bitmap;
@@ -46,9 +49,30 @@ class ChessBoard extends egret.DisplayObjectContainer {
     private numY: number;
 
     private chessAvailable: boolean = false;
+
+    //棋子步数
+    private step: number;
+    //自己的手数
+    private selfStep: number;
+    //对手的手数
+    private oppStep: number;
+
+    private steps: number;
+    //标记数字容器
+    private steplist: egret.DisplayObjectContainer;
+
+    private isBiaoji: boolean = true;
     constructor() {
         super();
         let self = this;
+
+        //三角形
+        /*let g: egret.Shape = new egret.Shape();
+        g.graphics.lineStyle(2,0xfffff);
+        g.graphics.moveTo(50,0);
+        g.graphics.lineTo(0, 50);
+        g.graphics.endFill();
+        this.addChild(g);*/
 
         let stage: egret.Stage = egret.MainContext.instance.stage;
         let stageW = stage.stageWidth;
@@ -72,6 +96,11 @@ class ChessBoard extends egret.DisplayObjectContainer {
         this.lightY = new egret.Bitmap(RES.getRes('lightY_png'));
         this.lightY.visible = false;
         this.addChild(this.lightY);
+
+        this.blackTriangle = new egret.Bitmap(RES.getRes("black_triangle_png"));
+        this.blackTriangle.visible = false;
+        this.whiteTriangle = new egret.Bitmap(RES.getRes("white_triangle_png"));
+        this.whiteTriangle.visible = false;
 
 
         this.chessList = new egret.DisplayObjectContainer();
@@ -127,12 +156,24 @@ class ChessBoard extends egret.DisplayObjectContainer {
             if (numY == undefined) {
                 numY = self.numY;
             }
+            oGameData["nStep"]++;
+            // alert(oGameData["nStep"]);
             self.addChess(chessType, numX, numY, playerType);
         });
 
+        //添加三角
+        EventManager.subscribe("ChessBoard/setTriangle", function (chessType, x, y, anX, anY) {
+            self.setTriangle(chessType, x, y, anX, anY);
+        });
+
+        //标记
+        EventManager.subscribe("ChessBoard/setNums", function () {
+            self.setNums();
+        });
+        //设置是否可以下棋 权限
         EventManager.subscribe("ChessBoard/setAvail", function (isAvail) {
             self.setAvailSetGos(isAvail);
-        })
+        });
         //弹出遮罩层
         EventManager.subscribe("ChessBoard/showMask", function (content) {
             self.showRectMask(qipan.x + (qipan.width - 340) / 2, qipan.y + (qipan.height - 150) / 2, content);
@@ -169,6 +210,59 @@ class ChessBoard extends egret.DisplayObjectContainer {
     }
 
 
+    /**
+     * 添加三角标识
+     */
+    private setTriangle(chessType: number, x: number, y: number, anX: number, anY: number) {
+        //alert(chessType);
+        let oppTriangle = chessType == 0 ? this.blackTriangle : this.whiteTriangle;
+        let triangle = chessType == 0 ? this.whiteTriangle : this.blackTriangle;
+        oppTriangle.visible = false;
+        triangle.visible = true;
+        triangle.x = x;
+        triangle.y = y;
+        triangle.anchorOffsetX = triangle.width / 2;
+        triangle.anchorOffsetY = triangle.height / 2;
+        this.addChild(triangle);
+
+    }
+
+    /**
+     * 标记
+     */
+    private setNums() {
+        let num: number;
+        if (this.isBiaoji) {
+            this.isBiaoji = false;
+            if (localStorage.getItem("local_chessbook") != null) {
+                let allChess = localStorage.getItem("local_chessbook");
+                let chessArr = allChess.split(";");
+                this.steplist = new egret.DisplayObjectContainer();
+                for (let i = 1; i < chessArr.length - 1; i++) {
+                    let txtNum: egret.TextField = new egret.TextField();
+                    let oneChessBookArr = chessArr[i].split("_");
+                    txtNum.text = `${i}`;
+                    if (oneChessBookArr[0] == "B") {
+                        txtNum.textColor = 0xffffff;
+                    } else {
+                        txtNum.textColor = 0;
+                    }
+                    txtNum.x = (Number(oneChessBookArr[1])) * this.chessGap + this.realBoardStartX;
+                    txtNum.y = (Number(oneChessBookArr[2])) * this.chessGap + this.realBoardStartY;
+                    txtNum.anchorOffsetX = txtNum.width / 2 - 3;
+                    txtNum.anchorOffsetY = txtNum.height / 2 - 4;
+                    txtNum.size = 20;
+                    this.steplist.addChild(txtNum);
+
+                }
+                this.addChild(this.steplist);
+            }
+        }
+        else {
+            this.isBiaoji = true;
+            this.steplist.visible = false;
+        }
+    }
     //设置自己棋子类型
     private setSelfChessType(chessType) {
         this.nSelfColor = chessType;
@@ -253,11 +347,13 @@ class ChessBoard extends egret.DisplayObjectContainer {
 
     //落子
     /**
+     * chessType 0 黑子 1 白子
      * playerType 己方还是对方     0 己方  1 他方
      */
     private addChess(chessType: number, numX: number, numY: number, playerType: number) {
         //alert(numX + "****" + numY);
         //alert(chessType);
+        //let chessBook: string = "";
         let chessResName = chessType == 0 ? "chess_black_small_png" : "chess_white_small_png";
         let chess: egret.Bitmap = GosCommon.createBitmapByName(chessResName);
         chess.anchorOffsetX = chess.width / 2;
@@ -272,16 +368,28 @@ class ChessBoard extends egret.DisplayObjectContainer {
 
         this.chessList.addChild(chess);
         if (playerType == 0) {
+            oGameData["chessAvailable"] = 0;
             this.setAvailSetGos(false);
             EventManager.publish("GameScene/hideConfirmLuoZi");
             EventManager.publish("ChessBoard/hideLight");
             let wX = Utility.getWordByNum(numX);
             let content = "play " + (chessType == 0 ? "black" : "white") + ` ${wX}${19 - numY}`;
             EventManager.publish("GameScene/confirmLuoZi", localStorage.getItem("game_id"), 1, content, 10700);
+            EventManager.publish("GameScene/stepSelfPlus");
         } else {
+            oGameData["chessAvailable"] = 1;
+            EventManager.publish("GameScene/stepOppPlus");
             this.setAvailSetGos(true);
         }
+        EventManager.publish("ChessBoard/setTriangle", chessType, chess.x, chess.y, chess.anchorOffsetX, chess.anchorOffsetY);
 
+        let chessBook = "";
+
+        if (localStorage.getItem("local_chessbook") != null) {
+            chessBook = localStorage.getItem("local_chessbook");
+        }
+        chessBook = chessBook + ";" + (chessType == 0 ? "B_" : "W_") + numX + "_" + numY;
+        localStorage.setItem("local_chessbook", chessBook);
     }
 
 

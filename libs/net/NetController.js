@@ -8,6 +8,20 @@ var NetController = {
         var self = this;
 
         /**
+         * 停一手
+         */
+        EventManager.subscribe("GameScene/stopOneHand", function (content) {
+            TSDT[2110].op = "OP_PASS_REQ";
+            TSDT[2110].request_id = Utility.getRequestId();
+            TSDT[2110].player_id = localStorage.player_id;
+            TSDT[2110].object = {
+                step: 0,
+                content: content
+            };
+            TSDT[2110].game_id = localStorage.game_id;
+            wsConnection.sendMsg(TSDT[2110]);
+        });
+        /**
          * 请求服务端落子
          * game_id:游戏id
          * step:步数

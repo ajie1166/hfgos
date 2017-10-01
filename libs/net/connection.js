@@ -85,10 +85,18 @@ var wsConnection = {
                         }
                     }
                 }
-                EventManager.publish("ChessBoard/setAvail", true);
+                if (selfPlayer["colorType"] == 0) {
+                    EventManager.publish("ChessBoard/setAvail", true);
+                    oGameData["chessAvailable"] = 1;
+                } else {
+                    oGameData["chessAvailable"] = 0;
+                }
+                oGameData["selfChessType"] = selfPlayer["colorType"];
+                localStorage.setItem("local_chessbook", "");
                 //var gameId = localStorage.getItem("game_id");
                 // EventManager.publish("GameScene/confirmLuoZi", gameId);
             } else if (op == 2101) {
+                //走子
                 //对方
                 var request_id = data["request_id"];
                 var player_id = data["player_id"];
@@ -100,7 +108,7 @@ var wsConnection = {
                 var y = content.split(" ")[2].substring(1);
                 //alert(x);
                 var numX = Utility.getNumx(x);
-               // alert(numX);
+                // alert(numX);
                 var numY = Utility.getNumY(y);
                 if (local_player_id != player_id) {
                     EventManager.publish('ChessBoard/setGos', oppColor, numX, numY, 1);

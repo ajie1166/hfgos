@@ -20,7 +20,15 @@ var ChessBoard = (function (_super) {
         //自己棋子颜色类型 0 黑子  1 白子
         _this.nSelfColor = 0;
         _this.chessAvailable = false;
+        _this.isBiaoji = true;
         var self = _this;
+        //三角形
+        /*let g: egret.Shape = new egret.Shape();
+        g.graphics.lineStyle(2,0xfffff);
+        g.graphics.moveTo(50,0);
+        g.graphics.lineTo(0, 50);
+        g.graphics.endFill();
+        this.addChild(g);*/
         var stage = egret.MainContext.instance.stage;
         var stageW = stage.stageWidth;
         var stageH = stage.stageHeight;
@@ -40,6 +48,10 @@ var ChessBoard = (function (_super) {
         _this.lightY = new egret.Bitmap(RES.getRes('lightY_png'));
         _this.lightY.visible = false;
         _this.addChild(_this.lightY);
+        _this.blackTriangle = new egret.Bitmap(RES.getRes("black_triangle_png"));
+        _this.blackTriangle.visible = false;
+        _this.whiteTriangle = new egret.Bitmap(RES.getRes("white_triangle_png"));
+        _this.whiteTriangle.visible = false;
         _this.chessList = new egret.DisplayObjectContainer();
         _this.addChild(_this.chessList);
         _this.moveBlackChess = new egret.Bitmap(RES.getRes('chess_black_small_png'));
@@ -87,8 +99,19 @@ var ChessBoard = (function (_super) {
             if (numY == undefined) {
                 numY = self.numY;
             }
+            oGameData["nStep"]++;
+            // alert(oGameData["nStep"]);
             self.addChess(chessType, numX, numY, playerType);
         });
+        //添加三角
+        EventManager.subscribe("ChessBoard/setTriangle", function (chessType, x, y, anX, anY) {
+            self.setTriangle(chessType, x, y, anX, anY);
+        });
+        //标记
+        EventManager.subscribe("ChessBoard/setNums", function () {
+            self.setNums();
+        });
+        //设置是否可以下棋 权限
         EventManager.subscribe("ChessBoard/setAvail", function (isAvail) {
             self.setAvailSetGos(isAvail);
         });
@@ -121,6 +144,57 @@ var ChessBoard = (function (_super) {
         this.qipanContainer.addChild(this.rectMask);
         this.qipanContainer.addChild(this.rectMaskContent);
         // this.btnPiPei.mask = rectMask;
+    };
+    /**
+     * 添加三角标识
+     */
+    ChessBoard.prototype.setTriangle = function (chessType, x, y, anX, anY) {
+        //alert(chessType);
+        var oppTriangle = chessType == 0 ? this.blackTriangle : this.whiteTriangle;
+        var triangle = chessType == 0 ? this.whiteTriangle : this.blackTriangle;
+        oppTriangle.visible = false;
+        triangle.visible = true;
+        triangle.x = x;
+        triangle.y = y;
+        triangle.anchorOffsetX = triangle.width / 2;
+        triangle.anchorOffsetY = triangle.height / 2;
+        this.addChild(triangle);
+    };
+    /**
+     * 标记
+     */
+    ChessBoard.prototype.setNums = function () {
+        var num;
+        if (this.isBiaoji) {
+            this.isBiaoji = false;
+            if (localStorage.getItem("local_chessbook") != null) {
+                var allChess = localStorage.getItem("local_chessbook");
+                var chessArr = allChess.split(";");
+                this.steplist = new egret.DisplayObjectContainer();
+                for (var i = 1; i < chessArr.length - 1; i++) {
+                    var txtNum = new egret.TextField();
+                    var oneChessBookArr = chessArr[i].split("_");
+                    txtNum.text = "" + i;
+                    if (oneChessBookArr[0] == "B") {
+                        txtNum.textColor = 0xffffff;
+                    }
+                    else {
+                        txtNum.textColor = 0;
+                    }
+                    txtNum.x = (Number(oneChessBookArr[1])) * this.chessGap + this.realBoardStartX;
+                    txtNum.y = (Number(oneChessBookArr[2])) * this.chessGap + this.realBoardStartY;
+                    txtNum.anchorOffsetX = txtNum.width / 2 - 3;
+                    txtNum.anchorOffsetY = txtNum.height / 2 - 4;
+                    txtNum.size = 20;
+                    this.steplist.addChild(txtNum);
+                }
+                this.addChild(this.steplist);
+            }
+        }
+        else {
+            this.isBiaoji = true;
+            this.steplist.visible = false;
+        }
     };
     //设置自己棋子类型
     ChessBoard.prototype.setSelfChessType = function (chessType) {
@@ -201,11 +275,13 @@ var ChessBoard = (function (_super) {
     };
     //落子
     /**
+     * chessType 0 黑子 1 白子
      * playerType 己方还是对方     0 己方  1 他方
      */
     ChessBoard.prototype.addChess = function (chessType, numX, numY, playerType) {
         //alert(numX + "****" + numY);
         //alert(chessType);
+        //let chessBook: string = "";
         var chessResName = chessType == 0 ? "chess_black_small_png" : "chess_white_small_png";
         var chess = GosCommon.createBitmapByName(chessResName);
         chess.anchorOffsetX = chess.width / 2;
@@ -218,16 +294,27 @@ var ChessBoard = (function (_super) {
         egret.Tween.get(chess).to({ alpha: 1, scaleX: 1, scaleY: 1 }, 1000);
         this.chessList.addChild(chess);
         if (playerType == 0) {
+            oGameData["chessAvailable"] = 0;
             this.setAvailSetGos(false);
             EventManager.publish("GameScene/hideConfirmLuoZi");
             EventManager.publish("ChessBoard/hideLight");
             var wX = Utility.getWordByNum(numX);
             var content = "play " + (chessType == 0 ? "black" : "white") + (" " + wX + (19 - numY));
             EventManager.publish("GameScene/confirmLuoZi", localStorage.getItem("game_id"), 1, content, 10700);
+            EventManager.publish("GameScene/stepSelfPlus");
         }
         else {
+            oGameData["chessAvailable"] = 1;
+            EventManager.publish("GameScene/stepOppPlus");
             this.setAvailSetGos(true);
         }
+        EventManager.publish("ChessBoard/setTriangle", chessType, chess.x, chess.y, chess.anchorOffsetX, chess.anchorOffsetY);
+        var chessBook = "";
+        if (localStorage.getItem("local_chessbook") != null) {
+            chessBook = localStorage.getItem("local_chessbook");
+        }
+        chessBook = chessBook + ";" + (chessType == 0 ? "B_" : "W_") + numX + "_" + numY;
+        localStorage.setItem("local_chessbook", chessBook);
     };
     return ChessBoard;
 }(egret.DisplayObjectContainer));
