@@ -157,7 +157,6 @@ class ChessBoard extends egret.DisplayObjectContainer {
                 numY = self.numY;
             }
             oGameData["nStep"]++;
-            // alert(oGameData["nStep"]);
             self.addChess(chessType, numX, numY, playerType);
         });
 
@@ -178,6 +177,10 @@ class ChessBoard extends egret.DisplayObjectContainer {
         EventManager.subscribe("ChessBoard/showMask", function (content) {
             self.showRectMask(qipan.x + (qipan.width - 340) / 2, qipan.y + (qipan.height - 150) / 2, content);
             //self.showRectMask(500, 20);
+        });
+        //更新本地棋谱
+        EventManager.subscribe("ChessBoard/setChessBook", function (chessType, numX, numY) {
+            self.updateChessBook(chessType, numX, numY);
         });
         //EventManager.publish("ChessBoard/showMask");
 
@@ -203,10 +206,12 @@ class ChessBoard extends egret.DisplayObjectContainer {
         this.rectMaskContent.x = x + 100;
         this.rectMaskContent.y = y + 55;
         this.rectMaskContent.textColor = 0xffffff;
-
+        //this.rectMask.addChild(this.rectMaskContent);
         this.qipanContainer.addChild(this.rectMask);
         this.qipanContainer.addChild(this.rectMaskContent);
-        // this.btnPiPei.mask = rectMask;
+
+        egret.Tween.get(this.rectMask).to({ visible: false }, 500, egret.Ease.circIn);
+        egret.Tween.get(this.rectMaskContent).to({ visible: false }, 500, egret.Ease.circIn);
     }
 
 
@@ -247,8 +252,16 @@ class ChessBoard extends egret.DisplayObjectContainer {
                     } else {
                         txtNum.textColor = 0;
                     }
-                    txtNum.x = (Number(oneChessBookArr[1])) * this.chessGap + this.realBoardStartX;
-                    txtNum.y = (Number(oneChessBookArr[2])) * this.chessGap + this.realBoardStartY;
+                    let x = Number(oneChessBookArr[1]);
+                    let y = Number(oneChessBookArr[2]);
+                    if (isNaN(x) || isNaN(y)) {
+                        continue;
+                    }
+                    if (x == -1 && y == -1) {
+                        continue;
+                    }
+                    txtNum.x = (x) * this.chessGap + this.realBoardStartX;
+                    txtNum.y = (y) * this.chessGap + this.realBoardStartY;
                     txtNum.anchorOffsetX = txtNum.width / 2 - 3;
                     txtNum.anchorOffsetY = txtNum.height / 2 - 4;
                     txtNum.size = 20;
@@ -351,29 +364,21 @@ class ChessBoard extends egret.DisplayObjectContainer {
      * playerType 己方还是对方     0 己方  1 他方
      */
     private addChess(chessType: number, numX: number, numY: number, playerType: number) {
-        //alert(numX + "****" + numY);
-        //alert(chessType);
-        //let chessBook: string = "";
         let chessResName = chessType == 0 ? "chess_black_small_png" : "chess_white_small_png";
         let chess: egret.Bitmap = GosCommon.createBitmapByName(chessResName);
-        chess.anchorOffsetX = chess.width / 2;
-        chess.anchorOffsetY = chess.height / 2;
-        chess.x = numX * this.chessGap + this.realBoardStartX;
-        chess.y = numY * this.chessGap + this.realBoardStartY;
-
-        chess.scaleX = 2;
-        chess.scaleY = 2;
-        chess.alpha = 0;
-        egret.Tween.get(chess).to({ alpha: 1, scaleX: 1, scaleY: 1 }, 1000);
-
-        this.chessList.addChild(chess);
         if (playerType == 0) {
             oGameData["chessAvailable"] = 0;
             this.setAvailSetGos(false);
             EventManager.publish("GameScene/hideConfirmLuoZi");
             EventManager.publish("ChessBoard/hideLight");
             let wX = Utility.getWordByNum(numX);
-            let content = "play " + (chessType == 0 ? "black" : "white") + ` ${wX}${19 - numY}`;
+            let content;
+            if (numX >= 0 && numY >= 0) {
+                content = "play " + (chessType == 0 ? "black" : "white") + ` ${wX}${19 - numY}`;
+            }
+            else {
+                content = "play " + (chessType == 0 ? "black" : "white") + " pass";
+            }
             EventManager.publish("GameScene/confirmLuoZi", localStorage.getItem("game_id"), 1, content, 10700);
             EventManager.publish("GameScene/stepSelfPlus");
         } else {
@@ -381,8 +386,33 @@ class ChessBoard extends egret.DisplayObjectContainer {
             EventManager.publish("GameScene/stepOppPlus");
             this.setAvailSetGos(true);
         }
-        EventManager.publish("ChessBoard/setTriangle", chessType, chess.x, chess.y, chess.anchorOffsetX, chess.anchorOffsetY);
 
+        if (numX >= 0 && numY >= 0) {
+            chess.anchorOffsetX = chess.width / 2;
+            chess.anchorOffsetY = chess.height / 2;
+            chess.x = numX * this.chessGap + this.realBoardStartX;
+            chess.y = numY * this.chessGap + this.realBoardStartY;
+
+            chess.scaleX = 2;
+            chess.scaleY = 2;
+            chess.alpha = 0;
+            egret.Tween.get(chess).to({ alpha: 1, scaleX: 1, scaleY: 1 }, 1000);
+            EventManager.publish("ChessBoard/setTriangle", chessType, chess.x, chess.y, chess.anchorOffsetX, chess.anchorOffsetY);
+            this.chessList.addChild(chess);
+        } else {
+            if (playerType == 1) {
+                EventManager.publish("ChessBoard/showMask", "对方停一手");
+            }
+        }
+        EventManager.publish("ChessBoard/setChessBook", chessType, numX, numY);
+    }
+    /**
+     * 更新棋谱
+     */
+    private updateChessBook(chessType, numX, numY) {
+        /*if (numX < 0 || numY <= 0) {
+            return;
+        }*/
         let chessBook = "";
 
         if (localStorage.getItem("local_chessbook") != null) {

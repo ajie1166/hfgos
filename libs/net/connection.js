@@ -10,6 +10,8 @@ var wsConnection = {
             GameRequest.op = "OP_LOGIN_REQ";
             GameRequest.player_id = player_id;
             TSDT[1000].player_id = player_id;
+            TSDT[1000].user_agent = Utility.getUserAgent();
+            //alert(Utility.getUserAgent());
             GameRequest.object = TSDT[1000];
 
             //发送
@@ -104,12 +106,23 @@ var wsConnection = {
                 // if(request_id!=localStorage.getItem["last_luozi_request_id"])
                 var content = data["MOVE_REP"]["content"];
                 var oppColor = content.split(" ")[1] == "black" ? 0 : 1;
-                var x = content.split(" ")[2].substring(0, 1);
-                var y = content.split(" ")[2].substring(1);
-                //alert(x);
-                var numX = Utility.getNumx(x);
-                // alert(numX);
-                var numY = Utility.getNumY(y);
+                var xy = content.split(" ")[2];
+                var x;
+                var y;
+                var numX;
+                var numY;
+                if (xy != "pass") {
+                    x = content.split(" ")[2].substring(0, 1);
+                    y = content.split(" ")[2].substring(1);
+                    //alert(x);
+                    numX = Utility.getNumx(x);
+                    // alert(numX);
+                    numY = Utility.getNumY(y);
+                } else {
+                    numX = -1;
+                    numY = -1;
+                }
+
                 if (local_player_id != player_id) {
                     EventManager.publish('ChessBoard/setGos', oppColor, numX, numY, 1);
                 }

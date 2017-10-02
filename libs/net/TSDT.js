@@ -109,7 +109,8 @@ var TSDT = {};
 TSDT[OP_LOGIN_REQ] = {
     player_id: "",
     version: "1.0.0",
-    date: Utility.getTimestamp()
+    date: Utility.getTimestamp(),
+    user_agent: ""
 };
 
 TSDT[OP_PING] = {
@@ -127,6 +128,14 @@ TSDT[OP_CONFIRM_RULE_REQ] = {
     game_id: ""
 };
 TSDT[OP_MOVE_REQ] = {
+    op: "",
+    request_id: "",
+    player_id: "",
+    object: "",
+    game_id: ""
+};
+
+TSDT[OP_RESIGN] = {
     op: "",
     request_id: "",
     player_id: "",

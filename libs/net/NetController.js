@@ -8,7 +8,17 @@ var NetController = {
         var self = this;
 
         /**
-         * 停一手
+         * 认输
+         */
+        EventManager.subscribe("GameScene/Resign", function () {
+            TSDT[2130].op = "OP_RESIGN";
+            TSDT[2130].request_id = Utility.getRequestId();
+            TSDT[2130].player_id = localStorage.player_id;
+            TSDT[2130].game_id = localStorage.game_id;
+            wsConnection.sendMsg(TSDT[2130]);
+        })
+        /**
+         * 停一手 此命令已不用
          */
         EventManager.subscribe("GameScene/stopOneHand", function (content) {
             TSDT[2110].op = "OP_PASS_REQ";

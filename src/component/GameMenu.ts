@@ -24,7 +24,8 @@ class GameMenu extends egret.DisplayObjectContainer {
         jieShu.touchEnabled = true;
         menuY = jieShu.y;
         jieShu.addEventListener(egret.TouchEvent.TOUCH_TAP, function () {
-
+            //认输
+            EventManager.publish("GameScene/Resign");
         }, self);
         this.addChild(jieShu);
 
@@ -35,9 +36,13 @@ class GameMenu extends egret.DisplayObjectContainer {
         tingYiShou.addEventListener(egret.TouchEvent.TOUCH_TAP, function () {
             //alert(oGameData["selfChessType"]);
             if (oGameData["chessAvailable"] == 1) {
+                oGameData["chessAvailable"] = 0;
                 EventManager.publish("ChessBoard/setAvail", false);
                 let content = oGameData["selfChessType"] == 0 ? "play black pass" : "play white pass";
-                EventManager.publish("GameScene/stopOneHand", content);
+                //EventManager.publish("GameScene/stopOneHand", content);
+                // EventManager.publish("GameScene/confirmLuoZi", localStorage.getItem("game_id"), 1, content, 10700);
+                EventManager.publish("ChessBoard/setChessBook", oGameData["selfChessType"], -1, -1);
+                EventManager.publish('ChessBoard/setGos', oGameData["selfChessType"], -1, -1, 0);
             }
         }, self);
         this.addChild(tingYiShou);

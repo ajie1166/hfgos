@@ -39,5 +39,17 @@ var Utility = {
     getWordByNum: function (num) {
         var cbX = ["a", "b", "c", "d", "e", "f", "g", "h", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "t"];
         return cbX[num];
+    },
+    getUserAgent: function () {
+        var userAgent = "";
+        userAgent = `${navigator.appCodeName}/1.0.0 (${navigator.appName};${navigator.platform};${navigator.language};yizhan;` + this.getFingerPrint() + ";1.0)";
+        return userAgent;
+    },
+    /**
+     * 帆布
+     */
+    getFingerPrint: function () {
+        var fingerprint = new Fingerprint({ screen_resolution: true }).get();
+        return fingerprint;
     }
 };
