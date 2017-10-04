@@ -529,7 +529,7 @@ class ChessBoard extends egret.DisplayObjectContainer {
         this.sound.play(0, 1);
         let chessResName = chessType == 0 ? "chess_black_small_png" : "chess_white_small_png";
         let chess: egret.Bitmap = GosCommon.createBitmapByName(chessResName);
-       // console.log(`x:${numX},y:${numY}`);
+        // console.log(`x:${numX},y:${numY}`);
         ChessController.checkAvailChess(numY, numX, chessType);
 
         if (playerType == 0) {
@@ -573,7 +573,17 @@ class ChessBoard extends egret.DisplayObjectContainer {
         }
         EventManager.publish("ChessBoard/setChessBook", chessType, numX, numY);
 
-        //GosCommon.getEatChess(black_arr)
+        let childNum = this.chessList.numChildren;
+        let bStr = GosCommon.getEatChess(oGameData["black_arr"]);
+        let bs = bStr.split("_");
+        for (let i = 0; i < childNum; i++) {
+            let child = this.chessList.getChildAt(i);
+            console.log(child);
+            if (child.x == (Number(bs[0]) * this.chessGap + this.realBoardStartX) && child.y == (Number(bs[1]) * this.chessGap + this.realBoardStartY)) {
+                this.chessList.removeChildAt(i);
+            }
+        }
+        console.log();
     }
     /**
      * 更新棋谱

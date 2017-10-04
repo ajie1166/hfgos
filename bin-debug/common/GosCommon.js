@@ -103,6 +103,20 @@ var GosCommon = (function () {
             return r;
         }
     };
+    /**
+     *
+     */
+    GosCommon.getEatChess = function (arr) {
+        var eatChess = "";
+        for (var i = 0; i < 19; i++) {
+            for (var j = 0; j < 19; j++) {
+                if (arr[i][j] != 0) {
+                    eatChess = eatChess + (j + "_" + i);
+                }
+            }
+        }
+        return eatChess;
+    };
     return GosCommon;
 }());
 __reflect(GosCommon.prototype, "GosCommon");

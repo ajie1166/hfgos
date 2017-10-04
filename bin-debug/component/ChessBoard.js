@@ -429,7 +429,7 @@ var ChessBoard = (function (_super) {
         this.sound.play(0, 1);
         var chessResName = chessType == 0 ? "chess_black_small_png" : "chess_white_small_png";
         var chess = GosCommon.createBitmapByName(chessResName);
-        console.log("x:" + numX + ",y:" + numY);
+        // console.log(`x:${numX},y:${numY}`);
         ChessController.checkAvailChess(numY, numX, chessType);
         if (playerType == 0) {
             oGameData["chessAvailable"] = 0;
@@ -471,6 +471,17 @@ var ChessBoard = (function (_super) {
             }
         }
         EventManager.publish("ChessBoard/setChessBook", chessType, numX, numY);
+        var childNum = this.chessList.numChildren;
+        var bStr = GosCommon.getEatChess(oGameData["black_arr"]);
+        var bs = bStr.split("_");
+        for (var i = 0; i < childNum; i++) {
+            var child = this.chessList.getChildAt(i);
+            console.log(child);
+            if (child.x == (Number(bs[0]) * this.chessGap + this.realBoardStartX) && child.y == (Number(bs[1]) * this.chessGap + this.realBoardStartY)) {
+                this.chessList.removeChildAt(i);
+            }
+        }
+        console.log();
     };
     /**
      * 更新棋谱

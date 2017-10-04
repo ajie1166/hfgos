@@ -13,6 +13,8 @@ declare module oGameData {
     var steps: number;
     var selfChessType: {};
     var chessAvailable: {};
+    var black_arr: {};
+    var white_arr: {}
 }
 declare module ChessController {
     function checkAvailChess(x, y, color): any;

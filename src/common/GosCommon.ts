@@ -109,7 +109,7 @@ class GosCommon {
         for (let i = 0; i < 19; i++) {
             for (let j = 0; j < 19; j++) {
                 if (arr[i][j] != 0) {
-                    eatChess = eatChess + `${i}_${j}`;
+                    eatChess = eatChess + `${j}_${i}`;
                 }
             }
         }

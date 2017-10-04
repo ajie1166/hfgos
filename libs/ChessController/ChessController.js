@@ -11,17 +11,20 @@ var oGameData = {
     'oRoomInfo': {},
     'steps': 0,
     'selfChessType': 0,//0 黑子  1 白子
-    'chessAvailable': 0//1 有权限  0 无权限
+    'chessAvailable': 0,//1 有权限  0 无权限
+    'black_arr': {},
+    'white_arr': {}
 };
+
 
 var arr = new Array(19);
 var step = 0;//当前步骤
 var isview = false;//是否在查看过往步骤
-var black_arr = new Array(19);//新建一个二维数组，用于存储当前步骤的棋子布局
-black_arr = Utility.initArr(black_arr);
+oGameData["black_arr"] = new Array(19);//新建一个二维数组，用于存储当前步骤的棋子布局
+oGameData["black_arr"] = Utility.initArr(oGameData["black_arr"]);
 
-var white_arr = new Array(19);//新建一个二维数组，用于存储当前步骤的棋子布局
-white_arr = Utility.initArr(white_arr);
+oGameData["white_arr"] = new Array(19);//新建一个二维数组，用于存储当前步骤的棋子布局
+oGameData["white_arr"] = Utility.initArr(oGameData["white_arr"]);
 
 var obj = new Object();
 obj.record = {};
@@ -58,13 +61,13 @@ var ChessController = {
         if (arr[x][y] == 0) {
             //判断是否在不可着子区域
             if (color == 0) {
-                if (black_arr[x][y] == "b") {
+                if (oGameData["black_arr"][x][y] == "b") {
                     alert("根据规则，此处不可马上下子，\n请在别处另着一子后再回来！！！");
                 } else {
                     arr[x][y] = "b";
 
                     //将监测是否可以提子的数组置为19*19的0数组
-                    black_arr = Utility.initArr(black_arr);
+                    oGameData["black_arr"] = Utility.initArr(oGameData["black_arr"]);
 
                     //检查是否可以提子，可以提子就提子
                     self.checkPiece(x, y, color);
@@ -72,12 +75,12 @@ var ChessController = {
                     self.saveStep();
                 }
             } else if (color == 1) {
-                if (white_arr[x][y] == "w") {
+                if (oGameData["white_arr"][x][y] == "w") {
                     alert("根据规则，此处不可马上下子，\n请在别处另着一子后再回来！！！");
                 } else {
                     arr[x][y] = "w";
                     //将监测是否可以提子的数组置为19*19的0数组
-                    white_arr = Utility.initArr(white_arr);
+                    oGameData["white_arr"] = Utility.initArr(oGameData["white_arr"]);
 
                     //检查是否可以提子，可以提子就提子
                     self.checkPiece(x, y, color);
@@ -87,8 +90,8 @@ var ChessController = {
                 }
             }
             console.log(arr);
-            console.log(black_arr);
-            console.log(white_arr);
+            console.log(oGameData["black_arr"]);
+            console.log(oGameData["white_arr"]);
             return true;
         } else {
             return false;
@@ -183,9 +186,9 @@ var ChessController = {
 
                         //将connection_arr中标志位为side的数组放入his_arr中供提子限制规则查询使用
                         if (side == "b") {
-                            black_arr[i][j] = "b";
+                            oGameData["black_arr"][i][j] = "b";
                         } else if (side == "w") {
-                            white_arr[i][j] = "w";
+                            oGameData["white_arr"][i][j] = "w";
                         }
                     }
                 }
