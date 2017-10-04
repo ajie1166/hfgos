@@ -8,6 +8,30 @@ var NetController = {
         var self = this;
 
         /**
+         * 处理对方发起的点目
+         */
+        EventManager.subscribe("GameScene/handlerDianMu", function (accept) {
+            TSDT[2122].op = "OP_CONF_COUNTING_REQ";
+            TSDT[2122].request_id = Utility.getRequestId();
+            TSDT[2122].player_id = localStorage.player_id;
+            TSDT[2122].object = {
+                accept: accept
+            };
+            TSDT[2122].game_id = localStorage.game_id;
+            wsConnection.sendMsg(TSDT[2122]);
+        });
+
+        /**
+         * 申请点目
+         */
+        EventManager.subscribe("GameScene/applyCounting", function () {
+            TSDT[2120].op = "OP_COUNTING_REQ";
+            TSDT[2120].request_id = Utility.getRequestId();
+            TSDT[2120].player_id = localStorage.player_id;
+            TSDT[2120].game_id = localStorage.game_id;
+            wsConnection.sendMsg(TSDT[2120]);
+        });
+        /**
          * 认输
          */
         EventManager.subscribe("GameScene/Resign", function () {
@@ -16,7 +40,7 @@ var NetController = {
             TSDT[2130].player_id = localStorage.player_id;
             TSDT[2130].game_id = localStorage.game_id;
             wsConnection.sendMsg(TSDT[2130]);
-        })
+        });
         /**
          * 停一手 此命令已不用
          */

@@ -25,7 +25,11 @@ class GameMenu extends egret.DisplayObjectContainer {
         menuY = jieShu.y;
         jieShu.addEventListener(egret.TouchEvent.TOUCH_TAP, function () {
             //认输
-            EventManager.publish("GameScene/Resign");
+            if (oGameData["chessAvailable"] == 1) {
+                oGameData["chessAvailable"] = 0;
+                EventManager.publish("ChessBoard/setAvail", false);
+                EventManager.publish("GameScene/Resign");
+            }
         }, self);
         this.addChild(jieShu);
 
@@ -39,8 +43,6 @@ class GameMenu extends egret.DisplayObjectContainer {
                 oGameData["chessAvailable"] = 0;
                 EventManager.publish("ChessBoard/setAvail", false);
                 let content = oGameData["selfChessType"] == 0 ? "play black pass" : "play white pass";
-                //EventManager.publish("GameScene/stopOneHand", content);
-                // EventManager.publish("GameScene/confirmLuoZi", localStorage.getItem("game_id"), 1, content, 10700);
                 EventManager.publish("ChessBoard/setChessBook", oGameData["selfChessType"], -1, -1);
                 EventManager.publish('ChessBoard/setGos', oGameData["selfChessType"], -1, -1, 0);
             }
@@ -52,10 +54,25 @@ class GameMenu extends egret.DisplayObjectContainer {
         this.btnDianMu = dianMu;
         dianMu.touchEnabled = true;
         dianMu.addEventListener(egret.TouchEvent.TOUCH_TAP, function () {
-            //EventManager.publish("testLocalStoage");
-            //alert("按钮:点目");
+            if (oGameData["chessAvailable"] == 1) {
+                oGameData["chessAvailable"] = 0;
+                EventManager.publish("ChessBoard/setAvail", false);
+                EventManager.publish("GameScene/showAlert", "确定要申请点目?", 0);
+            }
         }, self);
         this.addChild(dianMu);
+
+        EventManager.subscribe("GameScene/confirmDianMu", function () {
+            if (oGameData["steps"] > 120) {
+                oGameData["chessAvailable"] == 0;
+                EventManager.publish("ChessBoard/setAvail", false);
+                EventManager.publish("GameScene/applyCounting");
+            } else {
+                oGameData["chessAvailable"] == 1;
+                EventManager.publish("ChessBoard/setAvail", true);
+                EventManager.publish("ChessBoard/showMask", "120手后才能申请点目");
+            }
+        });
 
         //标记
         let biaoJi = GosCommon.createBitmapByNameAndPosition("btn_biaoji_black_png", { x: dianMu.x + 40 + dianMu.width, y: menuY });

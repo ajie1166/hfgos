@@ -48,6 +48,61 @@ var GosCommon = (function () {
         //txtField.bold = true;
         return txtField;
     };
+    /**
+     * 分析结果
+     *  //匹配：B+200,W+200,B-200,B+23.5(\+|-)= B+80.0\n\n,B+R,B+Resign
+     * "0" 表示和局
+     * "B+score" 表示黑胜 "W+score" 表示白胜, 例如 "B+2.5", "W+64" or "B+0.5" "B+R"/"B+Resign" 和 "W+R"/"W+Resign" 表示中盘胜
+     */
+    GosCommon.getGameResult = function (result) {
+        if (result == 0) {
+            return "和局";
+        }
+        else {
+            var r = "";
+            var regex = new RegExp(/(W\+|B\+|W\-|B\-)(\w*\.?\w*)/);
+            var rArr = regex.exec(result);
+            //alert(rArr[0] + "***" + rArr[1] + "***" + rArr[2]);
+            if (rArr[2] == "R" || rArr[2] == "Resign") {
+                switch (rArr[1]) {
+                    case "W+":
+                        r = "白中盘胜";
+                        break;
+                    case "B+":
+                        r = "黑中盘胜";
+                        break;
+                    case "W-":
+                        r = "黑中盘胜";
+                        break;
+                    case "B-":
+                        r = "白中盘胜";
+                        break;
+                    default:
+                        break;
+                }
+            }
+            else {
+                switch (rArr[1]) {
+                    case "W+":
+                        r = "白子胜";
+                        break;
+                    case "B+":
+                        r = "黑子胜";
+                        break;
+                    case "W-":
+                        r = "黑子胜";
+                        break;
+                    case "B-":
+                        r = "白子胜";
+                        break;
+                    default:
+                        break;
+                }
+                r = r + rArr[2] + "目";
+            }
+            return r;
+        }
+    };
     return GosCommon;
 }());
 __reflect(GosCommon.prototype, "GosCommon");

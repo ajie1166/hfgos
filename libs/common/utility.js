@@ -42,14 +42,28 @@ var Utility = {
     },
     getUserAgent: function () {
         var userAgent = "";
-        userAgent = `${navigator.appCodeName}/1.0.0 (${navigator.appName};${navigator.platform};${navigator.language};yizhan;` + this.getFingerPrint() + ";1.0)";
+        userAgent = `${navigator.appCodeName}/1.0.0 (${navigator.appName};${navigator.platform};${navigator.language};yizhan;` + this.getFingerPrint() + ";0)";
         return userAgent;
     },
     /**
      * 帆布
      */
     getFingerPrint: function () {
-        var fingerprint = new Fingerprint({ screen_resolution: true }).get();
+        var fingerprint = new Fingerprint().get();
+        //alert(fingerprint);
         return fingerprint;
+    },
+     /**
+     * 实例化数组
+     */
+    initArr: function (arr) {
+        for (var i = 0; i < 19; i++) {
+            var arrj = new Array(19);
+            for (var j = 0; j < 19; j++) {
+                arrj[j] = 0;
+            }
+            arr[i] = arrj;
+        }
+        return arr;
     }
 };

@@ -67,6 +67,8 @@ class PlayerInfo extends egret.DisplayObjectContainer {
         let selfTempName = localStorage.getItem("nick_name");
         selfTempName = GosCommon.subString(selfTempName, 10);
         let userName: egret.TextField = this.createTextField(selfTempName, { x: playerHead.x + playerHead.width + 70, y: selfBg.y + 45 })
+       // userName.fontFamily = "宋体";
+       // userName.bold = true;
         this.selfName = userName;
         selfContainer.addChild(userName);
 
@@ -136,7 +138,7 @@ class PlayerInfo extends egret.DisplayObjectContainer {
               self.setPlayerName(pType, name);
           });*/
 
-        EventManager.subscribe("GameScene/setPlayerName", function (chessType) {
+        EventManager.subscribe("GameScene/setPlayerChess", function (chessType) {
             self.updatePlayerChess(chessType);
         });
 
@@ -181,7 +183,7 @@ class PlayerInfo extends egret.DisplayObjectContainer {
         this.oppContainer.alpha = 0;
         this.setPlayerName("opp", GosCommon.subString(playerInfo.nickname, 10));
         egret.Tween.get(this.oppContainer).to({ alpha: 1 }, 1000, egret.Ease.backIn);
-        EventManager.publish("GameScene/setPlayerName", playerInfo.colorType);
+        EventManager.publish("GameScene/setPlayerChess", playerInfo.colorType);
     }
 
     /**

@@ -42,6 +42,8 @@ var PlayerInfo = (function (_super) {
         var selfTempName = localStorage.getItem("nick_name");
         selfTempName = GosCommon.subString(selfTempName, 10);
         var userName = _this.createTextField(selfTempName, { x: playerHead.x + playerHead.width + 70, y: selfBg.y + 45 });
+        // userName.fontFamily = "宋体";
+        // userName.bold = true;
         _this.selfName = userName;
         selfContainer.addChild(userName);
         var remaindTime = _this.createTextField("03:00:00", { x: playerHead.x + playerHead.width + 70, y: selfBg.y + 45 + 40 });
@@ -92,7 +94,7 @@ var PlayerInfo = (function (_super) {
         /*  EventManager.subscribe("GameScene/SetPlayerName", function (pType, name) {
               self.setPlayerName(pType, name);
           });*/
-        EventManager.subscribe("GameScene/setPlayerName", function (chessType) {
+        EventManager.subscribe("GameScene/setPlayerChess", function (chessType) {
             self.updatePlayerChess(chessType);
         });
         EventManager.subscribe("GameScene/stepSelfPlus", function () {
@@ -133,7 +135,7 @@ var PlayerInfo = (function (_super) {
         this.oppContainer.alpha = 0;
         this.setPlayerName("opp", GosCommon.subString(playerInfo.nickname, 10));
         egret.Tween.get(this.oppContainer).to({ alpha: 1 }, 1000, egret.Ease.backIn);
-        EventManager.publish("GameScene/setPlayerName", playerInfo.colorType);
+        EventManager.publish("GameScene/setPlayerChess", playerInfo.colorType);
     };
     /**
      * 更新棋子 服务端返回 棋子类型后更新自己和对手棋子颜色

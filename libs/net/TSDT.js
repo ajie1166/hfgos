@@ -105,7 +105,7 @@ var TSDT = {};
     }
 };*/
 
-
+//登陆
 TSDT[OP_LOGIN_REQ] = {
     player_id: "",
     version: "1.0.0",
@@ -113,6 +113,7 @@ TSDT[OP_LOGIN_REQ] = {
     user_agent: ""
 };
 
+//心跳
 TSDT[OP_PING] = {
     op: "",
     request_id: "",
@@ -120,6 +121,7 @@ TSDT[OP_PING] = {
     object: "",
     game_id: ""
 };
+//确认规则
 TSDT[OP_CONFIRM_RULE_REQ] = {
     op: "",
     request_id: "",
@@ -127,6 +129,7 @@ TSDT[OP_CONFIRM_RULE_REQ] = {
     object: "",
     game_id: ""
 };
+//走子
 TSDT[OP_MOVE_REQ] = {
     op: "",
     request_id: "",
@@ -135,6 +138,26 @@ TSDT[OP_MOVE_REQ] = {
     game_id: ""
 };
 
+//点目
+TSDT[OP_COUNTING_REQ] = {
+    op: "",
+    request_id: "",
+    player_id: "",
+    object: "",
+    game_id: ""
+};
+
+//处理对方点目
+TSDT[OP_CONF_COUNTING_REQ] = {
+    op: "",
+    request_id: "",
+    player_id: "",
+    object:"",
+    game_id: ""
+};
+/**
+ * 结束
+ */
 TSDT[OP_RESIGN] = {
     op: "",
     request_id: "",
@@ -143,6 +166,7 @@ TSDT[OP_RESIGN] = {
     game_id: ""
 };
 
+//停一手
 TSDT[OP_PASS_REQ] = {
     op: "",
     request_id: "",
@@ -151,6 +175,7 @@ TSDT[OP_PASS_REQ] = {
     game_id: ""
 };
 
+//创建对局
 TSDT[OP_NEW_REQ] = {
     op: "",
     request_id: "",
@@ -166,6 +191,7 @@ TSDT[OP_NEW_REQ] = {
         }
     }
 };
+//匹配
 TSDT[OP_QUICK_JOIN_REQ] = {
     op: "",
     request_id: "",

@@ -13,6 +13,7 @@ var game_file_list = [
 	"libs/modules/egret3d/egret3d.js",
 	"libs/resources/jquery-3.2.1.min.js",
 	"libs/common/md5.min.js",
+	"libs/common/fingerprint.js",
 	"libs/common/utility.js",
 	"libs/net/TSDT.js",
 	"libs/net/TSDTController.js",

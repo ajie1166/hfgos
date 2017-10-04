@@ -35,6 +35,7 @@ var ChessBoard = (function (_super) {
         //加载棋盘
         _this.qipanContainer = new egret.Sprite();
         var qipan = GosCommon.createBitmapByNameAndPosition("qipan_png", { x: (stageW - 594) / 2, y: (stageH - 594) / 2 });
+        _this.qipan = qipan;
         _this.qipanContainer.addChild(qipan);
         _this.addChild(_this.qipanContainer);
         _this.BoardStartX = 48;
@@ -42,6 +43,37 @@ var ChessBoard = (function (_super) {
         _this.chessGap = 30;
         _this.chessW = 30;
         _this.chessH = 31;
+        _this.gameResult = new egret.Sprite();
+        //this.gameResult = GosCommon.createBitmapByNameAndPosition("alertBg_png", { x: qipan.x + (qipan.width - 514) / 2 ,y:qipan.y+(qipan.height-301)/2});
+        var alertBg = new egret.Bitmap(RES.getRes("alertBg_png"));
+        alertBg.x = qipan.x + (qipan.width - 514) / 2;
+        alertBg.y = qipan.y + (qipan.height - 301) / 2;
+        _this.gameResult.addChild(alertBg);
+        _this.txtField = new egret.TextField();
+        _this.txtField.text = "对局结果\n\n";
+        _this.txtField.x = alertBg.x + (alertBg.width - _this.txtField.width) / 2;
+        _this.txtField.y = alertBg.y + (alertBg.height - _this.txtField.height) / 2 - 50;
+        _this.gameResult.addChild(_this.txtField);
+        _this.txtResult = new egret.TextField();
+        _this.txtResult.x = alertBg.x;
+        _this.txtResult.y = alertBg.y + (alertBg.height - _this.txtResult.height) / 2 - 30;
+        _this.gameResult.addChild(_this.txtResult);
+        //规则
+        _this.ruleTxt = new egret.TextField();
+        _this.ruleTxt.y = qipan.y + qipan.width + 30;
+        _this.confirmBtn = new egret.Bitmap(RES.getRes("ok_png"));
+        _this.confirmBtn.x = qipan.x + (qipan.width - _this.confirmBtn.width) / 2;
+        _this.confirmBtn.y = qipan.y + (qipan.height - _this.confirmBtn.height) / 2 + 50;
+        _this.gameResult.addChild(_this.confirmBtn);
+        _this.confirmBtn.touchEnabled = true;
+        /*this.confirmBtn.addEventListener(egret.TouchEvent.TOUCH_TAP, function () {
+            this.gameResult.visible = false;
+        }, self);*/
+        _this.cancelBtn = new egret.Bitmap(RES.getRes("cancelalert_png"));
+        _this.cancelBtn.x = qipan.x + (qipan.width - _this.cancelBtn.width - _this.confirmBtn.width - 20) / 2;
+        _this.cancelBtn.y = qipan.y + (qipan.height - _this.cancelBtn.height) / 2 + 50;
+        _this.gameResult.addChild(_this.cancelBtn);
+        _this.cancelBtn.touchEnabled = true;
         _this.lightX = new egret.Bitmap(RES.getRes('lightX_png'));
         _this.lightX.visible = false;
         _this.addChild(_this.lightX);
@@ -54,6 +86,7 @@ var ChessBoard = (function (_super) {
         _this.whiteTriangle.visible = false;
         _this.chessList = new egret.DisplayObjectContainer();
         _this.addChild(_this.chessList);
+        _this.sound = RES.getRes("stone_wav");
         _this.moveBlackChess = new egret.Bitmap(RES.getRes('chess_black_small_png'));
         _this.moveBlackChess.anchorOffsetX = _this.moveBlackChess.width / 2;
         _this.moveBlackChess.anchorOffsetY = _this.moveBlackChess.height / 2;
@@ -99,7 +132,7 @@ var ChessBoard = (function (_super) {
             if (numY == undefined) {
                 numY = self.numY;
             }
-            oGameData["nStep"]++;
+            //oGameData["nStep"]++;
             self.addChess(chessType, numX, numY, playerType);
         });
         //添加三角
@@ -110,7 +143,7 @@ var ChessBoard = (function (_super) {
         EventManager.subscribe("ChessBoard/setNums", function () {
             self.setNums();
         });
-        //设置是否可以下棋 权限
+        //设置自己是否可以下棋 权限
         EventManager.subscribe("ChessBoard/setAvail", function (isAvail) {
             self.setAvailSetGos(isAvail);
         });
@@ -124,11 +157,112 @@ var ChessBoard = (function (_super) {
             self.updateChessBook(chessType, numX, numY);
         });
         //EventManager.publish("ChessBoard/showMask");
+        //显示结果
+        EventManager.subscribe("ChessBoard/showGameResult", function (type, game_status, result) {
+            self.showGameResult(type, game_status, result);
+        });
+        EventManager.subscribe("GameScene/showAlert", function (content, type) {
+            self.showAlert(type, content);
+        });
+        EventManager.subscribe("GameScene/showRule", function (content) {
+            self.showRule(content);
+        });
         _this.touchEnabled = true;
         _this.addEventListener(egret.TouchEvent.TOUCH_BEGIN, _this.onTouchBoard, _this);
         return _this;
         //this.addEventListener(egret.TouchEvent.TOUCH_MOVE, this.onTouchBoard, this);
     }
+    ChessBoard.prototype.showRule = function (content) {
+        this.ruleTxt.text = content;
+        this.ruleTxt.x = this.qipan.x + (this.qipan.width - this.ruleTxt.width) / 2;
+        this.ruleTxt.textColor = 0x000000;
+        // this.ruleTxt.fontFamily = "宋体";
+        this.ruleTxt.bold = true;
+        this.addChild(this.ruleTxt);
+    };
+    /**
+     * 拒绝对方发起的点目
+     */
+    ChessBoard.prototype.cancelOppDianMu = function () {
+        //alert("拒绝对方发起的点目")
+        this.gameResult.visible = false;
+        EventManager.publish("GameScene/handlerDianMu", 0);
+    };
+    /**
+     * 取消自己发起的点目
+     */
+    ChessBoard.prototype.cancelSelfDianMu = function () {
+        // alert("取消自己发起的点目")
+        EventManager.publish("ChessBoard/setAvail", true);
+        this.gameResult.visible = false;
+    };
+    /**
+     * 弹窗
+     * type 弹窗类型 0 自己点目弹窗; 1 对手发起点目确认弹窗
+     */
+    ChessBoard.prototype.showAlert = function (type, content) {
+        this.gameResult.visible = true;
+        this.txtResult.text = content;
+        this.txtResult.x = this.qipan.x + (this.qipan.width - this.txtResult.width) / 2;
+        this.txtField.visible = false;
+        this.confirmBtn.x = this.qipan.x + (this.qipan.width) / 2 + 20;
+        this.addChild(this.gameResult);
+        if (type == 0) {
+            if (this.cancelBtn.hasEventListener(egret.TouchEvent.TOUCH_TAP)) {
+                this.cancelBtn.removeEventListener(egret.TouchEvent.TOUCH_TAP, this.cancelOppDianMu, this);
+            }
+            this.cancelBtn.addEventListener(egret.TouchEvent.TOUCH_TAP, this.cancelSelfDianMu, this);
+            if (this.confirmBtn.hasEventListener(egret.TouchEvent.TOUCH_TAP)) {
+                this.confirmBtn.removeEventListener(egret.TouchEvent.TOUCH_TAP, this.callbackOppConfirmDianMu, this);
+            }
+            this.confirmBtn.addEventListener(egret.TouchEvent.TOUCH_TAP, this.callbackSelfConfirmDianMu, this);
+        }
+        else if (type == 1) {
+            //处理对手发起的点目
+            if (this.cancelBtn.hasEventListener(egret.TouchEvent.TOUCH_TAP)) {
+                this.cancelBtn.removeEventListener(egret.TouchEvent.TOUCH_TAP, this.cancelSelfDianMu, this);
+            }
+            this.cancelBtn.addEventListener(egret.TouchEvent.TOUCH_TAP, this.cancelOppDianMu, this);
+            if (this.confirmBtn.hasEventListener(egret.TouchEvent.TOUCH_TAP)) {
+                this.confirmBtn.removeEventListener(egret.TouchEvent.TOUCH_TAP, this.callbackSelfConfirmDianMu, this);
+            }
+            this.confirmBtn.addEventListener(egret.TouchEvent.TOUCH_TAP, this.callbackOppConfirmDianMu, this);
+        }
+    };
+    /**
+     * 同意对手发起的点目
+     */
+    ChessBoard.prototype.callbackOppConfirmDianMu = function () {
+        //alert("同意对方发起的点目")
+        this.gameResult.visible = false;
+        EventManager.publish("GameScene/handlerDianMu", 1);
+    };
+    /**
+     * 自己发起确认点目
+     */
+    ChessBoard.prototype.callbackSelfConfirmDianMu = function () {
+        this.gameResult.visible = false;
+        EventManager.publish("GameScene/confirmDianMu");
+    };
+    /**
+     * 显示结果
+     */
+    ChessBoard.prototype.showGameResult = function (type, game_status, result) {
+        //alert("显示结果");
+        this.cancelBtn.visible = false;
+        this.gameResult.visible = true;
+        this.txtField.visible = true;
+        this.txtResult.text = GosCommon.getGameResult(result);
+        this.txtResult.x = this.qipan.x + (this.qipan.width - this.txtResult.width) / 2;
+        this.confirmBtn.x = this.qipan.x + (this.qipan.width - this.confirmBtn.width) / 2;
+        this.addChild(this.gameResult);
+        this.confirmBtn.removeEventListener(egret.TouchEvent.TOUCH_TAP, this.callbackSelfConfirmDianMu, this);
+        this.confirmBtn.removeEventListener(egret.TouchEvent.TOUCH_TAP, this.callbackOppConfirmDianMu, this);
+        this.confirmBtn.addEventListener(egret.TouchEvent.TOUCH_TAP, this.hideGameResult, this);
+    };
+    ChessBoard.prototype.hideGameResult = function () {
+        this.gameResult.visible = false;
+    };
     /**
      *
      * * 遮罩层
@@ -141,14 +275,14 @@ var ChessBoard = (function (_super) {
         this.rectMask.alpha = 0.5;
         this.rectMaskContent = new egret.TextField();
         this.rectMaskContent.text = content;
-        this.rectMaskContent.x = x + 100;
+        this.rectMaskContent.x = x + (this.rectMask.width - this.rectMaskContent.width) / 2;
         this.rectMaskContent.y = y + 55;
         this.rectMaskContent.textColor = 0xffffff;
         //this.rectMask.addChild(this.rectMaskContent);
         this.qipanContainer.addChild(this.rectMask);
         this.qipanContainer.addChild(this.rectMaskContent);
-        egret.Tween.get(this.rectMask).to({ visible: false }, 500, egret.Ease.circIn);
-        egret.Tween.get(this.rectMaskContent).to({ visible: false }, 500, egret.Ease.circIn);
+        egret.Tween.get(this.rectMask).to({ visible: false }, 2000, egret.Ease.circIn);
+        egret.Tween.get(this.rectMaskContent).to({ visible: false }, 2000, egret.Ease.circIn);
     };
     /**
      * 添加三角标识
@@ -292,8 +426,11 @@ var ChessBoard = (function (_super) {
      * playerType 己方还是对方     0 己方  1 他方
      */
     ChessBoard.prototype.addChess = function (chessType, numX, numY, playerType) {
+        this.sound.play(0, 1);
         var chessResName = chessType == 0 ? "chess_black_small_png" : "chess_white_small_png";
         var chess = GosCommon.createBitmapByName(chessResName);
+        console.log("x:" + numX + ",y:" + numY);
+        ChessController.checkAvailChess(numY, numX, chessType);
         if (playerType == 0) {
             oGameData["chessAvailable"] = 0;
             this.setAvailSetGos(false);
@@ -315,6 +452,7 @@ var ChessBoard = (function (_super) {
             EventManager.publish("GameScene/stepOppPlus");
             this.setAvailSetGos(true);
         }
+        oGameData["steps"]++;
         if (numX >= 0 && numY >= 0) {
             chess.anchorOffsetX = chess.width / 2;
             chess.anchorOffsetY = chess.height / 2;
