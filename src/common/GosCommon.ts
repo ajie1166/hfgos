@@ -101,12 +101,18 @@ class GosCommon {
         }
     }
 
-    private static getEatChess(arr) {
+    /**
+     * 
+     */
+    public static getEatChess(arr) {
         let eatChess = "";
         for (let i = 0; i < 19; i++) {
             for (let j = 0; j < 19; j++) {
-
+                if (arr[i][j] != 0) {
+                    eatChess = eatChess + `${i}_${j}`;
+                }
             }
         }
+        return eatChess;
     }
 }

@@ -572,6 +572,8 @@ class ChessBoard extends egret.DisplayObjectContainer {
             }
         }
         EventManager.publish("ChessBoard/setChessBook", chessType, numX, numY);
+
+        //GosCommon.getEatChess(black_arr)
     }
     /**
      * 更新棋谱
