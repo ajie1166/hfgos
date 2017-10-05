@@ -70,7 +70,7 @@ var GameMenu = (function (_super) {
             else {
                 oGameData["chessAvailable"] == 1;
                 EventManager.publish("ChessBoard/setAvail", true);
-                EventManager.publish("ChessBoard/showMask", "120手后才能申请点目");
+                EventManager.publish("ChessBoard/showMask", "120手后才能申请点目", true);
             }
         });
         //标记

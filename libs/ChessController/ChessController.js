@@ -13,7 +13,8 @@ var oGameData = {
     'selfChessType': 0,//0 黑子  1 白子
     'chessAvailable': 0,//1 有权限  0 无权限
     'black_arr': {},
-    'white_arr': {}
+    'white_arr': {},
+    'chessBook': {}
 };
 
 
@@ -38,12 +39,16 @@ var ChessController = {
         var self = this;
         for (var i = 0; i < 19; i++) {
             var arrj = new Array(19);
+            var arrObj = new Array(19);
+            //var obj = new Object();
             for (var j = 0; j < 19; j++) {
                 arrj[j] = 0;
+                arrObj[j] = {};
             }
             arr[i] = arrj;
+            oGameData["chessBook"][i] = arrObj;
         }
-        //console.log(arr);
+        console.log(oGameData["chessBook"]);
     },
     //存储本步骤的棋盘数组
     saveStep: function () {

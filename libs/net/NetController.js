@@ -115,7 +115,7 @@ var NetController = {
                 TSDT[0].player_id = localStorage.player_id;
                 //var sendMsg = JSON.stringify(TSDT[0]);
                 wsConnection.sendMsg(TSDT[0]);
-            }, 20000);
+            }, 10000);
         })
     }
 };

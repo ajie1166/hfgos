@@ -37,6 +37,9 @@ class ChessBoard extends egret.DisplayObjectContainer {
     //棋子容器
     private chessList: egret.DisplayObjectContainer;
 
+    //删除的棋子容器
+    private deleteChessList: egret.DisplayObjectContainer;
+
     //矩形遮罩层
     private rectMask: egret.Sprite;
     //遮罩层显示内容
@@ -60,6 +63,7 @@ class ChessBoard extends egret.DisplayObjectContainer {
     private steps: number;
     //标记数字容器
     private steplist: egret.DisplayObjectContainer;
+    private numberList: egret.DisplayObjectContainer;
 
     private isBiaoji: boolean = true;
 
@@ -247,9 +251,12 @@ class ChessBoard extends egret.DisplayObjectContainer {
             self.setAvailSetGos(isAvail);
         });
         //弹出遮罩层
-        EventManager.subscribe("ChessBoard/showMask", function (content) {
-            self.showRectMask(qipan.x + (qipan.width - 340) / 2, qipan.y + (qipan.height - 150) / 2, content);
+        EventManager.subscribe("ChessBoard/showMask", function (content, isHide) {
+            self.showRectMask(qipan.x + (qipan.width - 340) / 2, qipan.y + (qipan.height - 150) / 2, content, isHide);
             //self.showRectMask(500, 20);
+        });
+        EventManager.subscribe("ChessBoard/hideMask", function () {
+            self.hideRectMask();
         });
         //更新本地棋谱
         EventManager.subscribe("ChessBoard/setChessBook", function (chessType, numX, numY) {
@@ -355,6 +362,7 @@ class ChessBoard extends egret.DisplayObjectContainer {
         //alert("同意对方发起的点目")
         this.gameResult.visible = false;
         EventManager.publish("GameScene/handlerDianMu", 1);
+        EventManager.publish("ChessBoard/showMask", "结果计算中...", false);
     }
     /**
      * 自己发起确认点目
@@ -387,10 +395,16 @@ class ChessBoard extends egret.DisplayObjectContainer {
         this.gameResult.visible = false;
     }
     /**
+     * 隐藏遮罩
+     */
+    private hideRectMask() {
+        this.rectMask.visible = false;
+    }
+    /**
      * 
      * * 遮罩层
         */
-    private showRectMask(x: number, y: number, content: string) {
+    private showRectMask(x: number, y: number, content: string, isHide: boolean) {
         this.rectMask = new egret.Sprite();
         this.rectMask.graphics.beginFill(0x000000);
         this.rectMask.graphics.drawRect(x, y, 340, 150);
@@ -405,8 +419,10 @@ class ChessBoard extends egret.DisplayObjectContainer {
         this.qipanContainer.addChild(this.rectMask);
         this.qipanContainer.addChild(this.rectMaskContent);
 
-        egret.Tween.get(this.rectMask).to({ visible: false }, 2000, egret.Ease.circIn);
-        egret.Tween.get(this.rectMaskContent).to({ visible: false }, 2000, egret.Ease.circIn);
+        if (isHide) {
+            egret.Tween.get(this.rectMask).to({ visible: false }, 2000, egret.Ease.circIn);
+            egret.Tween.get(this.rectMaskContent).to({ visible: false }, 2000, egret.Ease.circIn);
+        }
     }
 
 
@@ -472,6 +488,11 @@ class ChessBoard extends egret.DisplayObjectContainer {
             this.isBiaoji = true;
             this.steplist.visible = false;
         }
+    }
+
+    //删除本地棋谱棋子
+    private deleteLocalChessBook() {
+
     }
     //设置自己棋子类型
     private setSelfChessType(chessType) {
@@ -624,9 +645,14 @@ class ChessBoard extends egret.DisplayObjectContainer {
                 egret.Tween.get(chess).to({ alpha: 1, scaleX: 1, scaleY: 1 }, 1000);
                 EventManager.publish("ChessBoard/setTriangle", chessType, chess.x, chess.y, chess.anchorOffsetX, chess.anchorOffsetY);
                 this.chessList.addChild(chess);
+
+                let chessData = { chess: chess, step: oGameData["steps"], color: chessType };
+               // oGameData["chessBook"][numX] = typeof oGameData["chessBook"][numX] == 'undefined' ? {} : oGameData["chessBook"][numX];
+                oGameData["chessBook"][numY][numX] = chessData;
+                console.log(oGameData["chessBook"]);
             } else {
                 if (playerType == 1) {
-                    EventManager.publish("ChessBoard/showMask", "对方停一手");
+                    EventManager.publish("ChessBoard/showMask", "对方停一手", true);
                 } else {
                     let content;
                     content = "play " + (chessType == 0 ? "black" : "white") + " pass";
@@ -641,24 +667,24 @@ class ChessBoard extends egret.DisplayObjectContainer {
             for (let i = 0; i < this.chessList.numChildren; i++) {
                 let child = this.chessList.getChildAt(i);
                 for (let j = 0; j < bArr.length; j++) {
-                    let bX = bArr[j][0];
-                    let bY = bArr[j][1];
-                    //console.log("bX:" + bX + ",bY:" + bY);
-                    if (child.x == bX * this.chessGap + this.realBoardStartX && child.y == bY * this.chessGap + this.realBoardStartY) {
+                    let bX = bArr[j][0] * this.chessGap + this.realBoardStartX;
+                    let bY = bArr[j][1] * this.chessGap + this.realBoardStartY;
+
+                    if (child.x == bX && child.y == bY) {
                         this.chessList.removeChildAt(i);
                     }
                 }
 
                 for (let j = 0; j < wArr.length; j++) {
-                    let wX = wArr[j][0];
-                    let wY = wArr[j][1];
-                    if (child.x == wX * this.chessGap + this.realBoardStartX && child.y == wY * this.chessGap + this.realBoardStartY) {
+                    let wX = wArr[j][0] * this.chessGap + this.realBoardStartX;
+                    let wY = wArr[j][1] * this.chessGap + this.realBoardStartY;
+                    if (child.x == wX && child.y == wY) {
                         this.chessList.removeChildAt(i);
                     }
                 }
             }
         } else {
-            EventManager.publish("ChessBoard/showMask", "不能在该点落子");
+            EventManager.publish("ChessBoard/showMask", "不能在该点落子", true);
         }
     }
     /**

@@ -14,7 +14,8 @@ declare module oGameData {
     var selfChessType: {};
     var chessAvailable: {};
     var black_arr: {};
-    var white_arr: {}
+    var white_arr: {};
+    var chessBook: {};
 }
 declare module ChessController {
     function checkAvailChess(x, y, color): any;

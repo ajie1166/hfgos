@@ -165,9 +165,12 @@ var ChessBoard = (function (_super) {
             self.setAvailSetGos(isAvail);
         });
         //弹出遮罩层
-        EventManager.subscribe("ChessBoard/showMask", function (content) {
-            self.showRectMask(qipan.x + (qipan.width - 340) / 2, qipan.y + (qipan.height - 150) / 2, content);
+        EventManager.subscribe("ChessBoard/showMask", function (content, isHide) {
+            self.showRectMask(qipan.x + (qipan.width - 340) / 2, qipan.y + (qipan.height - 150) / 2, content, isHide);
             //self.showRectMask(500, 20);
+        });
+        EventManager.subscribe("ChessBoard/hideMask", function () {
+            self.hideRectMask();
         });
         //更新本地棋谱
         EventManager.subscribe("ChessBoard/setChessBook", function (chessType, numX, numY) {
@@ -264,6 +267,7 @@ var ChessBoard = (function (_super) {
         //alert("同意对方发起的点目")
         this.gameResult.visible = false;
         EventManager.publish("GameScene/handlerDianMu", 1);
+        EventManager.publish("ChessBoard/showMask", "结果计算中...", false);
     };
     /**
      * 自己发起确认点目
@@ -293,10 +297,16 @@ var ChessBoard = (function (_super) {
         this.gameResult.visible = false;
     };
     /**
+     * 隐藏遮罩
+     */
+    ChessBoard.prototype.hideRectMask = function () {
+        this.rectMask.visible = false;
+    };
+    /**
      *
      * * 遮罩层
         */
-    ChessBoard.prototype.showRectMask = function (x, y, content) {
+    ChessBoard.prototype.showRectMask = function (x, y, content, isHide) {
         this.rectMask = new egret.Sprite();
         this.rectMask.graphics.beginFill(0x000000);
         this.rectMask.graphics.drawRect(x, y, 340, 150);
@@ -310,8 +320,10 @@ var ChessBoard = (function (_super) {
         //this.rectMask.addChild(this.rectMaskContent);
         this.qipanContainer.addChild(this.rectMask);
         this.qipanContainer.addChild(this.rectMaskContent);
-        egret.Tween.get(this.rectMask).to({ visible: false }, 2000, egret.Ease.circIn);
-        egret.Tween.get(this.rectMaskContent).to({ visible: false }, 2000, egret.Ease.circIn);
+        if (isHide) {
+            egret.Tween.get(this.rectMask).to({ visible: false }, 2000, egret.Ease.circIn);
+            egret.Tween.get(this.rectMaskContent).to({ visible: false }, 2000, egret.Ease.circIn);
+        }
     };
     /**
      * 添加三角标识
@@ -373,6 +385,9 @@ var ChessBoard = (function (_super) {
             this.isBiaoji = true;
             this.steplist.visible = false;
         }
+    };
+    //删除本地棋谱棋子
+    ChessBoard.prototype.deleteLocalChessBook = function () {
     };
     //设置自己棋子类型
     ChessBoard.prototype.setSelfChessType = function (chessType) {
@@ -516,10 +531,14 @@ var ChessBoard = (function (_super) {
                 egret.Tween.get(chess).to({ alpha: 1, scaleX: 1, scaleY: 1 }, 1000);
                 EventManager.publish("ChessBoard/setTriangle", chessType, chess.x, chess.y, chess.anchorOffsetX, chess.anchorOffsetY);
                 this.chessList.addChild(chess);
+                var chessData = { chess: chess, step: oGameData["steps"], color: chessType };
+                // oGameData["chessBook"][numX] = typeof oGameData["chessBook"][numX] == 'undefined' ? {} : oGameData["chessBook"][numX];
+                oGameData["chessBook"][numY][numX] = chessData;
+                console.log(oGameData["chessBook"]);
             }
             else {
                 if (playerType == 1) {
-                    EventManager.publish("ChessBoard/showMask", "对方停一手");
+                    EventManager.publish("ChessBoard/showMask", "对方停一手", true);
                 }
                 else {
                     var content = void 0;
@@ -534,24 +553,23 @@ var ChessBoard = (function (_super) {
             for (var i = 0; i < this.chessList.numChildren; i++) {
                 var child = this.chessList.getChildAt(i);
                 for (var j = 0; j < bArr.length; j++) {
-                    var bX = bArr[j][0];
-                    var bY = bArr[j][1];
-                    //console.log("bX:" + bX + ",bY:" + bY);
-                    if (child.x == bX * this.chessGap + this.realBoardStartX && child.y == bY * this.chessGap + this.realBoardStartY) {
+                    var bX = bArr[j][0] * this.chessGap + this.realBoardStartX;
+                    var bY = bArr[j][1] * this.chessGap + this.realBoardStartY;
+                    if (child.x == bX && child.y == bY) {
                         this.chessList.removeChildAt(i);
                     }
                 }
                 for (var j = 0; j < wArr.length; j++) {
-                    var wX = wArr[j][0];
-                    var wY = wArr[j][1];
-                    if (child.x == wX * this.chessGap + this.realBoardStartX && child.y == wY * this.chessGap + this.realBoardStartY) {
+                    var wX = wArr[j][0] * this.chessGap + this.realBoardStartX;
+                    var wY = wArr[j][1] * this.chessGap + this.realBoardStartY;
+                    if (child.x == wX && child.y == wY) {
                         this.chessList.removeChildAt(i);
                     }
                 }
             }
         }
         else {
-            EventManager.publish("ChessBoard/showMask", "不能在该点落子");
+            EventManager.publish("ChessBoard/showMask", "不能在该点落子", true);
         }
     };
     /**
