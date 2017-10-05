@@ -39,11 +39,12 @@ var GameMenu = (function (_super) {
         tingYiShou.touchEnabled = true;
         tingYiShou.addEventListener(egret.TouchEvent.TOUCH_TAP, function () {
             //alert(oGameData["selfChessType"]);
+            //alert(oGameData["chessAvailable"]);
             if (oGameData["chessAvailable"] == 1) {
                 oGameData["chessAvailable"] = 0;
                 EventManager.publish("ChessBoard/setAvail", false);
                 var content = oGameData["selfChessType"] == 0 ? "play black pass" : "play white pass";
-                EventManager.publish("ChessBoard/setChessBook", oGameData["selfChessType"], -1, -1);
+                //EventManager.publish("ChessBoard/setChessBook", oGameData["selfChessType"], -1, -1);
                 EventManager.publish('ChessBoard/setGos', oGameData["selfChessType"], -1, -1, 0);
             }
         }, self);
@@ -93,7 +94,9 @@ var GameMenu = (function (_super) {
         luozi.y = 630;
         _this.luozi = luozi;
         luozi.addEventListener(egret.TouchEvent.TOUCH_TAP, function () {
-            EventManager.publish('ChessBoard/setGos', undefined, undefined, undefined, 0);
+            //先预走子
+            //EventManager.publish('ChessBoard/setGos', undefined, undefined, undefined, 0);
+            EventManager.publish('ChessBoard/preSetGos', undefined, undefined, undefined, 0);
         }, _this);
         _this.addChild(_this.luozi);
         //self.visible = false;

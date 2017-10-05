@@ -73,6 +73,7 @@ class ChessBoard extends egret.DisplayObjectContainer {
     private qipan: egret.Bitmap;
     private txtField: egret.TextField;
     private ruleTxt: egret.TextField;
+    private finalTxt: egret.TextField;
     constructor() {
         super();
         let self = this;
@@ -124,6 +125,9 @@ class ChessBoard extends egret.DisplayObjectContainer {
         //规则
         this.ruleTxt = new egret.TextField();
         this.ruleTxt.y = qipan.y + qipan.width + 30;
+        //最终结果显示
+        this.finalTxt = new egret.TextField();
+        this.finalTxt.y = qipan.y + qipan.width + 80;
 
 
         this.confirmBtn = new egret.Bitmap(RES.getRes("ok_png"));
@@ -214,6 +218,21 @@ class ChessBoard extends egret.DisplayObjectContainer {
             self.addChess(chessType, numX, numY, playerType);
         });
 
+        //预走子
+        EventManager.subscribe('ChessBoard/preSetGos', function (chessType, numX, numY, playerType) {
+            if (chessType == undefined) {
+                chessType = self.nSelfColor;
+            }
+            if (numX == undefined) {
+                numX = self.numX;
+            }
+            if (numY == undefined) {
+                numY = self.numY;
+            }
+            //oGameData["nStep"]++;
+            self.preAddChess(chessType, numX, numY, playerType);
+        })
+
         //添加三角
         EventManager.subscribe("ChessBoard/setTriangle", function (chessType, x, y, anX, anY) {
             self.setTriangle(chessType, x, y, anX, anY);
@@ -243,6 +262,11 @@ class ChessBoard extends egret.DisplayObjectContainer {
             self.showGameResult(type, game_status, result);
         });
 
+        //文本显示结果
+        EventManager.subscribe("ChessBoard/showFinalGameResult", function (content) {
+            self.showFinalResult(content);
+        });
+
         EventManager.subscribe("GameScene/showAlert", function (content, type) {
             self.showAlert(type, content);
         })
@@ -262,6 +286,14 @@ class ChessBoard extends egret.DisplayObjectContainer {
         // this.ruleTxt.fontFamily = "宋体";
         this.ruleTxt.bold = true;
         this.addChild(this.ruleTxt);
+    }
+
+    private showFinalResult(content) {
+        this.finalTxt.text = content;
+        this.finalTxt.x = this.qipan.x + (this.qipan.width - this.finalTxt.width) / 2;
+        this.finalTxt.textColor = 0xFF6633;
+        this.finalTxt.bold = true;
+        this.addChild(this.finalTxt);
     }
 
     /**
@@ -347,6 +379,7 @@ class ChessBoard extends egret.DisplayObjectContainer {
         this.confirmBtn.removeEventListener(egret.TouchEvent.TOUCH_TAP, this.callbackSelfConfirmDianMu, this);
         this.confirmBtn.removeEventListener(egret.TouchEvent.TOUCH_TAP, this.callbackOppConfirmDianMu, this);
         this.confirmBtn.addEventListener(egret.TouchEvent.TOUCH_TAP, this.hideGameResult, this)
+        EventManager.publish("ChessBoard/showFinalGameResult", this.txtResult.text);
 
     }
 
@@ -422,11 +455,13 @@ class ChessBoard extends egret.DisplayObjectContainer {
                     if (x == -1 && y == -1) {
                         continue;
                     }
+                    txtNum.size = 12;
+                    txtNum.height = 12;
+                    txtNum.textAlign = egret.HorizontalAlign.CENTER;
+                    txtNum.anchorOffsetX = txtNum.width / 2;
+                    txtNum.anchorOffsetY = txtNum.height / 2;
                     txtNum.x = (x) * this.chessGap + this.realBoardStartX;
                     txtNum.y = (y) * this.chessGap + this.realBoardStartY;
-                    txtNum.anchorOffsetX = txtNum.width / 2 - 3;
-                    txtNum.anchorOffsetY = txtNum.height / 2 - 4;
-                    txtNum.size = 20;
                     this.steplist.addChild(txtNum);
 
                 }
@@ -520,6 +555,21 @@ class ChessBoard extends egret.DisplayObjectContainer {
         this.lightY.visible = false;
     }
 
+    /**
+     * 预准备
+     */
+    private preAddChess(chessType: number, numX: number, numY: number, playerType: number) {
+        let wX = Utility.getWordByNum(numX);
+        let content;
+        if (numX >= 0 && numY >= 0) {
+            content = "play " + (chessType == 0 ? "black" : "white") + ` ${wX}${19 - numY}`;
+        }
+        else {
+            content = "play " + (chessType == 0 ? "black" : "white") + " pass";
+        }
+        EventManager.publish("GameScene/confirmLuoZi", localStorage.getItem("game_id"), 1, content, 10700);
+    }
+
     //落子
     /**
      * chessType 0 黑子 1 白子
@@ -530,60 +580,86 @@ class ChessBoard extends egret.DisplayObjectContainer {
         let chessResName = chessType == 0 ? "chess_black_small_png" : "chess_white_small_png";
         let chess: egret.Bitmap = GosCommon.createBitmapByName(chessResName);
         // console.log(`x:${numX},y:${numY}`);
-        ChessController.checkAvailChess(numY, numX, chessType);
-
-        if (playerType == 0) {
-            oGameData["chessAvailable"] = 0;
-            this.setAvailSetGos(false);
-            EventManager.publish("GameScene/hideConfirmLuoZi");
-            EventManager.publish("ChessBoard/hideLight");
-            let wX = Utility.getWordByNum(numX);
-            let content;
-            if (numX >= 0 && numY >= 0) {
-                content = "play " + (chessType == 0 ? "black" : "white") + ` ${wX}${19 - numY}`;
-            }
-            else {
-                content = "play " + (chessType == 0 ? "black" : "white") + " pass";
-            }
-            EventManager.publish("GameScene/confirmLuoZi", localStorage.getItem("game_id"), 1, content, 10700);
-            EventManager.publish("GameScene/stepSelfPlus");
-        } else {
-            oGameData["chessAvailable"] = 1;
-            EventManager.publish("GameScene/stepOppPlus");
-            this.setAvailSetGos(true);
-        }
-        oGameData["steps"]++;
-
+        //自己写的吃子逻辑
         if (numX >= 0 && numY >= 0) {
-            chess.anchorOffsetX = chess.width / 2;
-            chess.anchorOffsetY = chess.height / 2;
-            chess.x = numX * this.chessGap + this.realBoardStartX;
-            chess.y = numY * this.chessGap + this.realBoardStartY;
+            ChessController.checkAvailChess(numY, numX, chessType);
+        }
+        let avail = true;
+        if (avail) {
+            if (playerType == 0) {
+                oGameData["chessAvailable"] = 0;
+                this.setAvailSetGos(false);
+                EventManager.publish("GameScene/hideConfirmLuoZi");
+                EventManager.publish("ChessBoard/hideLight");
 
-            chess.scaleX = 2;
-            chess.scaleY = 2;
-            chess.alpha = 0;
-            egret.Tween.get(chess).to({ alpha: 1, scaleX: 1, scaleY: 1 }, 1000);
-            EventManager.publish("ChessBoard/setTriangle", chessType, chess.x, chess.y, chess.anchorOffsetX, chess.anchorOffsetY);
-            this.chessList.addChild(chess);
+                //挪到预走子
+                /* let wX = Utility.getWordByNum(numX);
+                 let content;
+                 if (numX >= 0 && numY >= 0) {
+                     content = "play " + (chessType == 0 ? "black" : "white") + ` ${wX}${19 - numY}`;
+                 }
+                 else {
+                     content = "play " + (chessType == 0 ? "black" : "white") + " pass";
+                 }
+                 EventManager.publish("GameScene/confirmLuoZi", localStorage.getItem("game_id"), 1, content, 10700);
+                 */
+
+                EventManager.publish("GameScene/stepSelfPlus");
+            } else {
+                oGameData["chessAvailable"] = 1;
+                EventManager.publish("GameScene/stepOppPlus");
+                this.setAvailSetGos(true);
+            }
+
+            oGameData["steps"]++;
+            if (numX >= 0 && numY >= 0) {
+                chess.anchorOffsetX = chess.width / 2;
+                chess.anchorOffsetY = chess.height / 2;
+                chess.x = numX * this.chessGap + this.realBoardStartX;
+                chess.y = numY * this.chessGap + this.realBoardStartY;
+
+                chess.scaleX = 2;
+                chess.scaleY = 2;
+                chess.alpha = 0;
+                egret.Tween.get(chess).to({ alpha: 1, scaleX: 1, scaleY: 1 }, 1000);
+                EventManager.publish("ChessBoard/setTriangle", chessType, chess.x, chess.y, chess.anchorOffsetX, chess.anchorOffsetY);
+                this.chessList.addChild(chess);
+            } else {
+                if (playerType == 1) {
+                    EventManager.publish("ChessBoard/showMask", "对方停一手");
+                } else {
+                    let content;
+                    content = "play " + (chessType == 0 ? "black" : "white") + " pass";
+                    EventManager.publish("GameScene/confirmLuoZi", localStorage.getItem("game_id"), 1, content, 10700);
+                }
+            }
+            EventManager.publish("ChessBoard/setChessBook", chessType, numX, numY);
+
+            let bArr = GosCommon.getEatChess(oGameData["black_arr"]);
+            //console.log(bArr);
+            let wArr = GosCommon.getEatChess(oGameData["white_arr"]);
+            for (let i = 0; i < this.chessList.numChildren; i++) {
+                let child = this.chessList.getChildAt(i);
+                for (let j = 0; j < bArr.length; j++) {
+                    let bX = bArr[j][0];
+                    let bY = bArr[j][1];
+                    //console.log("bX:" + bX + ",bY:" + bY);
+                    if (child.x == bX * this.chessGap + this.realBoardStartX && child.y == bY * this.chessGap + this.realBoardStartY) {
+                        this.chessList.removeChildAt(i);
+                    }
+                }
+
+                for (let j = 0; j < wArr.length; j++) {
+                    let wX = wArr[j][0];
+                    let wY = wArr[j][1];
+                    if (child.x == wX * this.chessGap + this.realBoardStartX && child.y == wY * this.chessGap + this.realBoardStartY) {
+                        this.chessList.removeChildAt(i);
+                    }
+                }
+            }
         } else {
-            if (playerType == 1) {
-                EventManager.publish("ChessBoard/showMask", "对方停一手");
-            }
+            EventManager.publish("ChessBoard/showMask", "不能在该点落子");
         }
-        EventManager.publish("ChessBoard/setChessBook", chessType, numX, numY);
-
-        let childNum = this.chessList.numChildren;
-        let bStr = GosCommon.getEatChess(oGameData["black_arr"]);
-        let bs = bStr.split("_");
-        for (let i = 0; i < childNum; i++) {
-            let child = this.chessList.getChildAt(i);
-            console.log(child);
-            if (child.x == (Number(bs[0]) * this.chessGap + this.realBoardStartX) && child.y == (Number(bs[1]) * this.chessGap + this.realBoardStartY)) {
-                this.chessList.removeChildAt(i);
-            }
-        }
-        console.log();
     }
     /**
      * 更新棋谱

@@ -42,6 +42,7 @@ var wsConnection = {
         var self = this;
         var op = data["op"];
         var code = data["code"];
+        var msg = data["msg"];
 
         //alert("code:" + code);
         if (code == 1) {
@@ -113,7 +114,7 @@ var wsConnection = {
                 var local_player_id = localStorage.getItem("player_id");
                 // if(request_id!=localStorage.getItem["last_luozi_request_id"])
                 var content = data["MOVE_REP"]["content"];
-                var oppColor = content.split(" ")[1] == "black" ? 0 : 1;
+                var color = content.split(" ")[1] == "black" ? 0 : 1;
                 var xy = content.split(" ")[2];
                 var x;
                 var y;
@@ -132,7 +133,11 @@ var wsConnection = {
                 }
 
                 if (local_player_id != player_id) {
-                    EventManager.publish('ChessBoard/setGos', oppColor, numX, numY, 1);
+                    EventManager.publish('ChessBoard/setGos', color, numX, numY, 1);
+                } else {
+                    if (numX >= 0 && numY >= 0) {
+                        EventManager.publish('ChessBoard/setGos', color, numX, numY, 0);
+                    }
                 }
             } else if (op == 2200) {
                 //结束
@@ -158,8 +163,11 @@ var wsConnection = {
                     EventManager.publish("ChessBoard/setAvail", true);
                 }
             }
-        } else {
+        } else if (code == 2001) {
             //返回失败
+            if (op == 2101) {
+                EventManager.publish("ChessBoard/showMask", "不能在该点落子");
+            }
         }
     }
 }

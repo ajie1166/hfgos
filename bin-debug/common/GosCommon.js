@@ -104,14 +104,17 @@ var GosCommon = (function () {
         }
     };
     /**
-     *
+     * 获取 死子
      */
     GosCommon.getEatChess = function (arr) {
-        var eatChess = "";
+        var eatChess = new Array();
         for (var i = 0; i < 19; i++) {
             for (var j = 0; j < 19; j++) {
+                var eat = new Array();
                 if (arr[i][j] != 0) {
-                    eatChess = eatChess + (j + "_" + i);
+                    eat.push(j);
+                    eat.push(i);
+                    eatChess.push(eat);
                 }
             }
         }

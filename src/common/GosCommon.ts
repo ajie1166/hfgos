@@ -102,14 +102,18 @@ class GosCommon {
     }
 
     /**
-     * 
+     * 获取 死子
      */
     public static getEatChess(arr) {
-        let eatChess = "";
+        let eatChess = new Array();
         for (let i = 0; i < 19; i++) {
             for (let j = 0; j < 19; j++) {
+                let eat = new Array();
                 if (arr[i][j] != 0) {
-                    eatChess = eatChess + `${j}_${i}`;
+                    eat.push(j);
+                    eat.push(i);
+                    eatChess.push(eat);
+                    //eatChess = eatChess + `${j}_${i};`;
                 }
             }
         }

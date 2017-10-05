@@ -43,7 +43,7 @@ var ChessController = {
             }
             arr[i] = arrj;
         }
-        console.log(arr);
+        //console.log(arr);
     },
     //存储本步骤的棋盘数组
     saveStep: function () {
@@ -62,7 +62,8 @@ var ChessController = {
             //判断是否在不可着子区域
             if (color == 0) {
                 if (oGameData["black_arr"][x][y] == "b") {
-                    alert("根据规则，此处不可马上下子，\n请在别处另着一子后再回来！！！");
+                    return false;
+                    // alert("根据规则，此处不可马上下子，\n请在别处另着一子后再回来！！！");
                 } else {
                     arr[x][y] = "b";
 
@@ -76,7 +77,8 @@ var ChessController = {
                 }
             } else if (color == 1) {
                 if (oGameData["white_arr"][x][y] == "w") {
-                    alert("根据规则，此处不可马上下子，\n请在别处另着一子后再回来！！！");
+                    return false;
+                    //alert("根据规则，此处不可马上下子，\n请在别处另着一子后再回来！！！");
                 } else {
                     arr[x][y] = "w";
                     //将监测是否可以提子的数组置为19*19的0数组
@@ -89,9 +91,9 @@ var ChessController = {
                     self.saveStep();
                 }
             }
-            console.log(arr);
-            console.log(oGameData["black_arr"]);
-            console.log(oGameData["white_arr"]);
+            // console.log(arr);
+            //console.log(oGameData["black_arr"]);
+            // console.log(oGameData["white_arr"]);
             return true;
         } else {
             return false;
