@@ -16,6 +16,7 @@ declare module oGameData {
     var black_arr: {};
     var white_arr: {};
     var chessBook: {};
+    var deleteChess: {};
 }
 declare module ChessController {
     function checkAvailChess(x, y, color): any;

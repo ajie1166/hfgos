@@ -39,7 +39,7 @@ class ChessBoard extends egret.DisplayObjectContainer {
 
     //删除的棋子容器
     private deleteChessList: egret.DisplayObjectContainer;
-
+    private deleteList: Number[] = [];
     //矩形遮罩层
     private rectMask: egret.Sprite;
     //遮罩层显示内容
@@ -479,7 +479,15 @@ class ChessBoard extends egret.DisplayObjectContainer {
                     txtNum.x = (x) * this.chessGap + this.realBoardStartX;
                     txtNum.y = (y) * this.chessGap + this.realBoardStartY;
                     this.steplist.addChild(txtNum);
-
+                }
+                if (this.deleteList.length > 0) {
+                    for (let i = 0; i < this.deleteList.length; i++) {
+                        for (let j = 0; j < this.steplist.numChildren; j++) {
+                            if ((<egret.TextField>this.steplist.getChildAt(j)).text == this.deleteList[i].toString()) {
+                                this.steplist.removeChildAt(j);
+                            }
+                        }
+                    }
                 }
                 this.addChild(this.steplist);
             }
@@ -612,21 +620,15 @@ class ChessBoard extends egret.DisplayObjectContainer {
                 this.setAvailSetGos(false);
                 EventManager.publish("GameScene/hideConfirmLuoZi");
                 EventManager.publish("ChessBoard/hideLight");
-
-                //挪到预走子
-                /* let wX = Utility.getWordByNum(numX);
-                 let content;
-                 if (numX >= 0 && numY >= 0) {
-                     content = "play " + (chessType == 0 ? "black" : "white") + ` ${wX}${19 - numY}`;
-                 }
-                 else {
-                     content = "play " + (chessType == 0 ? "black" : "white") + " pass";
-                 }
-                 EventManager.publish("GameScene/confirmLuoZi", localStorage.getItem("game_id"), 1, content, 10700);
-                 */
-
                 EventManager.publish("GameScene/stepSelfPlus");
+                //停止落子方  开始对方计时
+                EventManager.publish("GameScene/stopRemainTime", playerType);
+                EventManager.publish("GameScene/startRemainTime", 1);
+
             } else {
+                  //停止落子方  开始对方计时
+                EventManager.publish("GameScene/stopRemainTime", playerType);
+                EventManager.publish("GameScene/startRemainTime", 0);
                 oGameData["chessAvailable"] = 1;
                 EventManager.publish("GameScene/stepOppPlus");
                 this.setAvailSetGos(true);
@@ -647,9 +649,10 @@ class ChessBoard extends egret.DisplayObjectContainer {
                 this.chessList.addChild(chess);
 
                 let chessData = { chess: chess, step: oGameData["steps"], color: chessType };
-               // oGameData["chessBook"][numX] = typeof oGameData["chessBook"][numX] == 'undefined' ? {} : oGameData["chessBook"][numX];
+                // oGameData["chessBook"][numX] = typeof oGameData["chessBook"][numX] == 'undefined' ? {} : oGameData["chessBook"][numX];
                 oGameData["chessBook"][numY][numX] = chessData;
-                console.log(oGameData["chessBook"]);
+                // console.log(oGameData["chessBook"]);
+                //console.log(this.getDeleteNumber(chess.x, chess.y));
             } else {
                 if (playerType == 1) {
                     EventManager.publish("ChessBoard/showMask", "对方停一手", true);
@@ -661,6 +664,7 @@ class ChessBoard extends egret.DisplayObjectContainer {
             }
             EventManager.publish("ChessBoard/setChessBook", chessType, numX, numY);
 
+
             let bArr = GosCommon.getEatChess(oGameData["black_arr"]);
             //console.log(bArr);
             let wArr = GosCommon.getEatChess(oGameData["white_arr"]);
@@ -669,22 +673,39 @@ class ChessBoard extends egret.DisplayObjectContainer {
                 for (let j = 0; j < bArr.length; j++) {
                     let bX = bArr[j][0] * this.chessGap + this.realBoardStartX;
                     let bY = bArr[j][1] * this.chessGap + this.realBoardStartY;
-
                     if (child.x == bX && child.y == bY) {
                         this.chessList.removeChildAt(i);
+                        this.deleteList.push(this.getDeleteNumber(bX, bY));
                     }
                 }
-
                 for (let j = 0; j < wArr.length; j++) {
                     let wX = wArr[j][0] * this.chessGap + this.realBoardStartX;
                     let wY = wArr[j][1] * this.chessGap + this.realBoardStartY;
                     if (child.x == wX && child.y == wY) {
                         this.chessList.removeChildAt(i);
+                        this.deleteList.push(this.getDeleteNumber(wX, wY));
                     }
                 }
             }
+            //console.log(this.deleteList);
         } else {
             EventManager.publish("ChessBoard/showMask", "不能在该点落子", true);
+        }
+    }
+
+    /**
+     * 获取删除的棋子 步数
+     */
+    private getDeleteNumber(x, y): number {
+        for (let i = 0; i < 19; i++) {
+            for (let j = 0; j < 19; j++) {
+                if (Object.keys(oGameData["chessBook"][i][j]).length != 0) {
+                    let chess = oGameData["chessBook"][i][j].chess;
+                    if (chess.x == x && chess.y == y) {
+                        return oGameData["chessBook"][i][j].step;
+                    }
+                }
+            }
         }
     }
     /**

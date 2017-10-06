@@ -17,6 +17,7 @@ var ChessBoard = (function (_super) {
         _this.touchGap = 10;
         _this.realBoardStartX = 690;
         _this.realBoardStartY = 270;
+        _this.deleteList = [];
         //自己棋子颜色类型 0 黑子  1 白子
         _this.nSelfColor = 0;
         _this.chessAvailable = false;
@@ -378,6 +379,15 @@ var ChessBoard = (function (_super) {
                     txtNum.y = (y) * this.chessGap + this.realBoardStartY;
                     this.steplist.addChild(txtNum);
                 }
+                if (this.deleteList.length > 0) {
+                    for (var i = 0; i < this.deleteList.length; i++) {
+                        for (var j = 0; j < this.steplist.numChildren; j++) {
+                            if (this.steplist.getChildAt(j).text == this.deleteList[i].toString()) {
+                                this.steplist.removeChildAt(j);
+                            }
+                        }
+                    }
+                }
                 this.addChild(this.steplist);
             }
         }
@@ -501,20 +511,15 @@ var ChessBoard = (function (_super) {
                 this.setAvailSetGos(false);
                 EventManager.publish("GameScene/hideConfirmLuoZi");
                 EventManager.publish("ChessBoard/hideLight");
-                //挪到预走子
-                /* let wX = Utility.getWordByNum(numX);
-                 let content;
-                 if (numX >= 0 && numY >= 0) {
-                     content = "play " + (chessType == 0 ? "black" : "white") + ` ${wX}${19 - numY}`;
-                 }
-                 else {
-                     content = "play " + (chessType == 0 ? "black" : "white") + " pass";
-                 }
-                 EventManager.publish("GameScene/confirmLuoZi", localStorage.getItem("game_id"), 1, content, 10700);
-                 */
                 EventManager.publish("GameScene/stepSelfPlus");
+                //停止落子方  开始对方计时
+                EventManager.publish("GameScene/stopRemainTime", playerType);
+                EventManager.publish("GameScene/startRemainTime", 1);
             }
             else {
+                //停止落子方  开始对方计时
+                EventManager.publish("GameScene/stopRemainTime", playerType);
+                EventManager.publish("GameScene/startRemainTime", 0);
                 oGameData["chessAvailable"] = 1;
                 EventManager.publish("GameScene/stepOppPlus");
                 this.setAvailSetGos(true);
@@ -534,7 +539,6 @@ var ChessBoard = (function (_super) {
                 var chessData = { chess: chess, step: oGameData["steps"], color: chessType };
                 // oGameData["chessBook"][numX] = typeof oGameData["chessBook"][numX] == 'undefined' ? {} : oGameData["chessBook"][numX];
                 oGameData["chessBook"][numY][numX] = chessData;
-                console.log(oGameData["chessBook"]);
             }
             else {
                 if (playerType == 1) {
@@ -557,6 +561,7 @@ var ChessBoard = (function (_super) {
                     var bY = bArr[j][1] * this.chessGap + this.realBoardStartY;
                     if (child.x == bX && child.y == bY) {
                         this.chessList.removeChildAt(i);
+                        this.deleteList.push(this.getDeleteNumber(bX, bY));
                     }
                 }
                 for (var j = 0; j < wArr.length; j++) {
@@ -564,12 +569,28 @@ var ChessBoard = (function (_super) {
                     var wY = wArr[j][1] * this.chessGap + this.realBoardStartY;
                     if (child.x == wX && child.y == wY) {
                         this.chessList.removeChildAt(i);
+                        this.deleteList.push(this.getDeleteNumber(wX, wY));
                     }
                 }
             }
         }
         else {
             EventManager.publish("ChessBoard/showMask", "不能在该点落子", true);
+        }
+    };
+    /**
+     * 获取删除的棋子 步数
+     */
+    ChessBoard.prototype.getDeleteNumber = function (x, y) {
+        for (var i = 0; i < 19; i++) {
+            for (var j = 0; j < 19; j++) {
+                if (Object.keys(oGameData["chessBook"][i][j]).length != 0) {
+                    var chess = oGameData["chessBook"][i][j].chess;
+                    if (chess.x == x && chess.y == y) {
+                        return oGameData["chessBook"][i][j].step;
+                    }
+                }
+            }
         }
     };
     /**

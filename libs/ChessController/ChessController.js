@@ -14,7 +14,8 @@ var oGameData = {
     'chessAvailable': 0,//1 有权限  0 无权限
     'black_arr': {},
     'white_arr': {},
-    'chessBook': {}
+    'chessBook': {},
+    'deleteChess': {}
 };
 
 

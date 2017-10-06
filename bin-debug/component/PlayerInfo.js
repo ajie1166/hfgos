@@ -19,6 +19,8 @@ var PlayerInfo = (function (_super) {
         _this.selfNums = 0;
         _this.oppNums = 0;
         _this.stepNums = 0;
+        _this.selfTime = 10800;
+        _this.oppTime = 10800;
         var self = _this;
         var stage = egret.MainContext.instance.stage;
         var stageW = stage.stageWidth;
@@ -103,8 +105,56 @@ var PlayerInfo = (function (_super) {
         EventManager.subscribe("GameScene/stepOppPlus", function () {
             self.setOppNums();
         });
+        EventManager.subscribe("GameScene/startRemainTime", function (playerType) {
+            //alert(playerType);
+            self.initTimer(playerType);
+        });
+        EventManager.subscribe("GameScene/stopRemainTime", function (playerType) {
+            self.stopTimer(playerType);
+        });
         return _this;
     }
+    PlayerInfo.prototype.initTimer = function (playerType) {
+        var self = this;
+        if (playerType == 0) {
+            this.chessSelfTimer = new egret.Timer(1000, this.selfTime);
+            this.chessSelfTimer.addEventListener(egret.TimerEvent.TIMER, function () {
+                self.setSecond(playerType);
+            }, this);
+            //chessTimer.addEventListener(egret.TimerEvent.TIMER_COMPLETE, this.endMatching, this);
+            this.chessSelfTimer.start();
+        }
+        else if (playerType == 1) {
+            this.chessOppTimer = new egret.Timer(1000, this.oppTime);
+            //console
+            this.chessOppTimer.addEventListener(egret.TimerEvent.TIMER, function () {
+                self.setSecond(playerType);
+            }, this);
+            this.chessOppTimer.start();
+        }
+    };
+    PlayerInfo.prototype.setSecond = function (playerType) {
+        if (playerType == 0) {
+            if (this.selfTime > 0) {
+                this.selfTime--;
+                this.selfRemainTime.text = GosCommon.secToTime(this.selfTime);
+            }
+        }
+        else if (playerType == 1) {
+            if (this.oppTime > 0) {
+                this.oppTime--;
+                this.oppRemainTime.text = GosCommon.secToTime(this.oppTime);
+            }
+        }
+    };
+    PlayerInfo.prototype.stopTimer = function (playerType) {
+        if (playerType == 0) {
+            this.chessSelfTimer.stop();
+        }
+        else if (playerType == 1) {
+            this.chessOppTimer.stop();
+        }
+    };
     PlayerInfo.prototype.setSelfName = function (nickName) {
         //this.selfName = nickName;
         // alert(nickName);

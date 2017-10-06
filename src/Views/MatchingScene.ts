@@ -79,14 +79,10 @@ class MatchingScene extends egret.DisplayObjectContainer {
             // alert(2);
             self.initPiPeiTimer();
             self.startTimer();
-        })
-
-      
-
+        })  
         this.initPiPeiTimer();
     }
 
-   
     private startTimer(): void {
         this.timerText.visible = true;
         this.matchingTimer.start();

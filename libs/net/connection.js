@@ -96,9 +96,11 @@ var wsConnection = {
                     }
 
                     if (selfPlayer["colorType"] == 0) {
+                        EventManager.publish("GameScene/startRemainTime", 0);
                         EventManager.publish("ChessBoard/setAvail", true);
                         oGameData["chessAvailable"] = 1;
                     } else {
+                        EventManager.publish("GameScene/startRemainTime", 1);
                         oGameData["chessAvailable"] = 0;
                     }
                     if (ruleColorType == 2) {

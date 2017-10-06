@@ -38,6 +38,11 @@ class PlayerInfo extends egret.DisplayObjectContainer {
     private oppContainer: egret.Sprite;
 
     private playerHeader: egret.Bitmap;
+
+    private chessSelfTimer: egret.Timer;
+    private chessOppTimer: egret.Timer;
+    private selfTime: number = 10800;
+    private oppTime: number = 10800;
     constructor() {
         super();
         let self = this;
@@ -67,8 +72,8 @@ class PlayerInfo extends egret.DisplayObjectContainer {
         let selfTempName = localStorage.getItem("nick_name");
         selfTempName = GosCommon.subString(selfTempName, 10);
         let userName: egret.TextField = this.createTextField(selfTempName, { x: playerHead.x + playerHead.width + 70, y: selfBg.y + 45 })
-       // userName.fontFamily = "宋体";
-       // userName.bold = true;
+        // userName.fontFamily = "宋体";
+        // userName.bold = true;
         this.selfName = userName;
         selfContainer.addChild(userName);
 
@@ -148,7 +153,60 @@ class PlayerInfo extends egret.DisplayObjectContainer {
         EventManager.subscribe("GameScene/stepOppPlus", function () {
             self.setOppNums();
         });
+        EventManager.subscribe("GameScene/startRemainTime", function (playerType) {
+            //alert(playerType);
+            self.initTimer(playerType);
+        })
+        EventManager.subscribe("GameScene/stopRemainTime", function (playerType) {
+            self.stopTimer(playerType);
+        })
     }
+
+
+    private initTimer(playerType): void {
+        let self = this;
+        if (playerType == 0) {
+            this.chessSelfTimer = new egret.Timer(1000, this.selfTime);
+            this.chessSelfTimer.addEventListener(egret.TimerEvent.TIMER, function () {
+                self.setSecond(playerType);
+            }, this);
+            //chessTimer.addEventListener(egret.TimerEvent.TIMER_COMPLETE, this.endMatching, this);
+            this.chessSelfTimer.start();
+        } else if (playerType == 1) {
+            this.chessOppTimer = new egret.Timer(1000, this.oppTime);
+            //console
+            this.chessOppTimer.addEventListener(egret.TimerEvent.TIMER, function () {
+                self.setSecond(playerType);
+            }, this);
+            this.chessOppTimer.start();
+        }
+    }
+
+    private setSecond(playerType) {
+        if (playerType == 0) {
+            if (this.selfTime > 0) {
+                this.selfTime--;
+                this.selfRemainTime.text = GosCommon.secToTime(this.selfTime);
+            }
+
+        } else if (playerType == 1) {
+            if (this.oppTime > 0) {
+                this.oppTime--;
+                this.oppRemainTime.text = GosCommon.secToTime(this.oppTime);
+            }
+        }
+    }
+    private stopTimer(playerType) {
+        if (playerType == 0) {
+            this.chessSelfTimer.stop();
+        }
+        else if (playerType == 1) {
+            this.chessOppTimer.stop();
+        }
+    }
+
+
+
     private setSelfName(nickName) {
         //this.selfName = nickName;
         // alert(nickName);

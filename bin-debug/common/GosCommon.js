@@ -120,6 +120,41 @@ var GosCommon = (function () {
         }
         return eatChess;
     };
+    /**
+     * 秒数转时间
+     */
+    GosCommon.secToTime = function (time) {
+        var timeStr = null;
+        var hour = 0;
+        var minute = 0;
+        var second = 0;
+        if (time <= 0)
+            return "00:00:00";
+        else {
+            minute = Math.floor(time / 60);
+            if (minute < 60) {
+                second = time % 60;
+                timeStr = "00:" + this.unitFormat(minute) + ":" + this.unitFormat(second);
+            }
+            else {
+                hour = Math.floor(minute / 60);
+                if (hour > 99)
+                    return "99:59:59";
+                minute = minute % 60;
+                second = time - hour * 3600 - minute * 60;
+                timeStr = this.unitFormat(hour) + ":" + this.unitFormat(minute) + ":" + this.unitFormat(second);
+            }
+        }
+        return timeStr;
+    };
+    GosCommon.unitFormat = function (i) {
+        var retStr;
+        if (i >= 0 && i < 10)
+            retStr = "0" + i;
+        else
+            retStr = "" + i;
+        return retStr;
+    };
     return GosCommon;
 }());
 __reflect(GosCommon.prototype, "GosCommon");
