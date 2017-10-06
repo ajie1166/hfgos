@@ -21,7 +21,7 @@ var ChessBoard = (function (_super) {
         //自己棋子颜色类型 0 黑子  1 白子
         _this.nSelfColor = 0;
         _this.chessAvailable = false;
-        _this.isBiaoji = true;
+        _this.isBiaoji = true; //可标记   标识未标记
         var self = _this;
         //三角形
         /*let g: egret.Shape = new egret.Shape();
@@ -340,6 +340,30 @@ var ChessBoard = (function (_super) {
         triangle.anchorOffsetX = triangle.width / 2;
         triangle.anchorOffsetY = triangle.height / 2;
         this.addChild(triangle);
+        oGameData["lastChessCoordinate"] = { color: chessType, x: (x - this.realBoardStartX) / this.chessGap, y: (y - this.realBoardStartY) / this.chessGap };
+    };
+    ChessBoard.prototype.addBiaojiNums = function (num) {
+        if (!this.isBiaoji) {
+            var x = oGameData["lastChessCoordinate"]["x"];
+            var y = oGameData["lastChessCoordinate"]["y"];
+            var color = oGameData["lastChessCoordinate"]["color"];
+            var txtNum = new egret.TextField();
+            if (color == 0) {
+                txtNum.textColor = 0xffffff;
+            }
+            else {
+                txtNum.textColor = 0;
+            }
+            txtNum.text = num;
+            txtNum.size = 12;
+            txtNum.height = 12;
+            txtNum.textAlign = egret.HorizontalAlign.CENTER;
+            txtNum.anchorOffsetX = txtNum.width / 2;
+            txtNum.anchorOffsetY = txtNum.height / 2;
+            txtNum.x = (x) * this.chessGap + this.realBoardStartX;
+            txtNum.y = (y) * this.chessGap + this.realBoardStartY;
+            this.steplist.addChild(txtNum);
+        }
     };
     /**
      * 标记
@@ -379,15 +403,16 @@ var ChessBoard = (function (_super) {
                     txtNum.y = (y) * this.chessGap + this.realBoardStartY;
                     this.steplist.addChild(txtNum);
                 }
-                if (this.deleteList.length > 0) {
-                    for (var i = 0; i < this.deleteList.length; i++) {
-                        for (var j = 0; j < this.steplist.numChildren; j++) {
-                            if (this.steplist.getChildAt(j).text == this.deleteList[i].toString()) {
-                                this.steplist.removeChildAt(j);
-                            }
-                        }
-                    }
-                }
+                /* if (this.deleteList.length > 0) {
+                     for (let i = 0; i < this.deleteList.length; i++) {
+                         for (let j = 0; j < this.steplist.numChildren; j++) {
+                             if ((<egret.TextField>this.steplist.getChildAt(j)).text == this.deleteList[i].toString()) {
+                                 this.steplist.removeChildAt(j);
+                             }
+                         }
+                     }
+                 }*/
+                this.deleteChessNum();
                 this.addChild(this.steplist);
             }
         }
@@ -525,6 +550,13 @@ var ChessBoard = (function (_super) {
                 this.setAvailSetGos(true);
             }
             oGameData["steps"]++;
+            if (Object.keys(oGameData["lastChessCoordinate"]).length > 0) {
+                if (!this.isBiaoji) {
+                    if (oGameData["steps"] > 0) {
+                        this.addBiaojiNums((oGameData["steps"] - 1));
+                    }
+                }
+            }
             if (numX >= 0 && numY >= 0) {
                 chess.anchorOffsetX = chess.width / 2;
                 chess.anchorOffsetY = chess.height / 2;
@@ -537,7 +569,6 @@ var ChessBoard = (function (_super) {
                 EventManager.publish("ChessBoard/setTriangle", chessType, chess.x, chess.y, chess.anchorOffsetX, chess.anchorOffsetY);
                 this.chessList.addChild(chess);
                 var chessData = { chess: chess, step: oGameData["steps"], color: chessType };
-                // oGameData["chessBook"][numX] = typeof oGameData["chessBook"][numX] == 'undefined' ? {} : oGameData["chessBook"][numX];
                 oGameData["chessBook"][numY][numX] = chessData;
             }
             else {
@@ -549,6 +580,8 @@ var ChessBoard = (function (_super) {
                     content = "play " + (chessType == 0 ? "black" : "white") + " pass";
                     EventManager.publish("GameScene/confirmLuoZi", localStorage.getItem("game_id"), 1, content, 10700);
                 }
+                this.blackTriangle.visible = false;
+                this.whiteTriangle.visible = false;
             }
             EventManager.publish("ChessBoard/setChessBook", chessType, numX, numY);
             var bArr = GosCommon.getEatChess(oGameData["black_arr"]);
@@ -573,9 +606,24 @@ var ChessBoard = (function (_super) {
                     }
                 }
             }
+            this.deleteChessNum();
         }
         else {
             EventManager.publish("ChessBoard/showMask", "不能在该点落子", true);
+        }
+    };
+    /**
+     * 删除被吃掉的数字
+     */
+    ChessBoard.prototype.deleteChessNum = function () {
+        if (this.deleteList.length > 0) {
+            for (var i = 0; i < this.deleteList.length; i++) {
+                for (var j = 0; j < this.steplist.numChildren; j++) {
+                    if (this.steplist.getChildAt(j).text == this.deleteList[i].toString()) {
+                        this.steplist.removeChildAt(j);
+                    }
+                }
+            }
         }
     };
     /**

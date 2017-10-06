@@ -65,7 +65,7 @@ class ChessBoard extends egret.DisplayObjectContainer {
     private steplist: egret.DisplayObjectContainer;
     private numberList: egret.DisplayObjectContainer;
 
-    private isBiaoji: boolean = true;
+    private isBiaoji: boolean = true;//可标记   标识未标记
 
     private txtResult: egret.TextField;
     private gameResult: egret.Sprite;
@@ -441,6 +441,32 @@ class ChessBoard extends egret.DisplayObjectContainer {
         triangle.anchorOffsetY = triangle.height / 2;
         this.addChild(triangle);
 
+        oGameData["lastChessCoordinate"] = { color: chessType, x: (x - this.realBoardStartX) / this.chessGap, y: (y - this.realBoardStartY) / this.chessGap };
+    }
+
+    private addBiaojiNums(num) {
+        if (!this.isBiaoji) {
+            let x = oGameData["lastChessCoordinate"]["x"];
+            let y = oGameData["lastChessCoordinate"]["y"];
+            let color = oGameData["lastChessCoordinate"]["color"];
+            let txtNum: egret.TextField = new egret.TextField();
+            if (color == 0) {
+                txtNum.textColor = 0xffffff;
+            } else {
+                txtNum.textColor = 0;
+            }
+            txtNum.text = num;
+            txtNum.size = 12;
+            txtNum.height = 12;
+            txtNum.textAlign = egret.HorizontalAlign.CENTER;
+            txtNum.anchorOffsetX = txtNum.width / 2;
+            txtNum.anchorOffsetY = txtNum.height / 2;
+            txtNum.x = (x) * this.chessGap + this.realBoardStartX;
+            txtNum.y = (y) * this.chessGap + this.realBoardStartY;
+            this.steplist.addChild(txtNum);
+            //console.log(this.deleteList);
+            // console.log(this.steplist);
+        }
     }
 
     /**
@@ -480,15 +506,16 @@ class ChessBoard extends egret.DisplayObjectContainer {
                     txtNum.y = (y) * this.chessGap + this.realBoardStartY;
                     this.steplist.addChild(txtNum);
                 }
-                if (this.deleteList.length > 0) {
-                    for (let i = 0; i < this.deleteList.length; i++) {
-                        for (let j = 0; j < this.steplist.numChildren; j++) {
-                            if ((<egret.TextField>this.steplist.getChildAt(j)).text == this.deleteList[i].toString()) {
-                                this.steplist.removeChildAt(j);
-                            }
-                        }
-                    }
-                }
+                /* if (this.deleteList.length > 0) {
+                     for (let i = 0; i < this.deleteList.length; i++) {
+                         for (let j = 0; j < this.steplist.numChildren; j++) {
+                             if ((<egret.TextField>this.steplist.getChildAt(j)).text == this.deleteList[i].toString()) {
+                                 this.steplist.removeChildAt(j);
+                             }
+                         }
+                     }
+                 }*/
+                this.deleteChessNum();
                 this.addChild(this.steplist);
             }
         }
@@ -626,7 +653,7 @@ class ChessBoard extends egret.DisplayObjectContainer {
                 EventManager.publish("GameScene/startRemainTime", 1);
 
             } else {
-                  //停止落子方  开始对方计时
+                //停止落子方  开始对方计时
                 EventManager.publish("GameScene/stopRemainTime", playerType);
                 EventManager.publish("GameScene/startRemainTime", 0);
                 oGameData["chessAvailable"] = 1;
@@ -635,6 +662,15 @@ class ChessBoard extends egret.DisplayObjectContainer {
             }
 
             oGameData["steps"]++;
+
+            if (Object.keys(oGameData["lastChessCoordinate"]).length > 0) {
+                if (!this.isBiaoji) {
+                    if (oGameData["steps"] > 0) {
+                        this.addBiaojiNums((oGameData["steps"] - 1));
+                    }
+                }
+            }
+
             if (numX >= 0 && numY >= 0) {
                 chess.anchorOffsetX = chess.width / 2;
                 chess.anchorOffsetY = chess.height / 2;
@@ -645,14 +681,12 @@ class ChessBoard extends egret.DisplayObjectContainer {
                 chess.scaleY = 2;
                 chess.alpha = 0;
                 egret.Tween.get(chess).to({ alpha: 1, scaleX: 1, scaleY: 1 }, 1000);
+
                 EventManager.publish("ChessBoard/setTriangle", chessType, chess.x, chess.y, chess.anchorOffsetX, chess.anchorOffsetY);
                 this.chessList.addChild(chess);
 
                 let chessData = { chess: chess, step: oGameData["steps"], color: chessType };
-                // oGameData["chessBook"][numX] = typeof oGameData["chessBook"][numX] == 'undefined' ? {} : oGameData["chessBook"][numX];
                 oGameData["chessBook"][numY][numX] = chessData;
-                // console.log(oGameData["chessBook"]);
-                //console.log(this.getDeleteNumber(chess.x, chess.y));
             } else {
                 if (playerType == 1) {
                     EventManager.publish("ChessBoard/showMask", "对方停一手", true);
@@ -661,6 +695,9 @@ class ChessBoard extends egret.DisplayObjectContainer {
                     content = "play " + (chessType == 0 ? "black" : "white") + " pass";
                     EventManager.publish("GameScene/confirmLuoZi", localStorage.getItem("game_id"), 1, content, 10700);
                 }
+
+                this.blackTriangle.visible = false;
+                this.whiteTriangle.visible = false;
             }
             EventManager.publish("ChessBoard/setChessBook", chessType, numX, numY);
 
@@ -687,9 +724,25 @@ class ChessBoard extends egret.DisplayObjectContainer {
                     }
                 }
             }
-            //console.log(this.deleteList);
+
+            this.deleteChessNum();
+            // console.log(this.deleteList);
         } else {
             EventManager.publish("ChessBoard/showMask", "不能在该点落子", true);
+        }
+    }
+    /**
+     * 删除被吃掉的数字
+     */
+    private deleteChessNum() {
+        if (this.deleteList.length > 0) {
+            for (let i = 0; i < this.deleteList.length; i++) {
+                for (let j = 0; j < this.steplist.numChildren; j++) {
+                    if ((<egret.TextField>this.steplist.getChildAt(j)).text == this.deleteList[i].toString()) {
+                        this.steplist.removeChildAt(j);
+                    }
+                }
+            }
         }
     }
 

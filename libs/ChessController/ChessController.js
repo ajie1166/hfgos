@@ -15,7 +15,8 @@ var oGameData = {
     'black_arr': {},
     'white_arr': {},
     'chessBook': {},
-    'deleteChess': {}
+    'deleteChess': {},
+    'lastChessCoordinate': {}//上个子坐标
 };
 
 

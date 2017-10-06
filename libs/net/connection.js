@@ -157,6 +157,8 @@ var wsConnection = {
                     var game_status = endData.game_status;
                     var result = endData.message;
                     EventManager.publish("ChessBoard/showGameResult", type, game_status, result);
+                    EventManager.publish("GameScene/startRemainTime", 0);
+                    EventManager.publish("GameScene/startRemainTime", 1);
                 }
             } else if (op == 2121) {
                 var gameId = data["game_id"];
