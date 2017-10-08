@@ -7,15 +7,21 @@ var wsConnection = {
         var self = this;
         ws = new WebSocket(conArray[0]);
         ws.onopen = function () {
-            GameRequest.op = "OP_LOGIN_REQ";
-            GameRequest.player_id = player_id;
+            TSDT[1000].op = "OP_LOGIN_REQ";
+            TSDT[1000].request_id = Utility.getRequestId();
             TSDT[1000].player_id = player_id;
-            TSDT[1000].user_agent = Utility.getUserAgent();
+            TSDT[1000].object = {
+                player_id: player_id,
+                version: "1.0.0",
+                date: Utility.getTimestamp(),
+                user_agent: Utility.getUserAgent()
+            };
+            TSDT[1000].game_id = "";
             //alert(Utility.getUserAgent());
-            GameRequest.object = TSDT[1000];
+            //GameRequest.object = TSDT[1000];
 
             //发送
-            var sendMsg = JSON.stringify(GameRequest);
+            var sendMsg = JSON.stringify(TSDT[1000]);
             ws.send(sendMsg);
             console.info(sendMsg);
         };

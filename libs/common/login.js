@@ -39,6 +39,7 @@
                 EventManager.subscribe("testLocalStoage", function () {
                     alert(localStorage.player_id);
                 });
+                
                 wsConnection.initWS(localStorage.player_id);
             }).fail(function () {
                 EventManager.publish("showMsg", "对不起,游戏加载出错,请重新启动客户端");

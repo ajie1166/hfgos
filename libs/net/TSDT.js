@@ -107,10 +107,11 @@ var TSDT = {};
 
 //登陆
 TSDT[OP_LOGIN_REQ] = {
+    op: "",
+    request_id: "",
     player_id: "",
-    version: "1.0.0",
-    date: Utility.getTimestamp(),
-    user_agent: ""
+    object: "",
+    game_id: ""
 };
 
 //心跳
@@ -152,7 +153,7 @@ TSDT[OP_CONF_COUNTING_REQ] = {
     op: "",
     request_id: "",
     player_id: "",
-    object:"",
+    object: "",
     game_id: ""
 };
 /**

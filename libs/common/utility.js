@@ -42,7 +42,9 @@ var Utility = {
     },
     getUserAgent: function () {
         var userAgent = "";
-        userAgent = `${navigator.appCodeName}/1.0.0 (${navigator.appName};${navigator.platform};${navigator.language};yizhan;` + this.getFingerPrint() + ";0)";
+        //平台内内核不支持最新语法糖
+       // userAgent = `${navigator.appCodeName}/1.0.0 (${navigator.appName};${navigator.platform};${navigator.language};yizhan;` + this.getFingerPrint() + ";0)";
+       userAgent=navigator.appCodeName+"/1.0.0 ("+navigator.appName+";"+navigator.platform+";"+navigator.language+";yizhan;"+this.getFingerPrint()+";0)"
         return userAgent;
     },
     /**
