@@ -79,6 +79,10 @@ var OP_JOIN_MATCH_REP = 2601;
 var OP_DEL_REQ = 2401;
 var OP_DEL_REP = 2402;
 
+//获取对局的界面上的棋谱(去除死子）
+OP_FETCH_SNAPSHOT_REQ = 2500;
+OP_FETCH_SNAPSHOT_REP = 2501;
+
 // ==========聊天相关协议3000开头===========
 //IM   150开始
 var OP_MSG_REQ = 3000; //聊天发消息
@@ -113,6 +117,14 @@ TSDT[OP_LOGIN_REQ] = {
     object: "",
     game_id: ""
 };
+//下棋者再次进入
+TSDT[OP_SPECTATORS_REQ] = {
+    op: "",
+    request_id: "",
+    player_id: "",
+    object: "",
+    game_id: ""
+};
 
 //心跳
 TSDT[OP_PING] = {
@@ -132,6 +144,22 @@ TSDT[OP_CONFIRM_RULE_REQ] = {
 };
 //走子
 TSDT[OP_MOVE_REQ] = {
+    op: "",
+    request_id: "",
+    player_id: "",
+    object: "",
+    game_id: ""
+};
+//获取当前棋谱
+TSDT[OP_FETCH_SNAPSHOT_REQ] = {
+    op: "",
+    request_id: "",
+    player_id: "",
+    object: "",
+    game_id: ""
+};
+//加入赛事
+TSDT[OP_JOIN_MATCH_REQ] = {
     op: "",
     request_id: "",
     player_id: "",

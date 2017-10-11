@@ -22,6 +22,40 @@ var NetController = {
         });
 
         /**
+         * 获取当前棋谱
+         */
+        EventManager.subscribe("GameScene/fetchNowChessBook", function () {
+            TSDT[2500].op = "OP_FETCH_SNAPSHOT_REQ";
+            TSDT[2500].request_id = Utility.getRequestId();
+            TSDT[2500].player_id = localStorage.player_id;
+            TSDT[2500].object = "";
+            TSDT[2500].game_id = localStorage.game_id;
+            wsConnection.sendMsg(TSDT[2500]);
+        });
+
+        /**
+         * 再次进入
+         */
+        EventManager.subscribe("GameScene/reEnter", function (game_id) {
+            TSDT[2010].op = "OP_SPECTATORS_REQ";
+            TSDT[2010].request_id = Utility.getRequestId();
+            TSDT[2010].player_id = "";
+            TSDT[2010].object = "";
+            TSDT[2010].game_id = game_id;
+            wsConnection.sendMsg(TSDT[2010]);
+        });
+
+        EventManager.subscribe("GameScene/joinMatch", function () {
+            TSDT[2600].op = "OP_JOIN_MATCH_REQ";
+            TSDT[2600].request_id = Utility.getRequestId();
+            TSDT[2600].player_id = localStorage.player_id;
+            TSDT[2600].object = {
+                match_code: localStorage.getItem("match_id")
+            };
+            TSDT[2600].game_id = "";
+            wsConnection.sendMsg(TSDT[2600]);
+        });
+        /**
          * 申请点目
          */
         EventManager.subscribe("GameScene/applyCounting", function () {

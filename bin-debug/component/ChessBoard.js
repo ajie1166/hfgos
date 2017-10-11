@@ -192,6 +192,9 @@ var ChessBoard = (function (_super) {
         EventManager.subscribe("GameScene/showRule", function (content) {
             self.showRule(content);
         });
+        EventManager.subscribe("GameScene/deleteChess", function (cBK) {
+            self.deleteChess(cBK);
+        });
         _this.touchEnabled = true;
         _this.addEventListener(egret.TouchEvent.TOUCH_BEGIN, _this.onTouchBoard, _this);
         return _this;
@@ -226,6 +229,7 @@ var ChessBoard = (function (_super) {
     ChessBoard.prototype.cancelSelfDianMu = function () {
         // alert("取消自己发起的点目")
         EventManager.publish("ChessBoard/setAvail", true);
+        oGameData["chessAvailable"] = 1;
         this.gameResult.visible = false;
     };
     /**
@@ -302,6 +306,7 @@ var ChessBoard = (function (_super) {
      */
     ChessBoard.prototype.hideRectMask = function () {
         this.rectMask.visible = false;
+        this.rectMaskContent.visible = false;
     };
     /**
      *
@@ -318,9 +323,10 @@ var ChessBoard = (function (_super) {
         this.rectMaskContent.x = x + (this.rectMask.width - this.rectMaskContent.width) / 2;
         this.rectMaskContent.y = y + 55;
         this.rectMaskContent.textColor = 0xffffff;
-        //this.rectMask.addChild(this.rectMaskContent);
-        this.qipanContainer.addChild(this.rectMask);
-        this.qipanContainer.addChild(this.rectMaskContent);
+        //this.qipanContainer.addChild(this.rectMask);
+        //this.qipanContainer.addChild(this.rectMaskContent);
+        this.addChild(this.rectMask);
+        this.addChild(this.rectMaskContent);
         if (isHide) {
             egret.Tween.get(this.rectMask).to({ visible: false }, 2000, egret.Ease.circIn);
             egret.Tween.get(this.rectMaskContent).to({ visible: false }, 2000, egret.Ease.circIn);
@@ -422,7 +428,30 @@ var ChessBoard = (function (_super) {
         }
     };
     //删除本地棋谱棋子
-    ChessBoard.prototype.deleteLocalChessBook = function () {
+    ChessBoard.prototype.deleteChess = function (currentChessBook) {
+        //console.log(this.chessList);
+        //console.log(currentChessBook);
+        var deleteTemp = new Array();
+        if (this.chessList.numChildren > 0) {
+            for (var i = 0; i < this.chessList.numChildren; i++) {
+                var chess = this.chessList.getChildAt(i);
+                // console.log("x:" + ((chess.y - this.realBoardStartY) / this.chessGap) + ",y:" + ((chess.x - this.realBoardStartX) / this.chessGap));
+                // console.log(currentChessBook[(chess.y - this.realBoardStartY) / this.chessGap][(chess.x - this.realBoardStartX) / this.chessGap]);
+                if (currentChessBook[(chess.y - this.realBoardStartY) / this.chessGap][(chess.x - this.realBoardStartX) / this.chessGap] == 0) {
+                    //console.log(i);
+                    deleteTemp.push(this.chessList.getChildAt(i));
+                    // this.chessList.removeChildAt(i);
+                    this.deleteList.push(this.getDeleteNumber(chess.x, chess.y));
+                    this.deleteChessNum();
+                }
+            }
+            // console.log(deleteTemp);
+            if (deleteTemp.length > 0) {
+                for (var i = 0; i < deleteTemp.length; i++) {
+                    this.chessList.removeChild((deleteTemp[i]));
+                }
+            }
+        }
     };
     //设置自己棋子类型
     ChessBoard.prototype.setSelfChessType = function (chessType) {
@@ -527,7 +556,6 @@ var ChessBoard = (function (_super) {
         // console.log(`x:${numX},y:${numY}`);
         //自己写的吃子逻辑
         if (numX >= 0 && numY >= 0) {
-            ChessController.checkAvailChess(numY, numX, chessType);
         }
         var avail = true;
         if (avail) {
@@ -542,12 +570,13 @@ var ChessBoard = (function (_super) {
                 EventManager.publish("GameScene/startRemainTime", 1);
             }
             else {
-                //停止落子方  开始对方计时
+                //停止落子方  开始自己计时
                 EventManager.publish("GameScene/stopRemainTime", playerType);
                 EventManager.publish("GameScene/startRemainTime", 0);
                 oGameData["chessAvailable"] = 1;
                 EventManager.publish("GameScene/stepOppPlus");
                 this.setAvailSetGos(true);
+                EventManager.publish("ChessBoard/showMask", "请落子", true);
             }
             oGameData["steps"]++;
             if (Object.keys(oGameData["lastChessCoordinate"]).length > 0) {
@@ -618,9 +647,15 @@ var ChessBoard = (function (_super) {
     ChessBoard.prototype.deleteChessNum = function () {
         if (this.deleteList.length > 0) {
             for (var i = 0; i < this.deleteList.length; i++) {
-                for (var j = 0; j < this.steplist.numChildren; j++) {
-                    if (this.steplist.getChildAt(j).text == this.deleteList[i].toString()) {
-                        this.steplist.removeChildAt(j);
+                //console.log(this.steplist);
+                if (this.steplist != undefined) {
+                    if (this.steplist.numChildren > 0) {
+                        for (var j = 0; j < this.steplist.numChildren; j++) {
+                            if (this.steplist.getChildAt(j).text == this.deleteList[i].toString()) {
+                                console.log(j);
+                                this.steplist.removeChildAt(j);
+                            }
+                        }
                     }
                 }
             }

@@ -29,6 +29,7 @@ var MatchingScene = (function (_super) {
         _this.btnPiPei.touchEnabled = true;
         _this.btnPiPei.addEventListener(egret.TouchEvent.TOUCH_TAP, function () {
             EventManager.publish("MatchingScene/btnMatchingStart");
+            // EventManager.publish("GameScene/reEnter", "7037caf6ef904fbe");
         }, _this);
         _this.addChild(_this.btnPiPei);
         _this.btnMatching = GosCommon.createBitmapByNameAndPosition("btn_pipei_black_png", { x: (stageW - 594) / 2 + (594 - 336) / 2, y: (stageH - 594) / 2 + (594 - 110) / 2 });
@@ -98,7 +99,16 @@ var MatchingScene = (function (_super) {
         this.btnCancelMatching.visible = true;
         //一分钟倒计时 一分钟匹配不到重新匹配   匹配有可能突然成功需要后期处理
         //EventManager.publish("MatchingScene/btnStartMatching");
-        EventManager.publish("MatchingScene/onBtnReadyStart");
+        //EventManager.publish("MatchingScene/onBtnReadyStart");
+        //快速加入
+        if (localStorage.getItem("match_id") == "") {
+            EventManager.publish("MatchingScene/onBtnReadyStart");
+        }
+        else {
+            EventManager.publish("GameScene/joinMatch");
+        }
+        //加入赛事
+        //EventManager.publish("GameScene/joinMatch");
         //启动一分钟倒计时
         EventManager.publish("MatchingScene/matchingTimer");
     };
@@ -110,7 +120,7 @@ var MatchingScene = (function (_super) {
         egret.Tween.get(this.btnMatching).to({ visible: false }, 1000, egret.Ease.backIn);
         egret.Tween.get(this.btnCancelMatching).to({ visible: false }, 1000, egret.Ease.backIn);
         EventManager.publish("GameScene/ShowPlayerMsg", oppPlayer);
-        EventManager.publish("GameScene/showGameMenu", "lijie");
+        EventManager.publish("GameScene/showGameMenu", "");
         EventManager.publish("MatchingScene/endMatching");
     };
     MatchingScene.prototype.cancelMatching = function () {
