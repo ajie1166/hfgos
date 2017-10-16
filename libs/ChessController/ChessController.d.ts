@@ -18,6 +18,8 @@ declare module oGameData {
     var chessBook: {};
     var deleteChess: {};
     var lastChessCoordinate: {};
+    var isSelfSecond: number;
+    var isOppSecond: number;
 }
 declare module ChessController {
     function checkAvailChess(x, y, color): any;

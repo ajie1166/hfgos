@@ -17,7 +17,6 @@ class GameScene extends egret.DisplayObjectContainer {
 		//this.stage.scaleMode = egret.StageScaleMode.EXACT_FIT;//去边框并保持图片缩放完整
 		sky.width = stageW;
 		sky.height = stageH;
-
 		let chessBoard = new ChessBoard();
 		this.addChild(chessBoard);
 

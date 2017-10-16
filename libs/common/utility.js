@@ -59,7 +59,13 @@ var Utility = {
         var userAgent = "";
         //平台内内核不支持最新语法糖
         // userAgent = `${navigator.appCodeName}/1.0.0 (${navigator.appName};${navigator.platform};${navigator.language};yizhan;` + this.getFingerPrint() + ";0)";
-        userAgent = navigator.appCodeName + "/1.0.0 (" + navigator.appName + ";" + navigator.platform + ";" + navigator.language + ";yizhan;" + this.getFingerPrint() + ";0)"
+        var uuid = localStorage.getItem("uuid");
+        if (uuid == "" || uuid == undefined) {
+            uuid = this.getTimestamp() + this.getRandomWord();
+            localStorage.setItem("uuid", uuid);
+        }
+
+        userAgent = navigator.appCodeName + "/1.0.0 (" + navigator.appName + ";" + navigator.platform + ";" + navigator.language + ";yizhan;" + uuid + ";0)"
         return userAgent;
     },
     /**
@@ -160,6 +166,54 @@ var Utility = {
         //传递当前棋谱  删除棋子
         EventManager.publish("GameScene/deleteChess", lastChessBook);
         //console.log(lastChessBook);
+    },
+    /**
+     * 分析完整棋谱
+     */
+    analyseWholeChessBook: function (cb, selfColor) {
+        cb = cb.substring(1, cb.lastIndexOf(")"));
+        var cbs = cb.split(";");
+        var cbss = new Array();
+        var reg = new RegExp(/(B|W)\[(.*)\]/);
+        var chessBook = "";
+        var selfNums = 0;
+        var oppNums = 0;
+        var color = selfColor == 0 ? "B" : "W";
+        for (var i = 2; i < cbs.length; i++) {
+            var chessType = reg.exec(cbs[i])[1];
+            if (chessType == color) {
+                EventManager.publish("GameScene/stepSelfPlus");
+            } else {
+                EventManager.publish("GameScene/stepOppPlus");
+            }
+            var chess = reg.exec(cbs[i])[2];
+            var numX = "", numY = "";
+            if (chess != "") {
+                numX = this.getNumxByWord(chess.substring(0, 1));
+                numY = this.getNumxByWord(chess.substring(1, 2));
+                //console.log(chess + ":" + numX + "," + numY);
+            } else {
+                numX = -1;
+                numY = -1;
+            }
+            if (i == (cbs.length - 1)) {
+
+                if (color != chessType) {
+                    oGameData["chessAvailable"] = 1;
+                    EventManager.publish("ChessBoard/setAvail", true);
+                    EventManager.publish("GameScene/startRemainTime", 0);
+                    // EventManager.publish("GameScene/stopRemainTime", 1);
+                } else {
+                    EventManager.publish("GameScene/startRemainTime", 1);
+                    //EventManager.publish("GameScene/stopRemainTime", 0);
+                }
+            }
+            chessBook = chessBook + ";" + chessType + "_" + numX + "_" + numY;
+            oGameData["steps"]++;
+        }
+        //EventManager.publish("GameScene/setHandsNum", 0, selfNums);
+        //EventManager.publish("GameScene/setHandsNum", 1, oppNums);
+        localStorage.setItem("local_chessbook", chessBook);
     }
 };
 Utility.initArr(lastChessBook);

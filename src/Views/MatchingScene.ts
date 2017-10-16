@@ -22,7 +22,7 @@ class MatchingScene extends egret.DisplayObjectContainer {
     /**
      * 秒数
      */
-    private second: number = 60;
+    private second: number = 30;
 
     /**
      * 匹配计时器 一分钟
@@ -69,6 +69,7 @@ class MatchingScene extends egret.DisplayObjectContainer {
         });
 
         EventManager.subscribe("MatchingScene/MatchSuccess", function (data) {
+            //alert(1);
             self.matchSuccess(data);
         })
 
@@ -81,6 +82,10 @@ class MatchingScene extends egret.DisplayObjectContainer {
             self.initPiPeiTimer();
             self.startTimer();
         })
+
+        EventManager.subscribe("GameScene/hidePiPei", function () {
+            self.hidePiPei();
+        })
         this.initPiPeiTimer();
     }
 
@@ -90,7 +95,7 @@ class MatchingScene extends egret.DisplayObjectContainer {
     }
     private initPiPeiTimer(): void {
         // alert(1);
-        this.matchingTimer = new egret.Timer(1000, 60);
+        this.matchingTimer = new egret.Timer(1000, 30);
         this.matchingTimer.addEventListener(egret.TimerEvent.TIMER, this.setSecond, this);
         this.matchingTimer.addEventListener(egret.TimerEvent.TIMER_COMPLETE, this.endMatching, this);
     }
@@ -140,7 +145,14 @@ class MatchingScene extends egret.DisplayObjectContainer {
         EventManager.publish("MatchingScene/matchingTimer");
     }
 
+    private hidePiPei() {
+        this.btnPiPei.visible = false;
+        this.btnMatching.visible = false;
+        this.btnCancelMatching.visible = false;
+    }
+
     private matchSuccess(oppPlayer) {
+        //alert(1);
         this.isMatchSuccess = true;
         this.btnPiPei.visible = false;
         this.btnMatching.visible = false;
@@ -161,7 +173,7 @@ class MatchingScene extends egret.DisplayObjectContainer {
 
         this.matchingTimer.stop();
 
-        this.timerText.text = "60";
+        this.timerText.text = "30";
         this.timerText.visible = false;
         //alert(this.matchingTimer);
     }

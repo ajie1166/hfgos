@@ -19,8 +19,12 @@ var PlayerInfo = (function (_super) {
         _this.selfNums = 0;
         _this.oppNums = 0;
         _this.stepNums = 0;
-        _this.selfTime = 10800;
-        _this.oppTime = 10800;
+        _this.selfTime = 1200;
+        _this.oppTime = 1200;
+        _this.selfFinalCount = 3; //最后次数
+        _this.oppFinalCount = 3; //最后次数
+        _this.selfFinalSecond = 20; //默认20秒 读秒时间
+        _this.oppFinalSecond = 20; //默认20秒 读秒时间
         var self = _this;
         var stage = egret.MainContext.instance.stage;
         var stageW = stage.stageWidth;
@@ -48,9 +52,14 @@ var PlayerInfo = (function (_super) {
         // userName.bold = true;
         _this.selfName = userName;
         selfContainer.addChild(userName);
-        var remaindTime = _this.createTextField("03:00:00", { x: playerHead.x + playerHead.width + 70, y: selfBg.y + 45 + 40 });
+        var remaindTime = _this.createTextField("00:20:00", { x: playerHead.x + playerHead.width + 70, y: selfBg.y + 45 + 40 });
         _this.selfRemainTime = remaindTime;
         selfContainer.addChild(_this.selfRemainTime);
+        //this.selfRemainTime.visible=false;
+        var finalSelfRemaindTime = _this.createTextField("3次 20秒", { x: playerHead.x + playerHead.width + 70, y: selfBg.y + 45 + 40 });
+        _this.selfFinalRemainTime = finalSelfRemaindTime;
+        selfContainer.addChild(_this.selfFinalRemainTime);
+        _this.selfFinalRemainTime.visible = false;
         //`第${this.selfNums}手`
         var selfHands = _this.createTextField("\u7B2C" + _this.selfNums + "\u624B", { x: playerHead.x + playerHead.width + 250, y: selfBg.y + 45 + 40 });
         _this.selfHands = selfHands;
@@ -76,9 +85,13 @@ var PlayerInfo = (function (_super) {
         var oppUserName = _this.createTextField("jsnylee", { x: oppPlayerHead.x + oppPlayerHead.width + 70, y: oppBg.y + 45 });
         _this.oppName = oppUserName;
         oppContainer.addChild(oppUserName);
-        var oppRemaindTime = _this.createTextField("03:00:00", { x: oppPlayerHead.x + oppPlayerHead.width + 70, y: oppBg.y + 45 + 40 });
+        var oppRemaindTime = _this.createTextField("00:20:00", { x: oppPlayerHead.x + oppPlayerHead.width + 70, y: oppBg.y + 45 + 40 });
         _this.oppRemainTime = oppRemaindTime;
         oppContainer.addChild(_this.oppRemainTime);
+        var finalOppRemaindTime = _this.createTextField("3次 20秒", { x: oppPlayerHead.x + oppPlayerHead.width + 70, y: oppBg.y + 45 + 40 });
+        _this.oppFinalRemainTime = finalOppRemaindTime;
+        oppContainer.addChild(_this.oppFinalRemainTime);
+        _this.oppFinalRemainTime.visible = false;
         var oppHands = _this.createTextField("\u7B2C" + _this.oppNums + "\u624B", { x: oppPlayerHead.x + oppPlayerHead.width + 250, y: oppBg.y + 45 + 40 });
         _this.oppHands = oppHands;
         oppContainer.addChild(_this.oppHands);
@@ -112,8 +125,121 @@ var PlayerInfo = (function (_super) {
         EventManager.subscribe("GameScene/stopRemainTime", function (playerType) {
             self.stopTimer(playerType);
         });
+        EventManager.subscribe("GameScene/setMatchRemainTime", function (playerType, second) {
+            self.setMatchRemainTime(playerType, second);
+        });
+        EventManager.subscribe("GameScene/setHandsNum", function (playerType, num) {
+            self.setHandsNum(playerType, num);
+        });
+        EventManager.subscribe("GameScene/finalReadSecond", function (playerType) {
+            if (playerType == 0) {
+                self.selfFinalSecond = 20;
+                if (self.selfFinalCount > 0) {
+                    self.showSelfFinalCount(playerType);
+                }
+            }
+            else {
+                self.oppFinalSecond = 20;
+                if (self.oppFinalCount > 0) {
+                    self.showSelfFinalCount(playerType);
+                }
+            }
+        });
         return _this;
     }
+    /**
+     * 重新进入
+     */
+    PlayerInfo.prototype.setHandsNum = function (playerType, num) {
+        if (playerType == 0) {
+            this.selfHands.text = "" + num;
+        }
+        else {
+            this.oppHands.text = "" + num;
+        }
+    };
+    /**
+     * 比赛剩余时间 服务器返回
+     */
+    PlayerInfo.prototype.setMatchRemainTime = function (playerType, second) {
+        if (playerType == 0) {
+            this.selfRemainTime.text = GosCommon.secToTime(second);
+            this.selfTime = second;
+        }
+        else if (playerType == 1) {
+            this.oppRemainTime.text = GosCommon.secToTime(second);
+            this.oppTime = second;
+        }
+    };
+    PlayerInfo.prototype.showSelfFinalCount = function (playerType) {
+        var self = this;
+        if (playerType == 0) {
+            this.chessSelfTimer.stop();
+            this.chessSelfTimer = new egret.Timer(1000, this.selfFinalSecond);
+            this.chessSelfTimer.addEventListener(egret.TimerEvent.TIMER, function () {
+                if (self.selfFinalCount > 0) {
+                    if (self.selfFinalSecond > 0) {
+                        self.selfFinalSecond--;
+                        this.selfFinalRemainTime.text = self.selfFinalCount + "\u6B21 " + self.selfFinalSecond + "\u79D2";
+                    }
+                }
+            }, this);
+            this.chessSelfTimer.addEventListener(egret.TimerEvent.TIMER_COMPLETE, function () {
+                if (self.selfFinalCount > 0) {
+                    self.selfFinalCount--;
+                    if (self.selfFinalCount == 0) {
+                        oGameData["chessAvailable"] = 0;
+                        EventManager.publish("ChessBoard/setAvail", false);
+                        //alert(1);
+                        this.selfFinalRemainTime.text = self.selfFinalCount + "\u6B21 " + 0 + "\u79D2";
+                    }
+                    else {
+                        this.selfFinalRemainTime.text = self.selfFinalCount + "\u6B21 " + 20 + "\u79D2";
+                    }
+                    self.selfFinalSecond = 20;
+                    self.showSelfFinalCount(0);
+                }
+                else {
+                    this.selfFinalRemainTime.text = 0 + "\u6B21 " + 0 + "\u79D2";
+                }
+            }, this);
+            this.chessSelfTimer.start();
+            this.selfRemainTime.visible = false;
+            this.selfFinalRemainTime.visible = true;
+        }
+        else if (playerType == 1) {
+            this.chessOppTimer.stop();
+            this.chessOppTimer = new egret.Timer(1000, this.oppFinalSecond);
+            this.chessOppTimer.addEventListener(egret.TimerEvent.TIMER, function () {
+                if (self.oppFinalCount > 0) {
+                    if (self.oppFinalSecond > 0) {
+                        self.oppFinalSecond--;
+                        this.oppFinalRemainTime.text = self.oppFinalCount + "\u6B21 " + self.oppFinalSecond + "\u79D2";
+                    }
+                }
+            }, this);
+            this.chessOppTimer.addEventListener(egret.TimerEvent.TIMER_COMPLETE, function () {
+                if (self.oppFinalCount > 0) {
+                    self.oppFinalCount--;
+                    if (self.oppFinalCount == 0) {
+                        //alert(1);
+                        this.oppFinalRemainTime.text = self.oppFinalCount + "\u6B21 " + 0 + "\u79D2";
+                    }
+                    else {
+                        this.oppFinalRemainTime.text = self.oppFinalCount + "\u6B21 " + 20 + "\u79D2";
+                    }
+                    self.oppFinalSecond = 20;
+                    self.showSelfFinalCount(1);
+                }
+                else {
+                    this.oppFinalRemainTime.text = 0 + "\u6B21 " + 0 + "\u79D2";
+                }
+            }, this);
+            this.chessOppTimer.start();
+            this.oppRemainTime.visible = false;
+            this.oppFinalRemainTime.visible = true;
+        }
+    };
     PlayerInfo.prototype.initTimer = function (playerType) {
         var self = this;
         if (playerType == 0) {
@@ -121,14 +247,24 @@ var PlayerInfo = (function (_super) {
             this.chessSelfTimer.addEventListener(egret.TimerEvent.TIMER, function () {
                 self.setSecond(playerType);
             }, this);
-            //chessTimer.addEventListener(egret.TimerEvent.TIMER_COMPLETE, this.endMatching, this);
+            //启动 三次读秒
+            this.chessSelfTimer.addEventListener(egret.TimerEvent.TIMER_COMPLETE, function () {
+                //this.chessSelfTimer.stop();
+                oGameData["isSelfSecond"] = 1;
+                self.showSelfFinalCount(0);
+            }, this);
             this.chessSelfTimer.start();
         }
         else if (playerType == 1) {
             this.chessOppTimer = new egret.Timer(1000, this.oppTime);
-            //console
             this.chessOppTimer.addEventListener(egret.TimerEvent.TIMER, function () {
                 self.setSecond(playerType);
+            }, this);
+            //启动 三次读秒
+            this.chessOppTimer.addEventListener(egret.TimerEvent.TIMER_COMPLETE, function () {
+                //this.chessOppTimer.stop();
+                oGameData["isOppSecond"] = 1;
+                self.showSelfFinalCount(1);
             }, this);
             this.chessOppTimer.start();
         }

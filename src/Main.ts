@@ -123,6 +123,7 @@ class Main extends egret.DisplayObjectContainer {
      * Create a game scene
      */
     private createGameScene() {
+        this.stage.scaleMode=egret.StageScaleMode.NO_BORDER;
         let gameScene: GameScene = new GameScene();
         //this.stage.scaleMode=egret.StageScaleMode.EXACT_FIT;
         this.addChild(gameScene);
@@ -130,6 +131,13 @@ class Main extends egret.DisplayObjectContainer {
 
         let matchingScene: MatchingScene = new MatchingScene();
         this.addChild(matchingScene);
+
+        let isReEnter = localStorage.getItem("is_reenter");
+        if (isReEnter == "1") {
+            //再次进入
+            var gameId = localStorage.getItem("game_id");
+            EventManager.publish("GameScene/reEnter", gameId);
+        }
 
         /* 截图
         var renderTexture: egret.RenderTexture = new egret.RenderTexture();

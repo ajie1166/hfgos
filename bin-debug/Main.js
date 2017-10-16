@@ -114,11 +114,18 @@ var Main = (function (_super) {
      * Create a game scene
      */
     Main.prototype.createGameScene = function () {
+        this.stage.scaleMode = egret.StageScaleMode.NO_BORDER;
         var gameScene = new GameScene();
         //this.stage.scaleMode=egret.StageScaleMode.EXACT_FIT;
         this.addChild(gameScene);
         var matchingScene = new MatchingScene();
         this.addChild(matchingScene);
+        var isReEnter = localStorage.getItem("is_reenter");
+        if (isReEnter == "1") {
+            //再次进入
+            var gameId = localStorage.getItem("game_id");
+            EventManager.publish("GameScene/reEnter", gameId);
+        }
         /* 截图
         var renderTexture: egret.RenderTexture = new egret.RenderTexture();
         renderTexture.drawToTexture(this);

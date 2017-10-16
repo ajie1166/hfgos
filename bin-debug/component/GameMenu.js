@@ -62,7 +62,7 @@ var GameMenu = (function (_super) {
         }, self);
         _this.addChild(dianMu);
         EventManager.subscribe("GameScene/confirmDianMu", function () {
-            if (oGameData["steps"] > 120) {
+            if (oGameData["steps"] > 180) {
                 oGameData["chessAvailable"] == 0;
                 EventManager.publish("ChessBoard/setAvail", false);
                 EventManager.publish("GameScene/applyCounting");
@@ -70,7 +70,7 @@ var GameMenu = (function (_super) {
             else {
                 oGameData["chessAvailable"] == 1;
                 EventManager.publish("ChessBoard/setAvail", true);
-                EventManager.publish("ChessBoard/showMask", "120手后才能申请点目", true);
+                EventManager.publish("ChessBoard/showMask", "180手后才能申请点目", true);
             }
         });
         //标记

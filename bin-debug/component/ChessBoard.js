@@ -195,6 +195,12 @@ var ChessBoard = (function (_super) {
         EventManager.subscribe("GameScene/deleteChess", function (cBK) {
             self.deleteChess(cBK);
         });
+        EventManager.subscribe("GameScene/replay", function (chessType, numX, numY) {
+            self.replay(chessType, numX, numY);
+        });
+        EventManager.subscribe("GameScene/addDeleteNum", function (i) {
+            self.deleteList.push(i);
+        });
         _this.touchEnabled = true;
         _this.addEventListener(egret.TouchEvent.TOUCH_BEGIN, _this.onTouchBoard, _this);
         return _this;
@@ -409,15 +415,6 @@ var ChessBoard = (function (_super) {
                     txtNum.y = (y) * this.chessGap + this.realBoardStartY;
                     this.steplist.addChild(txtNum);
                 }
-                /* if (this.deleteList.length > 0) {
-                     for (let i = 0; i < this.deleteList.length; i++) {
-                         for (let j = 0; j < this.steplist.numChildren; j++) {
-                             if ((<egret.TextField>this.steplist.getChildAt(j)).text == this.deleteList[i].toString()) {
-                                 this.steplist.removeChildAt(j);
-                             }
-                         }
-                     }
-                 }*/
                 this.deleteChessNum();
                 this.addChild(this.steplist);
             }
@@ -429,18 +426,12 @@ var ChessBoard = (function (_super) {
     };
     //删除本地棋谱棋子
     ChessBoard.prototype.deleteChess = function (currentChessBook) {
-        //console.log(this.chessList);
-        //console.log(currentChessBook);
         var deleteTemp = new Array();
         if (this.chessList.numChildren > 0) {
             for (var i = 0; i < this.chessList.numChildren; i++) {
                 var chess = this.chessList.getChildAt(i);
-                // console.log("x:" + ((chess.y - this.realBoardStartY) / this.chessGap) + ",y:" + ((chess.x - this.realBoardStartX) / this.chessGap));
-                // console.log(currentChessBook[(chess.y - this.realBoardStartY) / this.chessGap][(chess.x - this.realBoardStartX) / this.chessGap]);
                 if (currentChessBook[(chess.y - this.realBoardStartY) / this.chessGap][(chess.x - this.realBoardStartX) / this.chessGap] == 0) {
-                    //console.log(i);
                     deleteTemp.push(this.chessList.getChildAt(i));
-                    // this.chessList.removeChildAt(i);
                     this.deleteList.push(this.getDeleteNumber(chess.x, chess.y));
                     this.deleteChessNum();
                 }
@@ -542,7 +533,27 @@ var ChessBoard = (function (_super) {
         else {
             content = "play " + (chessType == 0 ? "black" : "white") + " pass";
         }
-        EventManager.publish("GameScene/confirmLuoZi", localStorage.getItem("game_id"), 1, content, 10700);
+        EventManager.publish("GameScene/confirmLuoZi", localStorage.getItem("game_id"), 1, content, 10800);
+    };
+    /**
+     * 复盘
+     */
+    ChessBoard.prototype.replay = function (chessType, numX, numY) {
+        var chessResName = chessType == 0 ? "chess_black_small_png" : "chess_white_small_png";
+        var chess = GosCommon.createBitmapByName(chessResName);
+        if (numX >= 0 && numY >= 0) {
+            chess.anchorOffsetX = chess.width / 2;
+            chess.anchorOffsetY = chess.height / 2;
+            chess.x = numX * this.chessGap + this.realBoardStartX;
+            chess.y = numY * this.chessGap + this.realBoardStartY;
+            //chess.scaleX = 2;
+            //chess.scaleY = 2;
+            chess.alpha = 1;
+            //egret.Tween.get(chess).to({ alpha: 1, scaleX: 1, scaleY: 1 }, 1000);
+            this.chessList.addChild(chess);
+            var chessData = { chess: chess, step: oGameData["steps"], color: chessType };
+            oGameData["chessBook"][numY][numX] = chessData;
+        }
     };
     //落子
     /**
@@ -576,7 +587,9 @@ var ChessBoard = (function (_super) {
                 oGameData["chessAvailable"] = 1;
                 EventManager.publish("GameScene/stepOppPlus");
                 this.setAvailSetGos(true);
-                EventManager.publish("ChessBoard/showMask", "请落子", true);
+                if (numX >= 0 && numY >= 0) {
+                    EventManager.publish("ChessBoard/showMask", "请落子", true);
+                }
             }
             oGameData["steps"]++;
             if (Object.keys(oGameData["lastChessCoordinate"]).length > 0) {
@@ -591,10 +604,10 @@ var ChessBoard = (function (_super) {
                 chess.anchorOffsetY = chess.height / 2;
                 chess.x = numX * this.chessGap + this.realBoardStartX;
                 chess.y = numY * this.chessGap + this.realBoardStartY;
-                chess.scaleX = 2;
-                chess.scaleY = 2;
-                chess.alpha = 0;
-                egret.Tween.get(chess).to({ alpha: 1, scaleX: 1, scaleY: 1 }, 1000);
+                //chess.scaleX = 2;
+                //chess.scaleY = 2;
+                chess.alpha = 1;
+                //egret.Tween.get(chess).to({ alpha: 1, scaleX: 1, scaleY: 1 }, 1000);
                 EventManager.publish("ChessBoard/setTriangle", chessType, chess.x, chess.y, chess.anchorOffsetX, chess.anchorOffsetY);
                 this.chessList.addChild(chess);
                 var chessData = { chess: chess, step: oGameData["steps"], color: chessType };
@@ -652,7 +665,6 @@ var ChessBoard = (function (_super) {
                     if (this.steplist.numChildren > 0) {
                         for (var j = 0; j < this.steplist.numChildren; j++) {
                             if (this.steplist.getChildAt(j).text == this.deleteList[i].toString()) {
-                                console.log(j);
                                 this.steplist.removeChildAt(j);
                             }
                         }

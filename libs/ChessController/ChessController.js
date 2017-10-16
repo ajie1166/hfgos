@@ -16,7 +16,9 @@ var oGameData = {
     'white_arr': {},
     'chessBook': {},
     'deleteChess': {},
-    'lastChessCoordinate': {}//上个子坐标
+    'lastChessCoordinate': {},//上个子坐标
+    'isSelfSecond': 0,
+    'isOppSecond': 0
 };
 
 

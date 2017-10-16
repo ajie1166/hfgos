@@ -41,8 +41,15 @@ class PlayerInfo extends egret.DisplayObjectContainer {
 
     private chessSelfTimer: egret.Timer;
     private chessOppTimer: egret.Timer;
-    private selfTime: number = 10800;
-    private oppTime: number = 10800;
+    private selfTime: number = 1200;
+    private oppTime: number = 1200;
+
+    private selfFinalRemainTime: egret.TextField;
+    private oppFinalRemainTime: egret.TextField;
+    private selfFinalCount: number = 3;//最后次数
+    private oppFinalCount: number = 3;//最后次数
+    private selfFinalSecond: number = 20;//默认20秒 读秒时间
+    private oppFinalSecond: number = 20;//默认20秒 读秒时间
     constructor() {
         super();
         let self = this;
@@ -77,9 +84,14 @@ class PlayerInfo extends egret.DisplayObjectContainer {
         this.selfName = userName;
         selfContainer.addChild(userName);
 
-        let remaindTime: egret.TextField = this.createTextField("03:00:00", { x: playerHead.x + playerHead.width + 70, y: selfBg.y + 45 + 40 });
+        let remaindTime: egret.TextField = this.createTextField("00:20:00", { x: playerHead.x + playerHead.width + 70, y: selfBg.y + 45 + 40 });
         this.selfRemainTime = remaindTime;
         selfContainer.addChild(this.selfRemainTime);
+        //this.selfRemainTime.visible=false;
+        let finalSelfRemaindTime: egret.TextField = this.createTextField("3次 20秒", { x: playerHead.x + playerHead.width + 70, y: selfBg.y + 45 + 40 });
+        this.selfFinalRemainTime = finalSelfRemaindTime;
+        selfContainer.addChild(this.selfFinalRemainTime);
+        this.selfFinalRemainTime.visible = false;
 
         //`第${this.selfNums}手`
         let selfHands: egret.TextField = this.createTextField(`第${this.selfNums}手`, { x: playerHead.x + playerHead.width + 250, y: selfBg.y + 45 + 40 });
@@ -116,9 +128,14 @@ class PlayerInfo extends egret.DisplayObjectContainer {
         this.oppName = oppUserName;
         oppContainer.addChild(oppUserName);
 
-        let oppRemaindTime: egret.TextField = this.createTextField("03:00:00", { x: oppPlayerHead.x + oppPlayerHead.width + 70, y: oppBg.y + 45 + 40 });
+        let oppRemaindTime: egret.TextField = this.createTextField("00:20:00", { x: oppPlayerHead.x + oppPlayerHead.width + 70, y: oppBg.y + 45 + 40 });
         this.oppRemainTime = oppRemaindTime;
         oppContainer.addChild(this.oppRemainTime);
+
+        let finalOppRemaindTime: egret.TextField = this.createTextField("3次 20秒", { x: oppPlayerHead.x + oppPlayerHead.width + 70, y: oppBg.y + 45 + 40 });
+        this.oppFinalRemainTime = finalOppRemaindTime;
+        oppContainer.addChild(this.oppFinalRemainTime);
+        this.oppFinalRemainTime.visible = false;
 
         let oppHands: egret.TextField = this.createTextField(`第${this.oppNums}手`, { x: oppPlayerHead.x + oppPlayerHead.width + 250, y: oppBg.y + 45 + 40 });
         this.oppHands = oppHands;
@@ -156,12 +173,126 @@ class PlayerInfo extends egret.DisplayObjectContainer {
         EventManager.subscribe("GameScene/startRemainTime", function (playerType) {
             //alert(playerType);
             self.initTimer(playerType);
-        })
+        });
         EventManager.subscribe("GameScene/stopRemainTime", function (playerType) {
             self.stopTimer(playerType);
+        });
+        EventManager.subscribe("GameScene/setMatchRemainTime", function (playerType, second) {
+            self.setMatchRemainTime(playerType, second);
+        });
+        EventManager.subscribe("GameScene/setHandsNum", function (playerType, num) {
+            self.setHandsNum(playerType, num);
+        });
+
+        EventManager.subscribe("GameScene/finalReadSecond", function (playerType) {
+            if (playerType == 0) {
+                self.selfFinalSecond = 20;
+                if (self.selfFinalCount > 0) {
+                    self.showSelfFinalCount(playerType);
+                }
+            } else {
+                self.oppFinalSecond = 20;
+                if (self.oppFinalCount > 0) {
+                    self.showSelfFinalCount(playerType);
+                }
+            }
         })
     }
 
+    /**
+     * 重新进入
+     */
+    private setHandsNum(playerType, num) {
+        if (playerType == 0) {
+            this.selfHands.text = `${num}`;
+        }
+        else {
+            this.oppHands.text = `${num}`;
+        }
+    }
+
+    /**
+     * 比赛剩余时间 服务器返回
+     */
+    private setMatchRemainTime(playerType, second) {
+        if (playerType == 0) {
+            this.selfRemainTime.text = GosCommon.secToTime(second);
+            this.selfTime = second;
+        } else if (playerType == 1) {
+            this.oppRemainTime.text = GosCommon.secToTime(second);
+            this.oppTime = second;
+        }
+    }
+
+    private showSelfFinalCount(playerType) {
+        let self = this;
+        if (playerType == 0) {
+            this.chessSelfTimer.stop();
+            this.chessSelfTimer = new egret.Timer(1000, this.selfFinalSecond);
+            this.chessSelfTimer.addEventListener(egret.TimerEvent.TIMER, function () {
+                if (self.selfFinalCount > 0) {
+                    if (self.selfFinalSecond > 0) {
+                        self.selfFinalSecond--;
+                        this.selfFinalRemainTime.text = `${self.selfFinalCount}次 ${self.selfFinalSecond}秒`;
+                    }
+                }
+            }, this);
+            this.chessSelfTimer.addEventListener(egret.TimerEvent.TIMER_COMPLETE, function () {
+                if (self.selfFinalCount > 0) {
+                    self.selfFinalCount--;
+                    if (self.selfFinalCount == 0) {
+                        oGameData["chessAvailable"] = 0;
+                        EventManager.publish("ChessBoard/setAvail", false);
+                        //alert(1);
+                        this.selfFinalRemainTime.text = `${self.selfFinalCount}次 ${0}秒`;
+                    } else {
+                        this.selfFinalRemainTime.text = `${self.selfFinalCount}次 ${20}秒`;
+                    }
+
+                    self.selfFinalSecond = 20;
+                    self.showSelfFinalCount(0);
+                } else {
+                    this.selfFinalRemainTime.text = `${0}次 ${0}秒`;
+                }
+            }, this);
+
+            this.chessSelfTimer.start();
+            this.selfRemainTime.visible = false;
+            this.selfFinalRemainTime.visible = true;
+        }
+        else if (playerType == 1) {
+            this.chessOppTimer.stop();
+            this.chessOppTimer = new egret.Timer(1000, this.oppFinalSecond);
+            this.chessOppTimer.addEventListener(egret.TimerEvent.TIMER, function () {
+                if (self.oppFinalCount > 0) {
+                    if (self.oppFinalSecond > 0) {
+                        self.oppFinalSecond--;
+                        this.oppFinalRemainTime.text = `${self.oppFinalCount}次 ${self.oppFinalSecond}秒`;
+                    }
+                }
+            }, this);
+            this.chessOppTimer.addEventListener(egret.TimerEvent.TIMER_COMPLETE, function () {
+                if (self.oppFinalCount > 0) {
+                    self.oppFinalCount--;
+                    if (self.oppFinalCount == 0) {
+                        //alert(1);
+                        this.oppFinalRemainTime.text = `${self.oppFinalCount}次 ${0}秒`;
+                    } else {
+                        this.oppFinalRemainTime.text = `${self.oppFinalCount}次 ${20}秒`;
+                    }
+
+                    self.oppFinalSecond = 20;
+                    self.showSelfFinalCount(1);
+                } else {
+                    this.oppFinalRemainTime.text = `${0}次 ${0}秒`;
+                }
+            }, this);
+
+            this.chessOppTimer.start();
+            this.oppRemainTime.visible = false;
+            this.oppFinalRemainTime.visible = true;
+        }
+    }
 
     private initTimer(playerType): void {
         let self = this;
@@ -170,14 +301,28 @@ class PlayerInfo extends egret.DisplayObjectContainer {
             this.chessSelfTimer.addEventListener(egret.TimerEvent.TIMER, function () {
                 self.setSecond(playerType);
             }, this);
-            //chessTimer.addEventListener(egret.TimerEvent.TIMER_COMPLETE, this.endMatching, this);
+
+            //启动 三次读秒
+            this.chessSelfTimer.addEventListener(egret.TimerEvent.TIMER_COMPLETE, function () {
+                //this.chessSelfTimer.stop();
+                oGameData["isSelfSecond"] = 1;
+                self.showSelfFinalCount(0);
+            }, this);
+
             this.chessSelfTimer.start();
         } else if (playerType == 1) {
             this.chessOppTimer = new egret.Timer(1000, this.oppTime);
-            //console
             this.chessOppTimer.addEventListener(egret.TimerEvent.TIMER, function () {
                 self.setSecond(playerType);
             }, this);
+
+            //启动 三次读秒
+            this.chessOppTimer.addEventListener(egret.TimerEvent.TIMER_COMPLETE, function () {
+                //this.chessOppTimer.stop();
+                oGameData["isOppSecond"] = 1;
+                self.showSelfFinalCount(1);
+            }, this);
+
             this.chessOppTimer.start();
         }
     }

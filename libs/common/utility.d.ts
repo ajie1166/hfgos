@@ -6,4 +6,5 @@ declare module Utility {
     function getNumY(w: any): any;
     function getWordByNum(num: number): any;
     function analyseCurrentChessBook(cb: string): any;
+    function analyseWholeChessBook(cb: string): any;
 }

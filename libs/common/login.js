@@ -19,16 +19,25 @@
             this.GameId = params["game_id"] || "";
             //alert(params["match_id"]);
             this.MatchId = params["match_id"] || "";
-            //alert(params["game_id"]);
-            //Utility.analyseCurrentChessBook("");
             if (typeof this.Token == "undefined" || this.Token == "") {
                 //alert("登陆失败,缺少参数");
                 EventManager.publish("showMsg", "登录失败,缺少参数");
                 return;
             }
+            //alert(this.GameId);
+            //localStorage.setItem("local_chessbook", "");
+            if (typeof this.GameId == "undefined" || this.GameId == "") {
+                localStorage.setItem("is_reenter", 0);
+
+            } else {
+                localStorage.setItem("game_id", this.GameId);
+                localStorage.setItem("is_reenter", 1);
+            }
+
 
             $.ajax({
                 url: "http://test.xiaqi.cga.com.cn/account/checktoken",
+                //url: "http://www.51xiaqi.com/account/checktoken",
                 type: "Get",
                 data: { token: this.Token },
                 dataType: "jsonp",
@@ -36,7 +45,6 @@
                 // console.log(result);
                 if (result.status == 0) {
                     EventManager.publish("StartPreLoadRes");
-
                     localStorage.setItem("match_id", self.MatchId == "undefined" ? "" : self.MatchId);
                     var data = result.data;
                     self.storageGameInfo(data);
@@ -46,7 +54,8 @@
 
                 wsConnection.initWS(localStorage.player_id);
 
-            }).fail(function () {
+            }).fail(function (result) {
+                //alert(result);
                 EventManager.publish("showMsg", "对不起,游戏加载出错,请重新启动客户端");
                 return;
             });

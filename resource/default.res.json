@@ -1,235 +1,230 @@
 {
 	"groups": [
 		{
-			"keys": "egret_icon_png,description_json,yzbg,playerbg_png,取消匹配_hover_png,touxiang_png,qipan_png,btn_stop_black_png,btn_stop_red_png,btn_xingshi_black_png,btn_xingshi_red_png,loading_jpg,btn_start_black_png,chess_black_big_png,chess_black_small_png,success_black_png,btn_biaoji_black_png,btn_biaoji_red_png,btn_cancel_pipei_png,btn_dianbu_black_png,btn_dianmu_red_png,btn_end_black_png,btn_end_red_png,btn_pipei_black_png,btn_pipei_red_png,btn_start_pipei_black_png,btn_start_pipei_red_png,chess_white_big_png,chess_white_small_png,success_white_png,lightX_png,lightY_png,alertBg_png,cancelalert_png,cancelalert_hover_png,ok_png,ok_hover_png,unknown_png,luozi_png,luozi_hover_png,black_triangle_png,white_triangle_png,black_plus_png,white_plus_png,stone_wav",
+			"keys": "egret_icon_png,description_json,yzbg,playerbg_png,touxiang_png,qipan_png,btn_stop_black_png,btn_stop_red_png,btn_xingshi_black_png,btn_xingshi_red_png,loading_jpg,btn_start_black_png,chess_black_big_png,chess_black_small_png,success_black_png,btn_biaoji_black_png,btn_biaoji_red_png,btn_cancel_pipei_png,btn_dianbu_black_png,btn_dianmu_red_png,btn_end_black_png,btn_end_red_png,btn_pipei_black_png,btn_pipei_red_png,btn_start_pipei_black_png,btn_start_pipei_red_png,chess_white_big_png,chess_white_small_png,success_white_png,lightX_png,lightY_png,alertBg_png,cancelalert_png,cancelalert_hover_png,ok_png,ok_hover_png,unknown_png,luozi_png,luozi_hover_png,black_triangle_png,white_triangle_png,black_plus_png,white_plus_png,stone_wav",
 			"name": "preload"
 		}
 	],
 	"resources": [
 		{
-			"name": "egret_icon_png",
+			"url": "assets/egret_icon.png",
 			"type": "image",
-			"url": "assets/egret_icon.png"
+			"name": "egret_icon_png"
 		},
 		{
-			"name": "description_json",
+			"url": "config/description.json",
 			"type": "json",
-			"url": "config/description.json"
+			"name": "description_json"
 		},
 		{
-			"name": "yzbg",
+			"url": "assets/yzbg.jpg",
 			"type": "image",
-			"url": "assets/yzbg.jpg"
+			"name": "yzbg"
 		},
 		{
-			"name": "playerbg_png",
+			"url": "assets/playerbg.png",
 			"type": "image",
-			"url": "assets/playerbg.png"
+			"name": "playerbg_png"
 		},
 		{
-			"name": "取消匹配_hover_png",
+			"url": "assets/game/touxiang.png",
 			"type": "image",
-			"url": "assets/game/取消匹配_hover.png"
+			"name": "touxiang_png"
 		},
 		{
-			"name": "touxiang_png",
+			"url": "assets/game/qipan.png",
 			"type": "image",
-			"url": "assets/game/touxiang.png"
+			"name": "qipan_png"
 		},
 		{
-			"name": "qipan_png",
+			"url": "assets/game/btn_stop_black.png",
 			"type": "image",
-			"url": "assets/game/qipan.png"
+			"name": "btn_stop_black_png"
 		},
 		{
-			"name": "btn_stop_black_png",
+			"url": "assets/game/btn_stop_red.png",
 			"type": "image",
-			"url": "assets/game/btn_stop_black.png"
+			"name": "btn_stop_red_png"
 		},
 		{
-			"name": "btn_stop_red_png",
+			"url": "assets/game/btn_xingshi_black.png",
 			"type": "image",
-			"url": "assets/game/btn_stop_red.png"
+			"name": "btn_xingshi_black_png"
 		},
 		{
-			"name": "btn_xingshi_black_png",
+			"url": "assets/game/btn_xingshi_red.png",
 			"type": "image",
-			"url": "assets/game/btn_xingshi_black.png"
+			"name": "btn_xingshi_red_png"
 		},
 		{
-			"name": "btn_xingshi_red_png",
+			"url": "assets/game/loading.jpg",
 			"type": "image",
-			"url": "assets/game/btn_xingshi_red.png"
+			"name": "loading_jpg"
 		},
 		{
-			"name": "loading_jpg",
+			"url": "assets/game/btn_start_black.png",
 			"type": "image",
-			"url": "assets/game/loading.jpg"
+			"name": "btn_start_black_png"
 		},
 		{
-			"name": "btn_start_black_png",
+			"url": "assets/game/chess_black_big.png",
 			"type": "image",
-			"url": "assets/game/btn_start_black.png"
+			"name": "chess_black_big_png"
 		},
 		{
-			"name": "chess_black_big_png",
+			"url": "assets/game/chess_black_small.png",
 			"type": "image",
-			"url": "assets/game/chess_black_big.png"
+			"name": "chess_black_small_png"
 		},
 		{
-			"name": "chess_black_small_png",
+			"url": "assets/game/success_black.png",
 			"type": "image",
-			"url": "assets/game/chess_black_small.png"
+			"name": "success_black_png"
 		},
 		{
-			"name": "success_black_png",
+			"url": "assets/game/btn_biaoji_black.png",
 			"type": "image",
-			"url": "assets/game/success_black.png"
+			"name": "btn_biaoji_black_png"
 		},
 		{
-			"name": "btn_biaoji_black_png",
+			"url": "assets/game/btn_biaoji_red.png",
 			"type": "image",
-			"url": "assets/game/btn_biaoji_black.png"
+			"name": "btn_biaoji_red_png"
 		},
 		{
-			"name": "btn_biaoji_red_png",
+			"url": "assets/game/btn_cancel_pipei.png",
 			"type": "image",
-			"url": "assets/game/btn_biaoji_red.png"
+			"name": "btn_cancel_pipei_png"
 		},
 		{
-			"name": "btn_cancel_pipei_png",
+			"url": "assets/game/btn_dianbu_black.png",
 			"type": "image",
-			"url": "assets/game/btn_cancel_pipei.png"
+			"name": "btn_dianbu_black_png"
 		},
 		{
-			"name": "btn_dianbu_black_png",
+			"url": "assets/game/btn_dianmu_red.png",
 			"type": "image",
-			"url": "assets/game/btn_dianbu_black.png"
+			"name": "btn_dianmu_red_png"
 		},
 		{
-			"name": "btn_dianmu_red_png",
+			"url": "assets/game/btn_end_black.png",
 			"type": "image",
-			"url": "assets/game/btn_dianmu_red.png"
+			"name": "btn_end_black_png"
 		},
 		{
-			"name": "btn_end_black_png",
+			"url": "assets/game/btn_end_red.png",
 			"type": "image",
-			"url": "assets/game/btn_end_black.png"
+			"name": "btn_end_red_png"
 		},
 		{
-			"name": "btn_end_red_png",
+			"url": "assets/game/btn_pipei_black.png",
 			"type": "image",
-			"url": "assets/game/btn_end_red.png"
+			"name": "btn_pipei_black_png"
 		},
 		{
-			"name": "btn_pipei_black_png",
+			"url": "assets/game/btn_pipei_red.png",
 			"type": "image",
-			"url": "assets/game/btn_pipei_black.png"
+			"name": "btn_pipei_red_png"
 		},
 		{
-			"name": "btn_pipei_red_png",
+			"url": "assets/game/btn_start_pipei_black.png",
 			"type": "image",
-			"url": "assets/game/btn_pipei_red.png"
+			"name": "btn_start_pipei_black_png"
 		},
 		{
-			"name": "btn_start_pipei_black_png",
+			"url": "assets/game/btn_start_pipei_red.png",
 			"type": "image",
-			"url": "assets/game/btn_start_pipei_black.png"
+			"name": "btn_start_pipei_red_png"
 		},
 		{
-			"name": "btn_start_pipei_red_png",
+			"url": "assets/game/chess_white_big.png",
 			"type": "image",
-			"url": "assets/game/btn_start_pipei_red.png"
+			"name": "chess_white_big_png"
 		},
 		{
-			"name": "chess_white_big_png",
+			"url": "assets/game/chess_white_small.png",
 			"type": "image",
-			"url": "assets/game/chess_white_big.png"
+			"name": "chess_white_small_png"
 		},
 		{
-			"name": "chess_white_small_png",
+			"url": "assets/game/success_white.png",
 			"type": "image",
-			"url": "assets/game/chess_white_small.png"
+			"name": "success_white_png"
 		},
 		{
-			"name": "success_white_png",
+			"url": "assets/game/lightX.png",
 			"type": "image",
-			"url": "assets/game/success_white.png"
+			"name": "lightX_png"
 		},
 		{
-			"name": "lightX_png",
+			"url": "assets/game/lightY.png",
 			"type": "image",
-			"url": "assets/game/lightX.png"
+			"name": "lightY_png"
 		},
 		{
-			"name": "lightY_png",
+			"url": "assets/game/alertBg.png",
 			"type": "image",
-			"url": "assets/game/lightY.png"
+			"name": "alertBg_png"
 		},
 		{
-			"name": "alertBg_png",
+			"url": "assets/game/cancelalert.png",
 			"type": "image",
-			"url": "assets/game/alertBg.png"
+			"name": "cancelalert_png"
 		},
 		{
-			"name": "cancelalert_png",
+			"url": "assets/game/cancelalert_hover.png",
 			"type": "image",
-			"url": "assets/game/cancelalert.png"
+			"name": "cancelalert_hover_png"
 		},
 		{
-			"name": "cancelalert_hover_png",
+			"url": "assets/game/ok.png",
 			"type": "image",
-			"url": "assets/game/cancelalert_hover.png"
+			"name": "ok_png"
 		},
 		{
-			"name": "ok_png",
+			"url": "assets/game/ok_hover.png",
 			"type": "image",
-			"url": "assets/game/ok.png"
+			"name": "ok_hover_png"
 		},
 		{
-			"name": "ok_hover_png",
+			"url": "assets/game/unknown.png",
 			"type": "image",
-			"url": "assets/game/ok_hover.png"
+			"name": "unknown_png"
 		},
 		{
-			"name": "unknown_png",
+			"url": "assets/game/luozi.png",
 			"type": "image",
-			"url": "assets/game/unknown.png"
+			"name": "luozi_png"
 		},
 		{
-			"name": "luozi_png",
+			"url": "assets/game/luozi_hover.png",
 			"type": "image",
-			"url": "assets/game/luozi.png"
+			"name": "luozi_hover_png"
 		},
 		{
-			"name": "luozi_hover_png",
+			"url": "assets/game/black_triangle.png",
 			"type": "image",
-			"url": "assets/game/luozi_hover.png"
+			"name": "black_triangle_png"
 		},
 		{
-			"name": "black_triangle_png",
+			"url": "assets/game/white_triangle.png",
 			"type": "image",
-			"url": "assets/game/black_triangle.png"
+			"name": "white_triangle_png"
 		},
 		{
-			"name": "white_triangle_png",
+			"url": "assets/game/black_plus.png",
 			"type": "image",
-			"url": "assets/game/white_triangle.png"
+			"name": "black_plus_png"
 		},
 		{
-			"name": "black_plus_png",
+			"url": "assets/game/white_plus.png",
 			"type": "image",
-			"url": "assets/game/black_plus.png"
+			"name": "white_plus_png"
 		},
 		{
-			"name": "white_plus_png",
-			"type": "image",
-			"url": "assets/game/white_plus.png"
-		},
-		{
-			"name": "stone_wav",
+			"url": "sound/stone.wav",
 			"type": "sound",
-			"url": "sound/stone.wav"
+			"name": "stone_wav"
 		}
 	]
 }

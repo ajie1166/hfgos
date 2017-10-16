@@ -7,6 +7,17 @@ var NetController = {
     hfListen: function () {
         var self = this;
 
+
+        EventManager.subscribe("GameScene/reSet", function () {
+            localStorage.setItem("game_id", "");
+            localStorage.setItem("is_reenter", 0);
+            localStorage.setItem("last_luozi_request_id", "");
+            localStorage.setItem("local_chessbook", "");
+            localStorage.setItem("match_id", "");
+            localStorage.setItem("nick_name", "");
+            localStorage.setItem("player_id", "");
+            localStorage.setItem("session_id", "");
+        });
         /**
          * 处理对方发起的点目
          */

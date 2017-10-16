@@ -20,7 +20,7 @@ var MatchingScene = (function (_super) {
         /**
          * 秒数
          */
-        _this.second = 60;
+        _this.second = 30;
         var self = _this;
         var stage = egret.MainContext.instance.stage;
         var stageW = stage.stageWidth;
@@ -52,6 +52,7 @@ var MatchingScene = (function (_super) {
             self.cancelMatching();
         });
         EventManager.subscribe("MatchingScene/MatchSuccess", function (data) {
+            //alert(1);
             self.matchSuccess(data);
         });
         EventManager.subscribe("MatchingScene/endMatching", function () {
@@ -62,6 +63,9 @@ var MatchingScene = (function (_super) {
             self.initPiPeiTimer();
             self.startTimer();
         });
+        EventManager.subscribe("GameScene/hidePiPei", function () {
+            self.hidePiPei();
+        });
         _this.initPiPeiTimer();
         return _this;
     }
@@ -71,7 +75,7 @@ var MatchingScene = (function (_super) {
     };
     MatchingScene.prototype.initPiPeiTimer = function () {
         // alert(1);
-        this.matchingTimer = new egret.Timer(1000, 60);
+        this.matchingTimer = new egret.Timer(1000, 30);
         this.matchingTimer.addEventListener(egret.TimerEvent.TIMER, this.setSecond, this);
         this.matchingTimer.addEventListener(egret.TimerEvent.TIMER_COMPLETE, this.endMatching, this);
     };
@@ -112,7 +116,13 @@ var MatchingScene = (function (_super) {
         //启动一分钟倒计时
         EventManager.publish("MatchingScene/matchingTimer");
     };
+    MatchingScene.prototype.hidePiPei = function () {
+        this.btnPiPei.visible = false;
+        this.btnMatching.visible = false;
+        this.btnCancelMatching.visible = false;
+    };
     MatchingScene.prototype.matchSuccess = function (oppPlayer) {
+        //alert(1);
         this.isMatchSuccess = true;
         this.btnPiPei.visible = false;
         this.btnMatching.visible = false;
@@ -130,7 +140,7 @@ var MatchingScene = (function (_super) {
         this.btnMatching.visible = false;
         this.btnCancelMatching.visible = false;
         this.matchingTimer.stop();
-        this.timerText.text = "60";
+        this.timerText.text = "30";
         this.timerText.visible = false;
         //alert(this.matchingTimer);
     };

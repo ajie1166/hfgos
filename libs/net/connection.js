@@ -52,6 +52,13 @@ var wsConnection = {
             if (op == "2007") {
                 //快速加入响应
 
+            } else if (op == 1001) {
+                /* var isReEnter = localStorage.getItem("is_reenter");
+                 if (isReEnter == 1) {
+                     //再次进入
+                     var gameId = localStorage.getItem("game_id");
+                     EventManager.publish("GameScene/reEnter", gameId);
+                 }*/
             } else if (op == "2012") {
                 //19路，3小时，3次读秒，每次60秒
                 //收到下发规则  匹配到对手  开始匹配按钮隐藏
@@ -81,7 +88,6 @@ var wsConnection = {
                     //规则不符合  自动取消  然后一分钟内匹配三次  或者直接调用op_leave
                 }
             } else if (op == 2015) {
-                //alert(1);
                 var gameId = data["game_id"];
                 var oppPlayer = new Object();
                 var gameTime = data["GAME_START_REP"]["gameInfo"].gameTime;//比赛时长 3小时
@@ -109,11 +115,11 @@ var wsConnection = {
                             }
                         }
                     }
-                    if (gameTime == 10800 && handicap == 0) {
+                    //if (gameTime == 10800 && handicap == 0) {
                         EventManager.publish("MatchingScene/MatchSuccess", oppPlayer);
-                    } else {
+                   /* } else {
                         return;
-                    }
+                    }*/
                 }
                 EventManager.publish("ChessBoard/showMask", "开始对局", true);
 
@@ -134,6 +140,7 @@ var wsConnection = {
                 oGameData["selfChessType"] = selfPlayer["colorType"];
                 localStorage.setItem("local_chessbook", "");
             } else if (op == 2101) {
+                localStorage.setItem("is_reenter", 0);
                 var gameId = data["game_id"];
                 /*if (localStorage["match_id"] == "") {
                     if (localStorage.getItem("game_id") == gameId) {
@@ -167,23 +174,36 @@ var wsConnection = {
 
                 if (local_player_id != player_id) {
                     EventManager.publish('ChessBoard/setGos', color, numX, numY, 1);
+
+                    //对方走子 读秒判断
+                    if (oGameData["isSelfSecond"] == 1) {
+                        EventManager.publish("GameScene/finalReadSecond", 0);
+                    }
                 } else {
                     if (numX >= 0 && numY >= 0) {
                         EventManager.publish('ChessBoard/setGos', color, numX, numY, 0);
                     }
+                    if (oGameData["isSelfSecond"] == 1) {
+                        EventManager.publish("GameScene/finalReadSecond", 1);
+                    }
+                    //自己走子 读秒判断
                 }
                 EventManager.publish("GameScene/fetchNowChessBook");
             } else if (op == 2200) {
                 var gameId = data["game_id"];
-                //结束
-                var endData = data["S_END_REP"];
-                var type = endData.type;
-                var game_status = endData.game_status;
-                var result = endData.message;
-                EventManager.publish("ChessBoard/showGameResult", type, game_status, result);
-                //EventManager.publish("GameScene/startRemainTime", 0);
-                // EventManager.publish("GameScene/startRemainTime", 1);
-                EventManager.publish("ChessBoard/hideMask");
+                if (gameId == localStorage.getItem("game_id")) {
+                    //结束
+                    var endData = data["S_END_REP"];
+                    var type = endData.type;
+                    var game_status = endData.game_status;
+                    var result = endData.message;
+                    EventManager.publish("ChessBoard/showGameResult", type, game_status, result);
+                    //EventManager.publish("GameScene/startRemainTime", 0);
+                    // EventManager.publish("GameScene/startRemainTime", 1);
+                    EventManager.publish("ChessBoard/hideMask");
+                }
+                //重置所有本地存储
+                EventManager.publish("GameScene/reSet");
             } else if (op == 2121) {
                 var gameId = data["game_id"];
                 //对方点目   弹窗
@@ -206,14 +226,81 @@ var wsConnection = {
                     EventManager.publish("ChessBoard/showMask", "对方拒绝点目", true);
                 }
             } else if (op == 2501) {
+                //获取当前棋谱响应
                 var currentChessBook = data["SNAPSHOT_REP"].chessbook;
                 Utility.analyseCurrentChessBook(currentChessBook);
+                var isReEnter = localStorage.getItem("is_reenter");
+                if (isReEnter == 1) {
+                    //再次进入
+                    var chessBook = lastChessBook;
+                    for (var i = 0; i < 19; i++) {
+                        for (var j = 0; j < 19; j++) {
+                            EventManager.publish("GameScene/replay", chessBook[i][j].color, chessBook[i][j].x, chessBook[i][j].y);
+                        }
+                    }
+                    EventManager.publish("GameScene/deleteChess", lastChessBook);
+
+                    var allChess = localStorage.getItem("local_chessbook");
+                    var chessArr = allChess.split(";");
+                    for (var i = 0; i < chessArr.length; i++) {
+                        var oneChessBookArr = chessArr[i].split("_");
+                        var x = Number(oneChessBookArr[1]);
+                        var y = Number(oneChessBookArr[2]);
+                        if (isNaN(x) || isNaN(y)) {
+                            continue;
+                        }
+                        if (x == -1 && y == -1) {
+                            continue;
+                        }
+                        if (Object.keys(oGameData["chessBook"][y][x]).length == 0) {
+                            EventManager.publish("GameScene/addDeleteNum", i);
+                        }
+                    }
+                }
+            } else if (op == 2011) {
+                //再次进入
+                var gameId = data["game_id"];
+                var selfPlayer = new Object();
+                var oppPlayer = new Object();
+                var playerArr = data["SPECTATORS_REP"]["gameInfo"].player;
+                var ruleColorType = data["SPECTATORS_REP"]["gameInfo"].color_type;
+                var chessBook = data["SPECTATORS_REP"]["gameInfo"].chessBook;
+                if (playerArr instanceof Array && playerArr.length == 2) {
+                    for (var i = 0; i < 2; i++) {
+                        if (playerArr[i].id == selfPlayerId) {
+                            selfPlayer = playerArr[i];
+                            break;
+                        }
+                    }
+                }
+                if (playerArr instanceof Array && playerArr.length == 2) {
+                    for (var i = 0; i < 2; i++) {
+                        if (playerArr[i].id != selfPlayerId) {
+                            oppPlayer = playerArr[i];
+                            break;
+                        }
+                    }
+                }
+                EventManager.publish("GameScene/setMatchRemainTime", 0, selfPlayer.time);
+                EventManager.publish("GameScene/setMatchRemainTime", 1, oppPlayer.time);
+                EventManager.publish("MatchingScene/MatchSuccess", oppPlayer);
+                Utility.analyseWholeChessBook(chessBook, selfPlayer.colorType);
+                EventManager.publish("GameScene/fetchNowChessBook");
+
             }
         } else if (code == 2001) {
             //返回失败
             if (op == 2101) {
                 EventManager.publish("ChessBoard/showMask", "不能在该点落子", true);
             }
+        } else if (code == 3001 || code == 3019) {
+            var msg = data["msg"];
+            var isReEnter = localStorage.getItem("is_reenter");
+            if (isReEnter == 1) {
+                //alert(1);
+                EventManager.publish("GameScene/hidePiPei");
+            }
+            EventManager.publish("ChessBoard/showMask", "对局数据错误", true);
         }
     }
 }
